@@ -2984,3 +2984,84 @@ body.is-locked {
   color: var(--muted);
   margin-top: 2px;
 }
+/* ==========================================================================
+   Header-Tabs Seamless Stacking, Zero Gap & Glowing Customer Menu Button
+   ========================================================================== */
+
+/* 1. Eliminate Background Peek-Through Between Header and Category Tabs */
+.app-header {
+  height: 56px !important;
+  padding: 0 var(--space-4) !important;
+  display: flex !important;
+  align-items: center !important;
+  background: #12100E !important;
+  border-bottom: 1px solid var(--line) !important;
+  z-index: 60 !important;
+}
+
+.category-tabs {
+  top: 56px !important; /* Matches exact height of header, 0px gap */
+  margin-top: 0 !important;
+  background: #12100E !important;
+  border-bottom: 1px solid var(--line) !important;
+  z-index: 50 !important;
+}
+
+/* 2. Tighten Gap Below Menu / Drinks Section */
+.main-column {
+  padding-bottom: 24px !important;
+}
+
+.app-footer {
+  margin-top: 12px !important;
+  padding: 24px var(--space-4) calc(24px + env(safe-area-inset-bottom)) !important;
+}
+
+/* 3. Completely Suppress Floating Active Order Chip on Screen */
+.active-order-chip {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* 4. Luxury Glowing Customer Menu Button in Kitchen */
+.btn--glow-portal {
+  background: linear-gradient(135deg, rgba(255, 90, 54, 0.25), rgba(242, 193, 78, 0.25)) !important;
+  border: 1px solid var(--tomato) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 16px rgba(255, 90, 54, 0.4) !important;
+  animation: glowPulse 2.4s infinite alternate !important;
+  text-decoration: none !important;
+}
+
+.btn--glow-portal:hover {
+  background: var(--tomato) !important;
+  box-shadow: 0 0 24px rgba(255, 90, 54, 0.8) !important;
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 8px rgba(255, 90, 54, 0.3);
+    border-color: rgba(255, 90, 54, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 22px rgba(255, 90, 54, 0.75), 0 0 12px rgba(242, 193, 78, 0.5);
+    border-color: var(--gold);
+  }
+}
+
+/* 5. Mobile KDS Single-Row Header Cleanliness */
+@media (max-width: 768px) {
+  .kds-header {
+    padding: 10px 14px !important;
+    gap: 8px !important;
+  }
+  .kds-title {
+    font-size: 1.15rem !important;
+  }
+  .kds-nav-actions .btn {
+    min-height: 38px !important;
+    padding: 0 12px !important;
+    font-size: 0.8rem !important;
+  }
+}
