@@ -2064,3 +2064,29 @@ p {
     transform: none !important;
   }
 }
+/* Food Photos Framing & Auto-Centering */
+.item-card__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  transform: scale(1.02); /* eliminates boundary clipping */
+}
+
+.hero-card {
+  min-height: 240px;
+}
+
+.hero-img {
+  object-fit: cover;
+  object-position: center 45%;
+}
