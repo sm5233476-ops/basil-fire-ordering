@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Basil & Fire — Kitchen Management & KDS</title>
+  <title>Basil & Fire — Kitchen Fulfillment Display</title>
   <meta name="description" content="Live wood-fired kitchen display system.">
 
   <!-- Google Fonts -->
@@ -65,34 +65,25 @@
     </div>
   </div>
 
-  <!-- 2. Protected KDS Dashboard (Hidden until PIN verified) -->
+  <!-- 2. Protected KDS Dashboard -->
   <div class="kds-wrapper" id="kds-wrapper" style="display:none;">
     <header class="kds-header">
       <div class="kds-brand-group">
-        <div class="kds-live-status">
-          <span class="live-pulse-dot"></span>
-          <span class="kds-title">Kitchen Fulfillment Display</span>
-        </div>
-        <span class="staff-badge">🔒 Staff Session Active</span>
+        <span class="live-pulse-dot" aria-hidden="true"></span>
+        <h1 class="kds-title">Kitchen Display</h1>
       </div>
 
       <div class="kds-nav-actions">
         <button type="button" class="btn btn--table-qr" id="qr-modal-open-btn">
           📷 Table QR Codes
         </button>
-        <button type="button" class="btn btn--primary" id="simulate-order-btn">
-          + Simulate Order
-        </button>
-        <button type="button" class="btn btn--ghost btn--lock" id="lock-kds-btn" title="Lock KDS">
-          🔒 Lock KDS
-        </button>
-        <a href="index.html" class="btn btn--ghost">
-          Customer Menu
+        <a href="index.html" class="btn btn--glow-portal" id="customer-menu-link">
+          ← Customer Menu
         </a>
       </div>
     </header>
 
-    <!-- Mobile Column Tabs Bar -->
+    <!-- Mobile Column Tabs Bar (1 Clean Row) -->
     <div class="kds-mobile-tabs" id="kds-mobile-tabs">
       <button type="button" class="kds-tab-pill is-active" data-col="new">New (<span id="mob-count-new">0</span>)</button>
       <button type="button" class="kds-tab-pill" data-col="preparing">Prep (<span id="mob-count-preparing">0</span>)</button>
@@ -102,8 +93,7 @@
 
     <!-- 4 KDS Kanban Columns -->
     <main class="kds-grid" id="kds-grid">
-      <!-- Column: New -->
-      <section class="kds-column" id="kds-col-new" data-status="new">
+      <section class="kds-column is-mob-visible" id="kds-col-new" data-status="new">
         <div class="kds-column__head head--new">
           <div class="col-title-wrap">
             <span class="col-dot dot--new"></span>
@@ -114,36 +104,33 @@
         <div class="kds-card-list" id="col-new"></div>
       </section>
 
-      <!-- Column: Preparing -->
       <section class="kds-column" id="kds-col-preparing" data-status="preparing">
         <div class="kds-column__head head--prep">
           <div class="col-title-wrap">
             <span class="col-dot dot--prep"></span>
-            <h2>In Preparation</h2>
+            <h2>In Prep</h2>
           </div>
           <span class="col-count-pill" id="count-preparing">0</span>
         </div>
         <div class="kds-card-list" id="col-preparing"></div>
       </section>
 
-      <!-- Column: Ready -->
       <section class="kds-column" id="kds-col-ready" data-status="ready">
         <div class="kds-column__head head--ready">
           <div class="col-title-wrap">
             <span class="col-dot dot--ready"></span>
-            <h2>Ready / Service</h2>
+            <h2>Ready</h2>
           </div>
           <span class="col-count-pill" id="count-ready">0</span>
         </div>
         <div class="kds-card-list" id="col-ready"></div>
       </section>
 
-      <!-- Column: Completed -->
       <section class="kds-column" id="kds-col-completed" data-status="completed">
         <div class="kds-column__head head--done">
           <div class="col-title-wrap">
             <span class="col-dot dot--done"></span>
-            <h2>Completed</h2>
+            <h2>Done</h2>
           </div>
           <span class="col-count-pill" id="count-completed">0</span>
         </div>
@@ -156,7 +143,7 @@
     </footer>
   </div>
 
-  <!-- Table QR Modal (Printable/Scannable Desk Cards) -->
+  <!-- Table QR Modal -->
   <div class="qr-modal-backdrop" id="qr-backdrop" style="display:none;">
     <div class="qr-modal" id="qr-modal">
       <div class="qr-modal__head">
