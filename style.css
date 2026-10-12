@@ -1981,3 +1981,86 @@ p {
   color: var(--muted);
   font-weight: 600;
 }
+/* ==========================================================================
+   Phase 5: Motion, Press Feedback, Toast Notifications & Polish
+   ========================================================================== */
+
+/* Active/Press Feedback (.97 Scale) */
+.btn:active,
+.btn.is-pressed,
+.item-card:active,
+.item-card.is-pressed,
+.choice-card:active,
+.choice-card.is-pressed,
+.time-chip:active,
+.time-chip.is-pressed,
+.tab-btn:active,
+.tab-btn.is-pressed {
+  transform: scale(0.97) !important;
+  transition: transform 0.12s ease !important;
+}
+
+/* Toast Notification Region */
+.toast-region {
+  position: fixed;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  width: max-content;
+  max-width: 90vw;
+}
+
+.toast-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  padding: 12px 18px;
+  border-radius: 999px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  font-size: 0.875rem;
+  font-weight: 600;
+  pointer-events: auto;
+}
+
+.toast-item__icon {
+  font-size: 1.1rem;
+}
+
+/* Enhanced Empty State Animations */
+.cart-panel--empty .empty-cart-graphic {
+  animation: floatCart 3s ease-in-out infinite;
+}
+
+@keyframes floatCart {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Polish for Image Cards */
+.item-card {
+  transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.item-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Reduced Motion Overrides */
+@media (prefers-reduced-motion: reduce) {
+  .hero-img,
+  .toast-item,
+  .cart-panel--empty .empty-cart-graphic {
+    animation: none !important;
+    transform: none !important;
+  }
+}
