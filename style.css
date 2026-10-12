@@ -2090,3 +2090,32 @@ p {
   object-fit: cover;
   object-position: center 92%;
 }
+/* ==========================================================================
+   Custom Photo Positioning Per Item
+   Rule: object-position: X% Y%;
+   X% = Left (0%) to Right (100%)
+   Y% = Top (0%) to Bottom (100%)
+   ========================================================================== */
+
+/* Pizzas */
+[data-id="margherita"] .item-img   { object-position: 50% 50%; }
+[data-id="pepperoni"] .item-img    { object-position: 50% 50%; }
+[data-id="four-cheese"] .item-img  { object-position: 50% 50%; }
+[data-id="mushroom"] .item-img     { object-position: 50% 50%; }
+[data-id="veggie"] .item-img       { object-position: 50% 50%; }
+
+/* Starters */
+[data-id="garlic-knots"] .item-img { object-position: 50% 50%; }
+[data-id="burrata"] .item-img      { object-position: 50% 50%; }
+
+/* Pasta */
+[data-id="spaghetti"] .item-img    { object-position: 50% 50%; }
+[data-id="penne"] .item-img        { object-position: 50% 50%; }
+
+/* Desserts */
+[data-id="tiramisu"] .item-img     { object-position: 50% 50%; }
+[data-id="cannoli"] .item-img      { object-position: 50% 50%; }
+
+/* Drinks (Lemonade shifted left towards the glass) */
+[data-id="lemonade"] .item-img     { object-position: 15% 50%; }
+[data-id="sparkling"] .item-img    { object-position: 50% 50%; }
