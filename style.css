@@ -2100,8 +2100,8 @@ p {
 /* Pizzas */
 [data-id="margherita"] .item-img   { object-position: 50% 50%; }
 [data-id="pepperoni"] .item-img    { object-position: 50% 50%; }
-[data-id="four-cheese"] .item-img  { object-position: 50% 50%; }
-[data-id="mushroom"] .item-img     { object-position: 50% 50%; }
+[data-id="four-cheese"] .item-img  { object-position: 40% 50%; }
+[data-id="mushroom"] .item-img     { object-position: 70% 50%; }
 [data-id="veggie"] .item-img       { object-position: 50% 50%; }
 
 /* Starters */
