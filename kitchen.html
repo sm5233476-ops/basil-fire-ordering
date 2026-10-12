@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Basil & Fire — Kitchen Display</title>
+  <title>Basil & Fire — Kitchen Display & Table QR</title>
   <meta name="description" content="Live wood-fired kitchen fulfillment board.">
 
   <!-- Google Fonts -->
@@ -29,9 +29,11 @@
     <header class="kitchen-header" id="kitchen-header-root">
       <div class="kitchen-branding">
         <span class="live-dot" aria-hidden="true"></span>
-        <h1 class="kitchen-title">Kitchen Display</h1>
+        <h1 class="kitchen-title">Kitchen Fulfillment Display</h1>
+        <a href="index.html" class="portal-badge" style="margin-left:14px;">← Customer Menu</a>
       </div>
       <div class="kitchen-controls">
+        <button type="button" class="btn btn--table-qr" id="qr-modal-open-btn">📷 Table QR Codes</button>
         <button type="button" class="btn btn--ghost" id="audio-toggle-btn">Enable Sound</button>
         <button type="button" class="btn btn--primary" id="simulate-order-btn">Simulate Order</button>
       </div>
@@ -55,6 +57,37 @@
         <div class="k-column__list" id="col-completed"></div>
       </section>
     </main>
+
+    <!-- Table QR Modal Container -->
+    <div class="qr-modal-backdrop" id="qr-backdrop" style="display:none;">
+      <div class="qr-modal" id="qr-modal">
+        <div class="qr-modal__head">
+          <h3>Restaurant Dine-In Table QR</h3>
+          <button type="button" class="sheet__close-btn" id="qr-close-btn">✕</button>
+        </div>
+        <p class="qr-modal__desc">Select table number to generate a live scan code for restaurant tables:</p>
+        <div class="table-selector-row">
+          <label for="table-select-input">Select Table:</label>
+          <select id="table-select-input" class="form-input" style="width:140px; padding:6px 10px;">
+            <option value="1">Table #01</option>
+            <option value="2">Table #02</option>
+            <option value="3">Table #03</option>
+            <option value="4" selected>Table #04</option>
+            <option value="5">Table #05</option>
+            <option value="6">Table #06</option>
+            <option value="7">Table #07</option>
+            <option value="8">Table #08</option>
+          </select>
+        </div>
+        <div class="qr-code-display" id="qr-code-img-wrap">
+          <!-- Dynamic QR image generated via JS -->
+        </div>
+        <p class="qr-scan-hint" id="qr-scan-link-text"></p>
+        <button type="button" class="btn btn--primary" id="qr-test-open-btn" style="width:100%; margin-top:12px;">
+          Open Customer App as Table #04
+        </button>
+      </div>
+    </div>
 
     <footer class="app-footer">
       <p>Concept project by Shivam Mishra. Basil & Fire is a fictional restaurant. No payments are processed.</p>
