@@ -215,7 +215,7 @@ window.MENU = {
       desc: "Chilled, 500 ml.",
       priceCents: 300,
       tags: ["veg"],
-      image: null,
+      image: "og.jpg"
       options: null
     }
   ]
