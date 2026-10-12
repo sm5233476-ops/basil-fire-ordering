@@ -1,0 +1,9 @@
+{
+  "name": "Basil & Fire",
+  "short_name": "Basil & Fire",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#12100E",
+  "theme_color": "#12100E",
+  "description": "Concept wood-fired pizza ordering web app by Shivam Mishra."
+}
