@@ -1,11 +1,14 @@
-// Confirmation Screen, Animated SVG Check, Live Multi-Tab Tracker & Active Order Restore
+// Confirmation Screen & Live Multi-Tab Tracker (Without Floating Pill)
 window.App = window.App || {};
 
 App.register("tracker", {
   init() {
     this.activeOrder = null;
 
-    // 1. Listen for new orders created or updated
+    // Clean up any old floating pill if present in DOM
+    const oldPill = document.getElementById("active-order-chip");
+    if (oldPill) oldPill.remove();
+
     if (App.on) {
       App.on("order:created", (order) => this.show(order));
       App.on("order:updated", (order) => {
@@ -21,7 +24,6 @@ App.register("tracker", {
       });
     }
 
-    // 2. Cross-tab sync via App.orders
     if (App.orders && App.orders.subscribe) {
       App.orders.subscribe((event) => {
         if (!this.activeOrder) return;
@@ -38,7 +40,6 @@ App.register("tracker", {
       });
     }
 
-    // 3. Restore active order from storage on reload
     this.restoreActiveOrder();
   },
 
@@ -50,43 +51,13 @@ App.register("tracker", {
     const order = orders.find((o) => o.id === activeId);
     if (order) {
       this.activeOrder = order;
-      this.renderActiveOrderFloatingChip();
     }
-  },
-
-  renderActiveOrderFloatingChip() {
-    // If not completed, show a small persistent tracker pill at top-right or hero
-    let chip = App.qs("#active-order-chip");
-    if (this.activeOrder.status === "completed") {
-      if (chip) chip.remove();
-      return;
-    }
-
-    if (!chip) {
-      chip = document.createElement("button");
-      chip.id = "active-order-chip";
-      chip.className = "active-order-chip";
-      chip.type = "button";
-      document.body.appendChild(chip);
-
-      chip.addEventListener("click", () => {
-        this.openTrackerSheet();
-        App.haptic(10);
-      });
-    }
-
-    const stepLabel = this.getStatusLabel(this.activeOrder.status, this.activeOrder.mode);
-    chip.innerHTML = `
-      <span class="chip-pulse"></span>
-      <span class="chip-text">${this.activeOrder.id} · ${stepLabel}</span>
-    `;
   },
 
   show(order) {
     this.activeOrder = order;
     App.storage.set("bf_active_order", order.id);
     this.openTrackerSheet();
-    this.renderActiveOrderFloatingChip();
   },
 
   openTrackerSheet() {
@@ -105,16 +76,6 @@ App.register("tracker", {
       case "ready": return 2;
       case "completed": return 3;
       default: return 0;
-    }
-  },
-
-  getStatusLabel(status, mode) {
-    switch (status) {
-      case "new": return "Received";
-      case "preparing": return "Preparing";
-      case "ready": return mode === "delivery" ? "On the way" : "Ready for pickup";
-      case "completed": return "Completed";
-      default: return "Processing";
     }
   },
 
@@ -147,7 +108,6 @@ App.register("tracker", {
         </div>
 
         <div class="sheet__scroll-content tracker-content">
-          <!-- Animated SVG Checkmark -->
           <div class="tracker-header">
             <div class="check-animation-wrap">
               <svg class="check-svg" viewBox="0 0 52 52" aria-hidden="true">
@@ -161,7 +121,6 @@ App.register("tracker", {
             </p>
           </div>
 
-          <!-- Live Multi-Step Tracker -->
           <div class="tracker-steps-card">
             <div class="tracker-progress-track">
               <div class="tracker-progress-fill" style="width: ${progressPercent}%;"></div>
@@ -184,7 +143,6 @@ App.register("tracker", {
             </div>
           </div>
 
-          <!-- Order Items Summary -->
           <div class="tracker-items-box">
             <h4 class="tracker-items-head">Order Details (${order.mode.toUpperCase()})</h4>
             <div class="tracker-items-list">
@@ -195,7 +153,7 @@ App.register("tracker", {
                     <div>
                       <strong>${l.qty}x ${l.name}</strong>
                       ${optText ? `<div class="tracker-item-opts">${optText}</div>` : ""}
-                      ${l.notes ? `<div class="tracker-item-notes">"${l.notes}"</div>` : ""}
+                      ${l.notes ? `<div class="tracker-item-notes">"${App.escape ? App.escape(l.notes) : l.notes}"</div>` : ""}
                     </div>
                     <span>${App.money.format((l.unitPriceCents || l.priceCents) * l.qty)}</span>
                   </div>
@@ -206,13 +164,12 @@ App.register("tracker", {
             <div class="tracker-totals-block">
               <div class="tracker-total-line"><span>Subtotal:</span> <span>${App.money.format(order.subtotal)}</span></div>
               ${order.discount > 0 ? `<div class="tracker-total-line tracker-total-line--disc"><span>Discount:</span> <span>-${App.money.format(order.discount)}</span></div>` : ""}
-              <div class="tracker-total-line"><span>Delivery Fee:</span> <span>${order.deliveryFee === 0 ? "FREE" : App.money.format(order.deliveryFee)}</span></div>
+              <div class="tracker-total-line"><span>Fulfillment:</span> <span>${order.deliveryFee === 0 ? "FREE" : App.money.format(order.deliveryFee)}</span></div>
               <div class="tracker-total-line"><span>Tax (8%):</span> <span>${App.money.format(order.tax)}</span></div>
               <div class="tracker-total-line tracker-total-line--grand"><span>Total:</span> <span>${App.money.format(order.total)}</span></div>
             </div>
           </div>
 
-          <!-- Actions -->
           <div class="tracker-actions">
             <button type="button" class="btn btn--primary" id="btn-order-again">
               🔁 Order Again
@@ -225,21 +182,14 @@ App.register("tracker", {
       </div>
     `;
 
-    // Bindings
     App.qs("#tracker-close-btn", root)?.addEventListener("click", () => this.closeTrackerSheet());
     App.qs("#tracker-backdrop", root)?.addEventListener("click", () => this.closeTrackerSheet());
+    App.qs("#btn-back-menu", root)?.addEventListener("click", () => this.closeTrackerSheet());
 
-    App.qs("#btn-back-menu", root)?.addEventListener("click", () => {
-      this.closeTrackerSheet();
-    });
-
-    // Re-adds the last order's lines to the cart
     App.qs("#btn-order-again", root)?.addEventListener("click", () => {
       if (!order.lines || !order.lines.length) return;
       App.cart.clear();
-      order.lines.forEach((line) => {
-        App.cart.add(line);
-      });
+      order.lines.forEach((line) => App.cart.add(line));
       this.closeTrackerSheet();
       if (App.emit) App.emit("sheet:open", "cart");
       App.haptic(15);
@@ -252,6 +202,5 @@ App.register("tracker", {
     root.classList.remove("is-active");
     root.innerHTML = "";
     document.body.classList.remove("is-locked");
-    this.renderActiveOrderFloatingChip();
   }
 });
