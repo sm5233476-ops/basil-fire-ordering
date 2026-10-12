@@ -1,9 +1,7 @@
 // Application Registry, Bootstrapper, Event Bus & Failsafe
 (function () {
-  // 1. Immediately indicate JS availability
   document.documentElement.classList.add("has-js");
 
-  // 8-second Failsafe: ensure nothing remains invisibly locked if scripts halt
   setTimeout(() => {
     document.documentElement.classList.add("app-loaded");
   }, 8000);
@@ -35,10 +33,10 @@
     modules[name] = api;
   };
 
-  // Utilities
+  // DOM Helpers
   App.qs = (selector, parent = document) => parent.querySelector(selector);
   App.qsa = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
-  
+
   App.el = function (tag, attrs = {}, html = "") {
     const element = document.createElement(tag);
     Object.entries(attrs).forEach(([key, val]) => {
