@@ -2939,3 +2939,48 @@ body.is-locked {
     display: flex;
   }
 }
+/* ==========================================================================
+   Clean Mobile Header & In-Checkout Fulfillment Switch
+   ========================================================================== */
+
+/* Header controls alignment */
+.nav-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Hide delivery/pickup segmented toggle in mobile header; shown in checkout instead */
+@media (max-width: 768px) {
+  .desktop-only-control {
+    display: none !important;
+  }
+}
+
+/* Dine-in Table Notice in Checkout */
+.table-checkout-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(242, 193, 78, 0.12);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  color: var(--text);
+}
+
+.table-icon {
+  font-size: 1.8rem;
+}
+
+.table-checkout-notice strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--gold);
+}
+
+.table-checkout-notice p {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
