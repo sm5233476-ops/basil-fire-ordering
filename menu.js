@@ -1,19 +1,17 @@
-// Menu Catalogue, Online vs Table-Scanner Isolation & Staff Portal Switch
+// Clean Luxury Customer UI, Mobile Header Polish & Table QR Detection
 window.App = window.App || {};
 
 App.register("menu", {
   init() {
-    // 1. Check if user arrived via physical desk QR code (?table=X)
     const urlParams = new URLSearchParams(window.location.search);
     const tableParam = urlParams.get("table");
 
     if (tableParam) {
-      // Dine-in Table Mode ONLY if explicitly scanned via URL
       this.tableNumber = tableParam;
       this.orderMode = "table";
+      App.storage.set("bf_table_num", tableParam);
       App.storage.set("bf_order_mode", "table");
     } else {
-      // Pure Online Customer Mode (Never show table numbers)
       this.tableNumber = null;
       App.storage.remove("bf_table_num");
       this.orderMode = App.storage.get("bf_order_mode", "delivery");
@@ -42,7 +40,7 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Header with Mode Toggle & Discreet Staff Portal Link
+  // 1. Ultra-Clean Header (Mobile shows Brand + Staff; Desktop includes Toggle)
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -58,13 +56,13 @@ App.register("menu", {
           </a>
         </div>
 
-        <div class="nav-controls">
+        <div class="nav-actions-wrap">
           ${isTable ? `
             <div class="table-desk-badge">
               🍽️ Table #${this.tableNumber}
             </div>
           ` : `
-            <div class="segmented-control" role="group" aria-label="Order mode toggle">
+            <div class="segmented-control desktop-only-control" role="group" aria-label="Order mode toggle">
               <div class="seg-thumb" id="seg-thumb"></div>
               <button type="button" class="seg-btn ${this.orderMode === "delivery" ? "is-active" : ""}" data-mode="delivery">
                 Delivery
@@ -74,8 +72,8 @@ App.register("menu", {
               </button>
             </div>
           `}
-          
-          <!-- Discreet Luxury Staff Portal Link -->
+
+          <!-- Discreet Staff Portal Button -->
           <a href="kitchen.html" class="staff-portal-btn" title="Open Staff Kitchen Portal">
             🔒 Staff
           </a>
@@ -119,7 +117,7 @@ App.register("menu", {
     if (this.orderMode === "table") {
       chipHtml = `
         <span class="chip chip--table">
-          🍽️ Dine-In Order · Table #${this.tableNumber}
+          🍽️ Dine-In · Table #${this.tableNumber}
         </span>
       `;
     } else {
