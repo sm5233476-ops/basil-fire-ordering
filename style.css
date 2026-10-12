@@ -2114,7 +2114,7 @@ p {
 
 /* Desserts */
 [data-id="tiramisu"] .item-img     { object-position: 50% 50%; }
-[data-id="cannoli"] .item-img      { object-position: 65% 50%; }
+[data-id="cannoli"] .item-img      { object-position: 35% 50%; }
 
 /* Drinks (Lemonade shifted left towards the glass) */
 [data-id="lemonade"] .item-img     { object-position: 60% 40%; }
