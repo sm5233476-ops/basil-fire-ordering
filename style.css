@@ -2119,3 +2119,78 @@ p {
 /* Drinks (Lemonade shifted left towards the glass) */
 [data-id="lemonade"] .item-img     { object-position: 40% 40%; }
 [data-id="sparkling"] .item-img    { object-position: 50% 50%; }
+/* ==========================================================================
+   Portfolio Polish, Sticky Cart Fix, Scroll-Bleed Fix & Mobile Chip Placement
+   ========================================================================== */
+
+/* 1. Fix Desktop Sticky Cart (Align-items start allows sticky scroll anchor) */
+@media (min-width: 1024px) {
+  .app-shell {
+    align-items: start !important;
+  }
+
+  .desktop-cart-column {
+    position: sticky !important;
+    top: 24px !important;
+    max-height: calc(100dvh - 48px) !important;
+    overflow-y: auto !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45) !important;
+  }
+}
+
+/* 2. Prevent Background Screen Scroll Bleed (Overscroll Containment) */
+.sheet,
+.sheet__scroll-content,
+.overlay-container,
+.cart-lines-scroller {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.is-locked {
+  overscroll-behavior: none !important;
+}
+
+/* 3. Mobile Active Order Chip: Moved away from header toggle to bottom-right FAB */
+@media (max-width: 768px) {
+  .active-order-chip {
+    top: auto !important;
+    bottom: 84px !important;
+    right: 16px !important;
+    background: rgba(30, 26, 23, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  }
+}
+
+/* 4. High-End Motion & Portfolio Card Polish */
+.item-card {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.22s ease, 
+              box-shadow 0.22s ease !important;
+}
+
+.item-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 90, 54, 0.35) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+.btn--primary {
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.btn--primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 18px rgba(255, 90, 54, 0.4) !important;
+}
+
+.btn--whatsapp {
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.btn--whatsapp:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35) !important;
+}
