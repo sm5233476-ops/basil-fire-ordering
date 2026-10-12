@@ -2194,3 +2194,82 @@ body.is-locked {
   filter: brightness(1.06);
   box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35) !important;
 }
+/* ==========================================================================
+   Permanent Fixes: Sticky Desktop Cart, Scroll Bleed & Mobile Chip Reposition
+   ========================================================================== */
+
+/* 1. Fix Sticky Cart: In Chromium browsers, 'overflow-x: hidden' breaks sticky.
+      Replacing with 'overflow-x: clip' preserves sticky scroll anchoring. */
+html, body {
+  overflow-x: clip !important;
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    display: grid !important;
+    grid-template-columns: 1fr 380px !important;
+    align-items: start !important; /* Vital for sticky */
+    gap: 36px !important;
+  }
+
+  .desktop-cart-column {
+    display: block !important;
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 24px !important;
+    height: calc(100vh - 48px) !important;
+    max-height: calc(100dvh - 48px) !important;
+    overflow-y: auto !important;
+    z-index: 20 !important;
+  }
+}
+
+/* 2. Fix Background Scroll Bleed: Locks body completely when sheet is open */
+body.is-locked {
+  overflow: hidden !important;
+  height: 100vh !important;
+  touch-action: none !important;
+}
+
+.sheet,
+.sheet__scroll-content {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* 3. Reposition Mobile Active Order Chip (Away from Delivery/Pickup Header) */
+@media (max-width: 1023px) {
+  .active-order-chip {
+    top: auto !important;
+    bottom: 84px !important; /* Floats above cart bar at bottom right */
+    right: 16px !important;
+    left: auto !important;
+    background: #1F1B17 !important;
+    border: 1px solid var(--tomato) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7) !important;
+    z-index: 55 !important;
+  }
+}
+
+/* 4. Portfolio-Grade Hover & Micro-Animations */
+.item-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.2s ease, 
+              box-shadow 0.25s ease !important;
+}
+
+.item-card:hover {
+  transform: translateY(-3px) scale(1.005) !important;
+  border-color: rgba(255, 90, 54, 0.4) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+.btn-action--add, 
+.btn-action--custom {
+  transition: transform 0.18s ease, background-color 0.18s ease !important;
+}
+
+.btn-action--add:hover, 
+.btn-action--custom:hover {
+  transform: scale(1.06) !important;
+}
