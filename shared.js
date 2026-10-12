@@ -243,6 +243,94 @@ App.register = window.App.register || function (name, api) {
   window.App._modules[name] = api;
 };
 
+// Cart Store Management
+const CART_STORAGE_KEY = "bf_cart_v1";
+const cartSubscribers = new Set();
+
+function notifyCartSubscribers() {
+  const lines = App.cart.getLines();
+  cartSubscribers.forEach((cb) => {
+    try { cb(lines); } catch (e) { console.error("[Cart] Subscriber error:", e); }
+  });
+  if (App.emit) App.emit("cart:updated", lines);
+}
+
+App.cart = {
+  getLines() {
+    const raw = App.storage.get(CART_STORAGE_KEY, []) || [];
+    // Validate each line against MENU to prevent corrupted data
+    const validItems = new Map((window.MENU?.items || []).map((i) => [i.id, i]));
+    return raw.filter((line) => {
+      if (!line || !line.itemId || !validItems.has(line.itemId)) return false;
+      line.qty = Math.max(1, Math.min(20, parseInt(line.qty, 10) || 1));
+      return true;
+    });
+  },
+
+  setLines(lines) {
+    App.storage.set(CART_STORAGE_KEY, lines);
+    notifyCartSubscribers();
+  },
+
+  add(item) {
+    const lines = this.getLines();
+    // Unique key: itemId + serialized chosen options + notes
+    const optKey = item.optionsKey || "default";
+    const key = `${item.itemId}__${optKey}__${(item.notes || "").trim()}`;
+
+    const existingIdx = lines.findIndex((l) => l.key === key);
+    if (existingIdx > -1) {
+      lines[existingIdx].qty = Math.min(20, lines[existingIdx].qty + (item.qty || 1));
+    } else {
+      lines.push({
+        ...item,
+        key,
+        qty: Math.max(1, Math.min(20, item.qty || 1))
+      });
+    }
+
+    this.setLines(lines);
+    return lines;
+  },
+
+  update(key, newQty) {
+    let lines = this.getLines();
+    if (newQty <= 0) {
+      lines = lines.filter((l) => l.key !== key);
+    } else {
+      const target = lines.find((l) => l.key === key);
+      if (target) {
+        target.qty = Math.max(1, Math.min(20, newQty));
+      }
+    }
+    this.setLines(lines);
+    return lines;
+  },
+
+  remove(key) {
+    return this.update(key, 0);
+  },
+
+  clear() {
+    this.setLines([]);
+  },
+
+  subscribe(callback) {
+    cartSubscribers.add(callback);
+    return () => cartSubscribers.delete(callback);
+  },
+
+  getCount() {
+    return this.getLines().reduce((sum, item) => sum + (item.qty || 0), 0);
+  },
+
+  getItemQty(itemId) {
+    return this.getLines()
+      .filter((l) => l.itemId === itemId)
+      .reduce((sum, l) => sum + l.qty, 0);
+  }
+};
+
 App.register("shared", {
   init() {
     window.__testMoney();
