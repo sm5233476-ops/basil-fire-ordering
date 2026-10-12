@@ -378,6 +378,10 @@ App.register("menu", {
       qty: 1
     });
 
+    if (App.toast) App.toast(`Added ${item.name} to order`);
+    this.flyToCart(originEl);
+    App.haptic(10);
+  },
     this.flyToCart(originEl);
     App.haptic(10);
   },
