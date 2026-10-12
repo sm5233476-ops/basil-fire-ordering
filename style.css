@@ -2117,5 +2117,5 @@ p {
 [data-id="cannoli"] .item-img      { object-position: 50% 50%; }
 
 /* Drinks (Lemonade shifted left towards the glass) */
-[data-id="lemonade"] .item-img     { object-position: 15% 80%; }
+[data-id="lemonade"] .item-img     { object-position: 55% 80%; }
 [data-id="sparkling"] .item-img    { object-position: 50% 50%; }
