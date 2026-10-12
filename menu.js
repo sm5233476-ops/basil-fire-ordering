@@ -1,4 +1,4 @@
-// Menu Catalogue, Isolated Tab Scroll, Item Modal Sheet & Quick-Add
+// Menu Catalogue, Root Image Fallback, Tab Navigation, Item Modal Sheet & Toast
 window.App = window.App || {};
 
 App.register("menu", {
@@ -26,7 +26,7 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Header with Delivery | Pickup
+  // 1. Header with Delivery | Pickup Segmented Control
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -77,7 +77,7 @@ App.register("menu", {
     thumb.style.width = `${activeBtn.offsetWidth}px`;
   },
 
-  // 2. Hero Section
+  // 2. Hero Section with Root Image Fallback
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
@@ -88,7 +88,13 @@ App.register("menu", {
     root.innerHTML = `
       <div class="hero-card">
         <div class="hero-media">
-          <img src="${window.MENU.heroImage}" alt="Wood-fired oven" class="hero-img" loading="eager" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <img 
+            src="${window.MENU.heroImage}" 
+            alt="Wood-fired oven" 
+            class="hero-img" 
+            loading="eager"
+            onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='hero.jpg'; } else { this.style.display='none'; this.nextElementSibling.style.display='flex'; }"
+          >
           <div class="img-fallback" style="display:none;" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13H5.5L12 6.5z"/></svg>
           </div>
@@ -112,7 +118,7 @@ App.register("menu", {
     `;
   },
 
-  // 3. Category Tabs (Without scrollIntoView Window Jump)
+  // 3. Category Tabs (Isolated Horizontal Scroll)
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -168,7 +174,6 @@ App.register("menu", {
     const activeBtn = App.qs(`.tab-btn[data-category="${catId}"]`, root);
     const scroller = App.qs(".tabs-scroller", root);
     if (activeBtn && scroller) {
-      // Internal strip scroll only (prevents window jumping up)
       const targetScroll = activeBtn.offsetLeft - (scroller.clientWidth / 2) + (activeBtn.clientWidth / 2);
       scroller.scrollTo({ left: Math.max(0, targetScroll), behavior: "smooth" });
     }
@@ -205,7 +210,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 5. Menu Catalog
+  // 5. Menu Catalog with Auto Root-Image Detection
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
@@ -248,7 +253,7 @@ App.register("menu", {
               class="item-img" 
               loading="lazy"
               onload="const s=document.getElementById('skel-${item.id}'); if(s) s.remove();"
-              onerror="this.style.display='none'; const s=document.getElementById('skel-${item.id}'); if(s) s.remove(); this.nextElementSibling.style.display='flex';"
+              onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='${item.id}.jpg'; } else { this.style.display='none'; const s=document.getElementById('skel-${item.id}'); if(s) s.remove(); this.nextElementSibling.style.display='flex'; }"
             >
           ` : ""}
           <div class="img-fallback" style="${item.image ? "display:none;" : "display:flex;"}" aria-hidden="true">
@@ -330,7 +335,7 @@ App.register("menu", {
 
       const hasOptions = item.options && item.options.length > 0;
 
-      // Quick-add plus
+      // Quick-Add "+"
       const addBtn = e.target.closest(".btn-action--add");
       if (addBtn) {
         e.stopPropagation();
@@ -344,6 +349,7 @@ App.register("menu", {
         e.stopPropagation();
         const line = App.cart.getLines().find((l) => l.itemId === item.id);
         if (line) App.cart.update(line.key, line.qty + 1);
+        if (App.toast) App.toast(`Added another ${item.name}`);
         this.flyToCart(plusBtn);
         App.haptic(10);
         return;
@@ -359,7 +365,7 @@ App.register("menu", {
         return;
       }
 
-      // Open sheet for customizable items
+      // Open Sheet
       if (hasOptions || e.target.closest(".btn-action--custom")) {
         this.openItemSheet(item);
       }
@@ -382,11 +388,8 @@ App.register("menu", {
     this.flyToCart(originEl);
     App.haptic(10);
   },
-    this.flyToCart(originEl);
-    App.haptic(10);
-  },
 
-  // 6. Item Bottom Sheet (Modal Customizer)
+  // 6. Item Customization Sheet (Modal)
   openItemSheet(item) {
     const root = App.qs("#item-sheet-root");
     if (!root) return;
@@ -599,6 +602,7 @@ App.register("menu", {
         qty: state.qty
       });
 
+      if (App.toast) App.toast(`Added ${item.name} to order`);
       this.flyToCart(e.currentTarget);
       App.haptic(15);
       closeSheet();
@@ -651,7 +655,7 @@ App.register("menu", {
     }
   },
 
-  // 8. Fly-to-Cart Particle
+  // 8. Fly-to-Cart Animation
   flyToCart(originEl) {
     const target = App.qs("#cart-bar");
     if (!originEl || !target) return;
