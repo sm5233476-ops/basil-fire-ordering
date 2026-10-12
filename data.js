@@ -70,7 +70,7 @@ const PASTA_OPTIONS = [
 ];
 
 window.MENU = {
-  heroImage: "images/hero.jpg",
+  heroImage: "hero.jpg",
   categories: [
     { id: "pizza", name: "Pizzas" },
     { id: "starters", name: "Starters" },
@@ -87,7 +87,7 @@ window.MENU = {
       desc: "San Marzano tomato, fior di latte, basil and olive oil.",
       priceCents: 1200,
       tags: ["veg"],
-      image: "images/margherita.jpg",
+      image: "margherita.jpg",
       options: PIZZA_OPTIONS
     },
     {
@@ -97,7 +97,7 @@ window.MENU = {
       desc: "Spicy pepperoni, mozzarella, tomato and oregano.",
       priceCents: 1400,
       tags: ["spicy"],
-      image: "images/pepperoni.jpg",
+      image: "pepperoni.jpg",
       options: PIZZA_OPTIONS
     },
     {
@@ -107,7 +107,7 @@ window.MENU = {
       desc: "Mozzarella, gorgonzola, parmesan and fontina on a white base.",
       priceCents: 1500,
       tags: ["veg"],
-      image: "images/four-cheese.jpg",
+      image: "four-cheese.jpg",
       options: PIZZA_OPTIONS
     },
     {
@@ -117,7 +117,7 @@ window.MENU = {
       desc: "Roasted mushrooms, mozzarella, thyme and truffle oil.",
       priceCents: 1600,
       tags: ["veg"],
-      image: "images/mushroom.jpg",
+      image: "mushroom.jpg",
       options: PIZZA_OPTIONS
     },
     {
@@ -127,7 +127,7 @@ window.MENU = {
       desc: "Peppers, red onion, olives, zucchini, tomato and basil.",
       priceCents: 1400,
       tags: ["veg"],
-      image: "images/veggie.jpg",
+      image: "veggie.jpg",
       options: PIZZA_OPTIONS
     },
 
@@ -139,7 +139,7 @@ window.MENU = {
       desc: "Six warm knots with garlic butter and parsley.",
       priceCents: 600,
       tags: ["veg"],
-      image: "images/garlic-knots.jpg",
+      image: "garlic-knots.jpg",
       options: null
     },
     {
@@ -149,7 +149,7 @@ window.MENU = {
       desc: "Creamy burrata, heirloom tomato, basil and balsamic.",
       priceCents: 1100,
       tags: ["veg"],
-      image: "images/burrata.jpg",
+      image: "burrata.jpg",
       options: null
     },
 
@@ -161,7 +161,7 @@ window.MENU = {
       desc: "Slow-cooked tomato sauce, garlic and basil.",
       priceCents: 1300,
       tags: ["veg"],
-      image: "images/spaghetti.jpg",
+      image: "spaghetti.jpg",
       options: PASTA_OPTIONS
     },
     {
@@ -171,7 +171,7 @@ window.MENU = {
       desc: "Penne baked with tomato sauce, mozzarella and parmesan.",
       priceCents: 1400,
       tags: ["veg"],
-      image: "images/penne.jpg",
+      image: "penne.jpg",
       options: PASTA_OPTIONS
     },
 
@@ -183,7 +183,7 @@ window.MENU = {
       desc: "Espresso-soaked ladyfingers with mascarpone cream and cocoa.",
       priceCents: 700,
       tags: ["veg"],
-      image: "images/tiramisu.jpg",
+      image: "tiramisu.jpg",
       options: null
     },
     {
@@ -193,7 +193,7 @@ window.MENU = {
       desc: "Crisp shells filled with sweet ricotta and pistachio.",
       priceCents: 600,
       tags: ["veg"],
-      image: "images/cannoli.jpg",
+      image: "cannoli.jpg",
       options: null
     },
 
@@ -205,7 +205,7 @@ window.MENU = {
       desc: "Fresh lemon, a little sugar, lots of ice.",
       priceCents: 400,
       tags: ["veg"],
-      image: "images/lemonade.jpg",
+      image: "lemonade.jpg",
       options: null
     },
     {
