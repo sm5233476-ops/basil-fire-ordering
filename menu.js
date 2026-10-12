@@ -1,11 +1,11 @@
-// Menu Catalogue, Category ScrollSpy, Item Modal Sheet & Quick-Add
+// Menu Catalogue, Isolated Tab Scroll, Item Modal Sheet & Quick-Add
 window.App = window.App || {};
 
 App.register("menu", {
   init() {
     this.orderMode = App.storage.get("bf_order_mode", "delivery");
     this.activeCategory = window.MENU?.categories[0]?.id || "pizza";
-    this.activeSheetItem = null;
+    this.isProgrammaticScroll = false;
 
     this.renderHeader();
     this.renderHero();
@@ -15,7 +15,6 @@ App.register("menu", {
     this.initScrollSpy();
     this.bindEvents();
 
-    // Re-render steppers and cart bar on cart updates
     if (App.cart && App.cart.subscribe) {
       App.cart.subscribe(() => {
         this.updateCatalogSteppers();
@@ -27,7 +26,7 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Header with Delivery | Pickup Segmented Control
+  // 1. Header with Delivery | Pickup
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -63,6 +62,7 @@ App.register("menu", {
         root.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
         this.updateSegmentedThumb();
         this.renderHero();
+        this.updateCartBar();
         if (App.emit) App.emit("mode:changed", mode);
         App.haptic(10);
       });
@@ -77,7 +77,7 @@ App.register("menu", {
     thumb.style.width = `${activeBtn.offsetWidth}px`;
   },
 
-  // 2. Compact Hero Section
+  // 2. Hero Section
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
@@ -112,7 +112,7 @@ App.register("menu", {
     `;
   },
 
-  // 3. Sticky Category Tabs with Smooth Underline
+  // 3. Category Tabs (Without scrollIntoView Window Jump)
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -140,12 +140,17 @@ App.register("menu", {
         const targetSection = App.qs(`#cat-sec-${catId}`);
         if (!targetSection) return;
 
-        const tabsHeight = root.offsetHeight || 50;
-        const targetTop = targetSection.getBoundingClientRect().top + window.pageYOffset - tabsHeight - 12;
+        this.isProgrammaticScroll = true;
+        const offset = 120;
+        const targetTop = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
 
         window.scrollTo({ top: targetTop, behavior: "smooth" });
         this.setActiveTab(catId);
         App.haptic(8);
+
+        setTimeout(() => {
+          this.isProgrammaticScroll = false;
+        }, 700);
       });
     });
   },
@@ -157,12 +162,17 @@ App.register("menu", {
     if (!root) return;
 
     root.querySelectorAll(".tab-btn").forEach((btn) => {
-      const match = btn.dataset.category === catId;
-      btn.classList.toggle("is-active", match);
-      if (match) {
-        btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-      }
+      btn.classList.toggle("is-active", btn.dataset.category === catId);
     });
+
+    const activeBtn = App.qs(`.tab-btn[data-category="${catId}"]`, root);
+    const scroller = App.qs(".tabs-scroller", root);
+    if (activeBtn && scroller) {
+      // Internal strip scroll only (prevents window jumping up)
+      const targetScroll = activeBtn.offsetLeft - (scroller.clientWidth / 2) + (activeBtn.clientWidth / 2);
+      scroller.scrollTo({ left: Math.max(0, targetScroll), behavior: "smooth" });
+    }
+
     this.updateTabUnderline();
   },
 
@@ -174,12 +184,13 @@ App.register("menu", {
     underline.style.width = `${activeTab.offsetWidth}px`;
   },
 
-  // 4. Scroll-Spy with IntersectionObserver
+  // 4. ScrollSpy Observer
   initScrollSpy() {
     const sections = App.qsa(".category-section");
     if (!sections.length || !("IntersectionObserver" in window)) return;
 
     const observer = new IntersectionObserver((entries) => {
+      if (this.isProgrammaticScroll) return;
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const catId = entry.target.dataset.catId;
@@ -187,14 +198,14 @@ App.register("menu", {
         }
       });
     }, {
-      rootMargin: "-20% 0px -70% 0px",
+      rootMargin: "-20% 0px -65% 0px",
       threshold: 0
     });
 
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 5. Render Menu Items Catalog
+  // 5. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
@@ -244,8 +255,8 @@ App.register("menu", {
             <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13H5.5L12 6.5z"/></svg>
           </div>
           <div class="item-badges">
-            ${isVeg ? `<span class="badge badge--veg" title="Vegetarian"><span class="badge-dot"></span>Veg</span>` : ""}
-            ${isSpicy ? `<span class="badge badge--spicy" title="Spicy">🌶️ Spicy</span>` : ""}
+            ${isVeg ? `<span class="badge badge--veg"><span class="badge-dot"></span>Veg</span>` : ""}
+            ${isSpicy ? `<span class="badge badge--spicy">🌶️ Spicy</span>` : ""}
           </div>
         </div>
 
@@ -263,7 +274,7 @@ App.register("menu", {
                 </button>
               ` : `
                 <div class="stepper-morph" data-stepper-for="${item.id}">
-                  <button type="button" class="btn-action btn-action--add" aria-label="Add ${item.name} to order">
+                  <button type="button" class="btn-action btn-action--add" aria-label="Add ${item.name}">
                     +
                   </button>
                 </div>
@@ -275,7 +286,6 @@ App.register("menu", {
     `;
   },
 
-  // 6. Stepper State Sync for Option-less items
   updateCatalogSteppers() {
     if (!App.cart) return;
     const lines = App.cart.getLines();
@@ -300,7 +310,7 @@ App.register("menu", {
         `;
       } else {
         container.innerHTML = `
-          <button type="button" class="btn-action btn-action--add" aria-label="Add ${item.name} to order">+</button>
+          <button type="button" class="btn-action btn-action--add" aria-label="Add ${item.name}">+</button>
         `;
       }
     });
@@ -320,7 +330,7 @@ App.register("menu", {
 
       const hasOptions = item.options && item.options.length > 0;
 
-      // Click on Quick-Add "+"
+      // Quick-add plus
       const addBtn = e.target.closest(".btn-action--add");
       if (addBtn) {
         e.stopPropagation();
@@ -328,30 +338,28 @@ App.register("menu", {
         return;
       }
 
-      // Click on Stepper Plus
+      // Stepper Plus
       const plusBtn = e.target.closest('.stepper-btn[data-action="plus"]');
       if (plusBtn) {
         e.stopPropagation();
-        const currentQty = App.cart.getItemQty(item.id);
         const line = App.cart.getLines().find((l) => l.itemId === item.id);
-        if (line) App.cart.update(line.key, currentQty + 1);
-        this.flyToCart(plusBtn, item);
+        if (line) App.cart.update(line.key, line.qty + 1);
+        this.flyToCart(plusBtn);
         App.haptic(10);
         return;
       }
 
-      // Click on Stepper Minus
+      // Stepper Minus
       const minusBtn = e.target.closest('.stepper-btn[data-action="minus"]');
       if (minusBtn) {
         e.stopPropagation();
-        const currentQty = App.cart.getItemQty(item.id);
         const line = App.cart.getLines().find((l) => l.itemId === item.id);
-        if (line) App.cart.update(line.key, currentQty - 1);
+        if (line) App.cart.update(line.key, line.qty - 1);
         App.haptic(10);
         return;
       }
 
-      // Click on Card or "Customize +" opens Item Sheet
+      // Open sheet for customizable items
       if (hasOptions || e.target.closest(".btn-action--custom")) {
         this.openItemSheet(item);
       }
@@ -370,17 +378,15 @@ App.register("menu", {
       qty: 1
     });
 
-    this.flyToCart(originEl, item);
+    this.flyToCart(originEl);
     App.haptic(10);
   },
 
-  // 7. Item Bottom Sheet (Customizer Modal)
+  // 6. Item Bottom Sheet (Modal Customizer)
   openItemSheet(item) {
-    this.activeSheetItem = item;
     const root = App.qs("#item-sheet-root");
     if (!root) return;
 
-    // Default options selection
     const state = {
       qty: 1,
       size: (item.options?.find((o) => o.id === "size")?.choices || []).find((c) => c.default) || item.options?.find((o) => o.id === "size")?.choices[0],
@@ -445,7 +451,6 @@ App.register("menu", {
             </fieldset>
           `).join("")}
 
-          <!-- Special Notes -->
           <div class="sheet-group">
             <label for="item-notes" class="sheet-group__legend">Special Instructions</label>
             <div class="notes-wrap">
@@ -455,7 +460,6 @@ App.register("menu", {
           </div>
         </div>
 
-        <!-- Sticky Sheet Footer -->
         <div class="sheet__footer">
           <div class="sheet__qty-stepper">
             <button type="button" class="sheet-qty-btn" id="sheet-qty-minus" aria-label="Decrease quantity">−</button>
@@ -474,13 +478,12 @@ App.register("menu", {
     const submitPriceEl = App.qs("#sheet-btn-price", root);
     let previousTotal = calcCurrentUnit();
 
-    // GSAP Spring Open Animation
     if (window.gsap && !App.prefersReducedMotion()) {
       gsap.fromTo(backdropEl, { opacity: 0 }, { opacity: 1, duration: 0.25 });
-      gsap.fromTo(sheetEl, { y: "100%" }, { y: "0%", duration: 0.45, ease: "power3.out" });
+      gsap.fromTo(sheetEl, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power3.out" });
     } else {
       backdropEl.style.opacity = "1";
-      sheetEl.style.transform = "translateY(0)";
+      sheetEl.style.transform = "none";
     }
 
     const updatePriceDisplay = () => {
@@ -491,7 +494,7 @@ App.register("menu", {
         const obj = { val: previousTotal };
         gsap.to(obj, {
           val: total,
-          duration: 0.25,
+          duration: 0.2,
           ease: "power1.out",
           onUpdate: () => {
             submitPriceEl.textContent = App.money.format(Math.round(obj.val));
@@ -503,7 +506,6 @@ App.register("menu", {
       previousTotal = total;
     };
 
-    // Option Toggle Listener
     sheetEl.addEventListener("change", (e) => {
       const choiceCard = e.target.closest(".choice-card");
       if (!choiceCard) return;
@@ -532,7 +534,6 @@ App.register("menu", {
       App.haptic(5);
     });
 
-    // Notes Listener
     const notesInput = App.qs("#item-notes", root);
     const notesCount = App.qs("#notes-count", root);
     notesInput.addEventListener("input", () => {
@@ -540,7 +541,6 @@ App.register("menu", {
       notesCount.textContent = `${notesInput.value.length} / 140`;
     });
 
-    // Qty Stepper Listeners
     App.qs("#sheet-qty-plus", root).addEventListener("click", () => {
       if (state.qty < 20) {
         state.qty += 1;
@@ -559,31 +559,15 @@ App.register("menu", {
       }
     });
 
-    // Close logic
     const closeSheet = () => {
-      if (window.gsap && !App.prefersReducedMotion()) {
-        gsap.to(backdropEl, { opacity: 0, duration: 0.2 });
-        gsap.to(sheetEl, {
-          y: "100%",
-          duration: 0.3,
-          ease: "power2.in",
-          onComplete: () => {
-            root.classList.remove("is-active");
-            root.innerHTML = "";
-            document.body.classList.remove("is-locked");
-          }
-        });
-      } else {
-        root.classList.remove("is-active");
-        root.innerHTML = "";
-        document.body.classList.remove("is-locked");
-      }
+      root.classList.remove("is-active");
+      root.innerHTML = "";
+      document.body.classList.remove("is-locked");
     };
 
     App.qs("#sheet-close", root).addEventListener("click", closeSheet);
     backdropEl.addEventListener("click", closeSheet);
 
-    // Escape Key Support
     const escHandler = (e) => {
       if (e.key === "Escape") {
         closeSheet();
@@ -592,35 +576,11 @@ App.register("menu", {
     };
     window.addEventListener("keydown", escHandler);
 
-    // Touch Drag-to-Dismiss Handler
-    let touchStartY = 0;
-    let touchDiff = 0;
-    sheetEl.addEventListener("touchstart", (e) => {
-      touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    sheetEl.addEventListener("touchmove", (e) => {
-      touchDiff = e.touches[0].clientY - touchStartY;
-      if (touchDiff > 0 && sheetEl.scrollTop <= 0) {
-        sheetEl.style.transform = `translateY(${touchDiff}px)`;
-      }
-    }, { passive: true });
-
-    sheetEl.addEventListener("touchend", () => {
-      if (touchDiff > 120) {
-        closeSheet();
-      } else {
-        sheetEl.style.transform = "translateY(0)";
-      }
-      touchDiff = 0;
-    });
-
-    // Add to Cart Submission
     App.qs("#sheet-submit-btn", root).addEventListener("click", (e) => {
       const extrasArray = Array.from(state.extras);
       const optionsKey = `${state.size?.id || "na"}_${state.crust?.id || "na"}_${extrasArray.map((x) => x.id).sort().join("+")}`;
 
-      const cartItem = {
+      App.cart.add({
         itemId: item.id,
         name: item.name,
         priceCents: item.priceCents,
@@ -633,16 +593,15 @@ App.register("menu", {
         },
         notes: state.notes.trim(),
         qty: state.qty
-      };
+      });
 
-      App.cart.add(cartItem);
-      this.flyToCart(e.currentTarget, item);
+      this.flyToCart(e.currentTarget);
       App.haptic(15);
       closeSheet();
     });
   },
 
-  // 8. Floating Cart Bar
+  // 7. Floating Cart Bar
   renderCartBar() {
     const root = App.qs("#cart-bar-root");
     if (!root) return;
@@ -664,12 +623,6 @@ App.register("menu", {
     barEl.addEventListener("click", () => {
       if (App.emit) App.emit("sheet:open", "cart");
       App.haptic(10);
-    });
-
-    barEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        if (App.emit) App.emit("sheet:open", "cart");
-      }
     });
   },
 
@@ -694,43 +647,37 @@ App.register("menu", {
     }
   },
 
-  // 9. Motion: Fly-to-Cart Animation and Bar Bounce
-  flyToCart(originEl, item) {
+  // 8. Fly-to-Cart Particle
+  flyToCart(originEl) {
     const target = App.qs("#cart-bar");
     if (!originEl || !target) return;
 
-    // Cart Bar Bounce
     if (window.gsap && !App.prefersReducedMotion()) {
-      gsap.fromTo(target, { scale: 0.96 }, { scale: 1, duration: 0.35, ease: "back.out(2)" });
+      gsap.fromTo(target, { scale: 0.95 }, { scale: 1, duration: 0.3, ease: "back.out(2)" });
     }
 
     if (App.prefersReducedMotion() || !window.gsap) return;
 
     const startRect = originEl.getBoundingClientRect();
-    const endRect = target.getBoundingClientRect();
-
     const flyer = document.createElement("div");
     flyer.className = "fly-particle";
-    flyer.innerHTML = `<span class="fly-icon">🍕</span>`;
+    flyer.innerHTML = `<span>🍕</span>`;
     document.body.appendChild(flyer);
 
-    const startX = startRect.left + startRect.width / 2 - 16;
-    const startY = startRect.top + startRect.height / 2 - 16;
-    const endX = endRect.left + 40;
-    const endY = endRect.top + endRect.height / 2;
-
-    gsap.set(flyer, { x: startX, y: startY, scale: 1, opacity: 1 });
+    gsap.set(flyer, {
+      x: startRect.left + startRect.width / 2 - 16,
+      y: startRect.top + startRect.height / 2 - 16,
+      opacity: 1
+    });
 
     gsap.to(flyer, {
-      x: endX,
-      y: endY,
-      scale: 0.35,
-      opacity: 0.2,
-      duration: 0.65,
-      ease: "power2.inOut",
-      onComplete: () => {
-        flyer.remove();
-      }
+      x: window.innerWidth / 2,
+      y: window.innerHeight - 50,
+      scale: 0.4,
+      opacity: 0,
+      duration: 0.5,
+      ease: "power2.in",
+      onComplete: () => flyer.remove()
     });
   },
 
