@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Basil & Fire — Wood-Fired Pizza</title>
+  <meta name="description" content="Handcrafted wood-fired pizzas, starters, and pasta made to order with honest ingredients. No marketplace markups.">
+
+  <!-- Google Fonts: Bricolage Grotesque & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- GSAP Core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+
+  <!-- Application Scripts in Strict Boot Order -->
+  <script src="data.js" defer></script>
+  <script src="fx.js" defer></script>
+  <script src="shared.js" defer></script>
+  <script src="menu.js" defer></script>
+  <script src="cart.js" defer></script>
+  <script src="checkout.js" defer></script>
+  <script src="tracker.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body class="bg-primary text-primary">
+  <div class="app-shell" id="app">
+    <!-- Main Left Column on Desktop / Full Screen on Mobile -->
+    <main class="main-column" id="main-content">
+      <header class="app-header" id="header-root"></header>
+      <section class="hero-section" id="hero-root"></section>
+      <nav class="category-tabs" id="tabs-root" aria-label="Menu categories"></nav>
+      <section class="menu-catalog" id="menu-root" aria-label="Menu catalogue"></section>
+      <footer class="app-footer">
+        <p>Concept project by Shivam Mishra. Basil & Fire is a fictional restaurant. No payments are processed.</p>
+      </footer>
+    </main>
+
+    <!-- Desktop Persistent Right Column / Mobile Hidden -->
+    <aside class="desktop-cart-column" id="desktop-cart-root" aria-label="Order summary"></aside>
+  </div>
+
+  <!-- Mobile Floating Cart Bar -->
+  <div class="cart-bar-anchor" id="cart-bar-root" aria-live="polite"></div>
+
+  <!-- Interactive Sheets & Overlays -->
+  <div class="overlay-container" id="item-sheet-root" role="dialog" aria-modal="true" aria-hidden="true"></div>
+  <div class="overlay-container" id="cart-sheet-root" role="dialog" aria-modal="true" aria-hidden="true"></div>
+  <div class="overlay-container" id="checkout-sheet-root" role="dialog" aria-modal="true" aria-hidden="true"></div>
+  <div class="overlay-container" id="tracker-root" role="dialog" aria-modal="true" aria-hidden="true"></div>
+
+  <!-- Toast Notification Root -->
+  <div class="toast-region" id="toast-root" aria-live="assertive"></div>
+</body>
+</html>
