@@ -1,9 +1,19 @@
-// Menu Catalogue, Root Image Fallback, Tab Navigation, Item Modal Sheet & Toast
+// Menu Catalogue, Root Image Fallback, Table QR Detection & Staff Switcher
 window.App = window.App || {};
 
 App.register("menu", {
   init() {
-    this.orderMode = App.storage.get("bf_order_mode", "delivery");
+    const urlParams = new URLSearchParams(window.location.search);
+    this.tableNumber = urlParams.get("table") || App.storage.get("bf_table_num", null);
+    
+    if (this.tableNumber) {
+      App.storage.set("bf_table_num", this.tableNumber);
+      this.orderMode = "table";
+      App.storage.set("bf_order_mode", "table");
+    } else {
+      this.orderMode = App.storage.get("bf_order_mode", "delivery");
+    }
+
     this.activeCategory = window.MENU?.categories[0]?.id || "pizza";
     this.isProgrammaticScroll = false;
 
@@ -26,10 +36,12 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Header with Delivery | Pickup Segmented Control
+  // 1. Header with Mode Toggle & Kitchen Portal Shortcut
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
+
+    const isTable = this.orderMode === "table";
 
     root.innerHTML = `
       <div class="nav-container">
@@ -38,35 +50,46 @@ App.register("menu", {
             <span class="brand-dot"></span>
             <span class="brand-text">${window.CONFIG.name}</span>
           </a>
+          <a href="kitchen.html" class="portal-badge" title="Open Merchant Kitchen Display">
+            👨‍🍳 Kitchen Portal
+          </a>
         </div>
-        <div class="segmented-control" role="group" aria-label="Order mode toggle">
-          <div class="seg-thumb" id="seg-thumb"></div>
-          <button type="button" class="seg-btn ${this.orderMode === "delivery" ? "is-active" : ""}" data-mode="delivery">
-            Delivery
-          </button>
-          <button type="button" class="seg-btn ${this.orderMode === "pickup" ? "is-active" : ""}" data-mode="pickup">
-            Pickup
-          </button>
-        </div>
+        
+        ${isTable ? `
+          <div class="table-active-tag">
+            🍽️ Table #${this.tableNumber}
+          </div>
+        ` : `
+          <div class="segmented-control" role="group" aria-label="Order mode toggle">
+            <div class="seg-thumb" id="seg-thumb"></div>
+            <button type="button" class="seg-btn ${this.orderMode === "delivery" ? "is-active" : ""}" data-mode="delivery">
+              Delivery
+            </button>
+            <button type="button" class="seg-btn ${this.orderMode === "pickup" ? "is-active" : ""}" data-mode="pickup">
+              Pickup
+            </button>
+          </div>
+        `}
       </div>
     `;
 
-    this.updateSegmentedThumb();
-
-    root.querySelectorAll(".seg-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const mode = btn.dataset.mode;
-        if (mode === this.orderMode) return;
-        this.orderMode = mode;
-        App.storage.set("bf_order_mode", mode);
-        root.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
-        this.updateSegmentedThumb();
-        this.renderHero();
-        this.updateCartBar();
-        if (App.emit) App.emit("mode:changed", mode);
-        App.haptic(10);
+    if (!isTable) {
+      this.updateSegmentedThumb();
+      root.querySelectorAll(".seg-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const mode = btn.dataset.mode;
+          if (mode === this.orderMode) return;
+          this.orderMode = mode;
+          App.storage.set("bf_order_mode", mode);
+          root.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
+          this.updateSegmentedThumb();
+          this.renderHero();
+          this.updateCartBar();
+          if (App.emit) App.emit("mode:changed", mode);
+          App.haptic(10);
+        });
       });
-    });
+    }
   },
 
   updateSegmentedThumb() {
@@ -77,13 +100,28 @@ App.register("menu", {
     thumb.style.width = `${activeBtn.offsetWidth}px`;
   },
 
-  // 2. Hero Section with Root Image Fallback
+  // 2. Hero Section
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
 
-    const isDelivery = this.orderMode === "delivery";
-    const eta = isDelivery ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup;
+    let chipHtml = "";
+    if (this.orderMode === "table") {
+      chipHtml = `
+        <span class="chip chip--table">
+          🍽️ Dine-In Order · Table #${this.tableNumber}
+        </span>
+      `;
+    } else {
+      const isDelivery = this.orderMode === "delivery";
+      const eta = isDelivery ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup;
+      chipHtml = `
+        <span class="chip chip--accent">
+          <svg class="chip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+          ${isDelivery ? "Delivery" : "Pickup"} ${eta}
+        </span>
+      `;
+    }
 
     root.innerHTML = `
       <div class="hero-card">
@@ -104,10 +142,7 @@ App.register("menu", {
           <h1 class="hero-title">${window.CONFIG.name}</h1>
           <p class="hero-tagline">${window.CONFIG.tagline}</p>
           <div class="hero-chips">
-            <span class="chip chip--accent">
-              <svg class="chip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-              ${isDelivery ? "Delivery" : "Pickup"} ${eta}
-            </span>
+            ${chipHtml}
             <span class="chip">
               <span class="live-dot" style="margin:0 4px 0 0;"></span>
               ${window.CONFIG.hoursText}
@@ -118,7 +153,7 @@ App.register("menu", {
     `;
   },
 
-  // 3. Category Tabs (Isolated Horizontal Scroll)
+  // 3. Category Tabs
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -189,7 +224,6 @@ App.register("menu", {
     underline.style.width = `${activeTab.offsetWidth}px`;
   },
 
-  // 4. ScrollSpy Observer
   initScrollSpy() {
     const sections = App.qsa(".category-section");
     if (!sections.length || !("IntersectionObserver" in window)) return;
@@ -210,7 +244,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 5. Menu Catalog with Auto Root-Image Detection
+  // 4. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
@@ -335,7 +369,6 @@ App.register("menu", {
 
       const hasOptions = item.options && item.options.length > 0;
 
-      // Quick-Add "+"
       const addBtn = e.target.closest(".btn-action--add");
       if (addBtn) {
         e.stopPropagation();
@@ -343,7 +376,6 @@ App.register("menu", {
         return;
       }
 
-      // Stepper Plus
       const plusBtn = e.target.closest('.stepper-btn[data-action="plus"]');
       if (plusBtn) {
         e.stopPropagation();
@@ -355,7 +387,6 @@ App.register("menu", {
         return;
       }
 
-      // Stepper Minus
       const minusBtn = e.target.closest('.stepper-btn[data-action="minus"]');
       if (minusBtn) {
         e.stopPropagation();
@@ -365,7 +396,6 @@ App.register("menu", {
         return;
       }
 
-      // Open Sheet
       if (hasOptions || e.target.closest(".btn-action--custom")) {
         this.openItemSheet(item);
       }
@@ -389,7 +419,7 @@ App.register("menu", {
     App.haptic(10);
   },
 
-  // 6. Item Customization Sheet (Modal)
+  // 5. Customizer Sheet
   openItemSheet(item) {
     const root = App.qs("#item-sheet-root");
     if (!root) return;
@@ -575,14 +605,6 @@ App.register("menu", {
     App.qs("#sheet-close", root).addEventListener("click", closeSheet);
     backdropEl.addEventListener("click", closeSheet);
 
-    const escHandler = (e) => {
-      if (e.key === "Escape") {
-        closeSheet();
-        window.removeEventListener("keydown", escHandler);
-      }
-    };
-    window.addEventListener("keydown", escHandler);
-
     App.qs("#sheet-submit-btn", root).addEventListener("click", (e) => {
       const extrasArray = Array.from(state.extras);
       const optionsKey = `${state.size?.id || "na"}_${state.crust?.id || "na"}_${extrasArray.map((x) => x.id).sort().join("+")}`;
@@ -609,7 +631,7 @@ App.register("menu", {
     });
   },
 
-  // 7. Floating Cart Bar
+  // 6. Floating Cart Bar
   renderCartBar() {
     const root = App.qs("#cart-bar-root");
     if (!root) return;
@@ -655,7 +677,6 @@ App.register("menu", {
     }
   },
 
-  // 8. Fly-to-Cart Animation
   flyToCart(originEl) {
     const target = App.qs("#cart-bar");
     if (!originEl || !target) return;
