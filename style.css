@@ -2273,3 +2273,129 @@ body.is-locked {
 .btn-action--custom:hover {
   transform: scale(1.06) !important;
 }
+/* ==========================================================================
+   Dine-In Table QR Generator, Portal Badges & Sticky Cart Lock
+   ========================================================================== */
+
+/* Portal Switcher Badge in Header */
+.portal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-3);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.portal-badge:hover {
+  border-color: var(--tomato);
+  background: rgba(255, 90, 54, 0.15);
+}
+
+.table-active-tag {
+  background: rgba(139, 209, 143, 0.15);
+  border: 1px solid var(--basil);
+  color: var(--basil);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.chip--table {
+  background: rgba(139, 209, 143, 0.18);
+  border-color: var(--basil);
+  color: #B2E8B5;
+}
+
+/* Badge for Dine-In Table Orders */
+.badge--table {
+  background: rgba(242, 193, 78, 0.18);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-weight: 800;
+}
+
+/* Table QR Modal */
+.btn--table-qr {
+  background: rgba(242, 193, 78, 0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.btn--table-qr:hover {
+  background: var(--gold);
+  color: #12100E;
+}
+
+.qr-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.qr-modal {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+}
+
+.qr-modal__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.qr-modal__desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.table-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.qr-code-display {
+  display: flex;
+  justify-content: center;
+  background: #F7F0E6;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.qr-img {
+  width: 190px;
+  height: 190px;
+  display: block;
+}
+
+.qr-scan-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 6px;
+}
