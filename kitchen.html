@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Basil & Fire — Kitchen Display</title>
+  <meta name="description" content="Live wood-fired kitchen fulfillment board.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- GSAP Core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+
+  <!-- Kitchen Scripts -->
+  <script src="data.js" defer></script>
+  <script src="fx.js" defer></script>
+  <script src="shared.js" defer></script>
+  <script src="kitchen.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body class="kitchen-body">
+  <div class="kitchen-shell" id="kitchen-app">
+    <header class="kitchen-header" id="kitchen-header-root">
+      <div class="kitchen-branding">
+        <span class="live-dot" aria-hidden="true"></span>
+        <h1 class="kitchen-title">Kitchen Display</h1>
+      </div>
+      <div class="kitchen-controls">
+        <button type="button" class="btn btn--ghost" id="audio-toggle-btn">Enable Sound</button>
+        <button type="button" class="btn btn--primary" id="simulate-order-btn">Simulate Order</button>
+      </div>
+    </header>
+
+    <main class="kitchen-board" id="kitchen-board-root">
+      <section class="k-column" data-status="new">
+        <div class="k-column__header"><h2>New (<span id="count-new">0</span>)</h2></div>
+        <div class="k-column__list" id="col-new"></div>
+      </section>
+      <section class="k-column" data-status="preparing">
+        <div class="k-column__header"><h2>Preparing (<span id="count-preparing">0</span>)</h2></div>
+        <div class="k-column__list" id="col-preparing"></div>
+      </section>
+      <section class="k-column" data-status="ready">
+        <div class="k-column__header"><h2>Ready (<span id="count-ready">0</span>)</h2></div>
+        <div class="k-column__list" id="col-ready"></div>
+      </section>
+      <section class="k-column" data-status="completed">
+        <div class="k-column__header"><h2>Completed (<span id="count-completed">0</span>)</h2></div>
+        <div class="k-column__list" id="col-completed"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Concept project by Shivam Mishra. Basil & Fire is a fictional restaurant. No payments are processed.</p>
+    </footer>
+  </div>
+</body>
+</html>
