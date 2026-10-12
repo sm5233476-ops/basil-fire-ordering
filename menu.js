@@ -1,17 +1,23 @@
-// Menu Catalogue, Root Image Fallback, Table QR Detection & Staff Switcher
+// Menu Catalogue, Online vs Table-Scanner Isolation & Staff Portal Switch
 window.App = window.App || {};
 
 App.register("menu", {
   init() {
+    // 1. Check if user arrived via physical desk QR code (?table=X)
     const urlParams = new URLSearchParams(window.location.search);
-    this.tableNumber = urlParams.get("table") || App.storage.get("bf_table_num", null);
-    
-    if (this.tableNumber) {
-      App.storage.set("bf_table_num", this.tableNumber);
+    const tableParam = urlParams.get("table");
+
+    if (tableParam) {
+      // Dine-in Table Mode ONLY if explicitly scanned via URL
+      this.tableNumber = tableParam;
       this.orderMode = "table";
       App.storage.set("bf_order_mode", "table");
     } else {
+      // Pure Online Customer Mode (Never show table numbers)
+      this.tableNumber = null;
+      App.storage.remove("bf_table_num");
       this.orderMode = App.storage.get("bf_order_mode", "delivery");
+      if (this.orderMode === "table") this.orderMode = "delivery";
     }
 
     this.activeCategory = window.MENU?.categories[0]?.id || "pizza";
@@ -36,7 +42,7 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Header with Mode Toggle & Kitchen Portal Shortcut
+  // 1. Header with Mode Toggle & Discreet Staff Portal Link
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -46,30 +52,34 @@ App.register("menu", {
     root.innerHTML = `
       <div class="nav-container">
         <div class="nav-brand">
-          <a href="#" class="brand-link" aria-label="Basil and Fire Home">
+          <a href="index.html" class="brand-link" aria-label="Basil and Fire Home">
             <span class="brand-dot"></span>
             <span class="brand-text">${window.CONFIG.name}</span>
           </a>
-          <a href="kitchen.html" class="portal-badge" title="Open Merchant Kitchen Display">
-            👨‍🍳 Kitchen Portal
+        </div>
+
+        <div class="nav-controls">
+          ${isTable ? `
+            <div class="table-desk-badge">
+              🍽️ Table #${this.tableNumber}
+            </div>
+          ` : `
+            <div class="segmented-control" role="group" aria-label="Order mode toggle">
+              <div class="seg-thumb" id="seg-thumb"></div>
+              <button type="button" class="seg-btn ${this.orderMode === "delivery" ? "is-active" : ""}" data-mode="delivery">
+                Delivery
+              </button>
+              <button type="button" class="seg-btn ${this.orderMode === "pickup" ? "is-active" : ""}" data-mode="pickup">
+                Pickup
+              </button>
+            </div>
+          `}
+          
+          <!-- Discreet Luxury Staff Portal Link -->
+          <a href="kitchen.html" class="staff-portal-btn" title="Open Staff Kitchen Portal">
+            🔒 Staff
           </a>
         </div>
-        
-        ${isTable ? `
-          <div class="table-active-tag">
-            🍽️ Table #${this.tableNumber}
-          </div>
-        ` : `
-          <div class="segmented-control" role="group" aria-label="Order mode toggle">
-            <div class="seg-thumb" id="seg-thumb"></div>
-            <button type="button" class="seg-btn ${this.orderMode === "delivery" ? "is-active" : ""}" data-mode="delivery">
-              Delivery
-            </button>
-            <button type="button" class="seg-btn ${this.orderMode === "pickup" ? "is-active" : ""}" data-mode="pickup">
-              Pickup
-            </button>
-          </div>
-        `}
       </div>
     `;
 
