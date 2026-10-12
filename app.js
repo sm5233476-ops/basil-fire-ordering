@@ -33,6 +33,45 @@
     modules[name] = api;
   };
 
+  // HTML Sanitizer to guarantee user-entered text safety
+  App.escape = function (str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  };
+
+  // Universal Accessible Sheet Focus Trap & Escape Handler
+  document.addEventListener("keydown", (e) => {
+    const activeOverlay = document.querySelector(".overlay-container.is-active");
+    if (!activeOverlay) return;
+
+    if (e.key === "Escape") {
+      activeOverlay.classList.remove("is-active");
+      activeOverlay.innerHTML = "";
+      document.body.classList.remove("is-locked");
+      return;
+    }
+
+    if (e.key === "Tab") {
+      const focusable = activeOverlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  });
+
   // DOM Helpers
   App.qs = (selector, parent = document) => parent.querySelector(selector);
   App.qsa = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
