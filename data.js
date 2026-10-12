@@ -2,7 +2,7 @@
 window.CONFIG = {
   name: "Basil & Fire",
   tagline: "Wood-fired pizza, made to order",
-  whatsapp: "[WHATSAPP]",
+  whatsapp: "919899452192",
   currency: "USD",
   locale: "en-US",
   deliveryFeeCents: 350,
