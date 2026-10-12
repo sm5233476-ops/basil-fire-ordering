@@ -220,7 +220,7 @@ App.register("cart", {
             <div class="cart-line-info">
               <h4 class="cart-line-title">${line.name}</h4>
               ${optText ? `<p class="cart-line-options">${optText}</p>` : ""}
-              ${line.notes ? `<p class="cart-line-notes">"${line.notes}"</p>` : ""}
+              ${line.notes ? `<p class="cart-line-notes">"${App.escape(line.notes)}"</p>` : ""}
               <div class="cart-line-price">${App.money.format(lineTotal)}</div>
             </div>
             <button type="button" class="cart-line-del" data-action="remove" data-key="${line.key}" aria-label="Remove item">
