@@ -6,17 +6,14 @@ App.register("fx", {
     this.initToastSystem();
     this.initPressFeedback();
 
-    // Orchestrate after initial DOM layout is stable
     setTimeout(() => {
       this.initPageLoadOrchestration();
       this.initScrollReveals();
     }, 60);
 
-    // Provide global toast helper
     App.toast = (msg, icon) => this.showToast(msg, icon);
   },
 
-  // 1. Page Load Orchestration Timeline
   initPageLoadOrchestration() {
     if (App.prefersReducedMotion() || !window.gsap) return;
 
@@ -61,12 +58,10 @@ App.register("fx", {
     }
   },
 
-  // 2. Scroll Reveals for Menu Cards
   initScrollReveals() {
     const cards = App.qsa(".item-card");
     if (!cards.length || !("IntersectionObserver" in window)) return;
 
-    // First 4 cards handled by page load; reveal remaining as they enter viewport
     const remainingCards = cards.slice(4);
 
     const observer = new IntersectionObserver((entries, obs) => {
@@ -95,7 +90,6 @@ App.register("fx", {
     });
   },
 
-  // 3. Pointer Press Feedback (.97 Scale)
   initPressFeedback() {
     document.addEventListener("pointerdown", (e) => {
       const target = e.target.closest(".btn, .item-card, .choice-card, .time-chip, .tab-btn");
@@ -111,7 +105,6 @@ App.register("fx", {
     document.addEventListener("pointercancel", release, { passive: true });
   },
 
-  // 4. Toast Notification System
   initToastSystem() {
     this.toastContainer = App.qs("#toast-root");
   },
