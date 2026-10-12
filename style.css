@@ -2399,3 +2399,543 @@ body.is-locked {
   text-align: center;
   margin-top: 6px;
 }
+/* ==========================================================================
+   Luxury KDS Display, Staff PIN Gate & Table QR Card Styles
+   ========================================================================== */
+
+/* 1. Staff Security PIN Lock Screen */
+.pin-lock-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: radial-gradient(circle at 50% 30%, #201C18 0%, #0E0C0B 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pin-card {
+  background: rgba(27, 24, 21, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xl);
+  padding: 36px 32px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9);
+}
+
+.pin-brand {
+  margin-bottom: 24px;
+}
+
+.pin-logo {
+  font-size: 2.4rem;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.pin-brand h2 {
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.pin-brand p {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pin-instructions {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  transition: transform 0.2s ease;
+}
+
+.pin-dots.is-error {
+  animation: pinShake 0.35s ease;
+}
+
+@keyframes pinShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.pin-dots .dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  background: transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.pin-dots .dot.is-filled {
+  background: var(--tomato);
+  border-color: var(--tomato);
+  transform: scale(1.15);
+}
+
+.pin-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pin-key {
+  height: 60px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+
+.pin-key:active {
+  transform: scale(0.94);
+  background: var(--surface-3);
+}
+
+.pin-key--ghost {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+}
+
+.pin-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.pin-hint strong {
+  color: var(--gold);
+}
+
+.pin-exit-link {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.pin-exit-link:hover {
+  color: var(--text);
+}
+
+/* 2. Luxury KDS Header & Wrapper */
+.kds-wrapper {
+  padding: 16px 24px;
+  max-width: 1700px;
+  margin: 0 auto;
+}
+
+.kds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.kds-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.kds-live-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--basil);
+  box-shadow: 0 0 10px rgba(139, 209, 143, 0.7);
+}
+
+.kds-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.staff-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(139, 209, 143, 0.15);
+  color: var(--basil);
+  border: 1px solid var(--basil);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.kds-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn--lock {
+  border-color: rgba(255, 90, 54, 0.4);
+  color: #FFA590;
+}
+
+/* Header Staff Portal Button in Customer App */
+.staff-portal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface-3);
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.staff-portal-btn:hover {
+  color: var(--text);
+  border-color: var(--gold);
+}
+
+.table-desk-badge {
+  background: rgba(242, 193, 78, 0.15);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+/* 3. KDS Kanban Columns */
+.kds-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.kds-column {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 76vh;
+}
+
+.kds-column__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+
+.col-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.col-title-wrap h2 {
+  font-size: 1.05rem;
+}
+
+.col-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot--new { background: var(--tomato); }
+.dot--prep { background: var(--gold); }
+.dot--ready { background: var(--basil); }
+.dot--done { background: var(--muted); }
+
+.col-count-pill {
+  font-weight: 800;
+  font-size: 0.8rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.kds-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 4. Luxury Order Card */
+.k-card {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.k-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.k-order-id {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text);
+  margin-right: 6px;
+}
+
+.k-customer-name {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.k-timer-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(242, 193, 78, 0.1);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.k-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.k-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+.k-badge--table {
+  background: rgba(242, 193, 78, 0.18);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+.k-badge--del {
+  background: rgba(255, 90, 54, 0.15);
+  border: 1px solid var(--tomato);
+  color: var(--tomato);
+}
+
+.k-badge--pic {
+  background: rgba(139, 209, 143, 0.15);
+  border: 1px solid var(--basil);
+  color: var(--basil);
+}
+
+.k-phone-tag, .k-addr-tag {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.k-card__items-box {
+  background: var(--surface-3);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.k-item-line {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.k-qty-num {
+  font-weight: 800;
+  color: var(--tomato);
+  margin-right: 4px;
+}
+
+.k-food-name {
+  font-weight: 600;
+}
+
+.k-opts-text {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.k-note-highlight {
+  font-size: 0.72rem;
+  color: var(--gold);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.k-card__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.k-order-price {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.k-done-tag {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* 5. Printable Table QR Card Preview */
+.table-selector-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.table-dropdown {
+  width: 160px;
+  padding: 8px 12px;
+}
+
+.qr-card-preview {
+  background: #F7F0E6;
+  color: #12100E;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.qr-brand-tag {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--tomato);
+}
+
+.qr-table-headline {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.7rem;
+  letter-spacing: 0.04em;
+  margin: 4px 0 12px;
+}
+
+.qr-image-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.qr-image-wrapper img {
+  width: 200px;
+  height: 200px;
+  display: block;
+  border-radius: 8px;
+}
+
+.qr-instructions {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #55504A;
+  max-width: 240px;
+  margin: 0 auto;
+}
+
+/* 6. Mobile Responsiveness */
+.kds-mobile-tabs {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .kds-grid {
+    grid-template-columns: 1fr;
+  }
+  .kds-mobile-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin: 14px 0 6px;
+    padding-bottom: 4px;
+  }
+  .kds-tab-pill {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 8px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .kds-tab-pill.is-active {
+    background: var(--tomato);
+    color: #FFFFFF;
+    border-color: var(--tomato);
+  }
+  .kds-column {
+    display: none;
+    min-height: auto;
+  }
+  .kds-column.is-mob-visible {
+    display: flex;
+  }
+}
