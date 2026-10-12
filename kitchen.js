@@ -1,17 +1,16 @@
-// Kitchen Board Display, WebAudio Chime, Simulation & Scroll-Snap Columns
+// Kitchen Board Display, WebAudio Chime, Simulation & Table QR Generator
 window.App = window.App || {};
 
 App.register("kitchen", {
   init() {
     this.soundEnabled = false;
     this.audioCtx = null;
-    this.collapsedCompleted = true;
 
     this.bindHeaderControls();
+    this.initQRModal();
     this.renderBoard();
     this.initTimers();
 
-    // Subscribe to live orders across tabs
     if (App.orders && App.orders.subscribe) {
       App.orders.subscribe((event) => {
         if (event.type === "created") {
@@ -22,7 +21,6 @@ App.register("kitchen", {
     }
   },
 
-  // 1. WebAudio Two-Tone Pleasant Chime
   initAudio() {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -34,17 +32,13 @@ App.register("kitchen", {
 
   playChime() {
     if (!this.soundEnabled || !this.audioCtx) return;
-
-    if (this.audioCtx.state === "suspended") {
-      this.audioCtx.resume();
-    }
+    if (this.audioCtx.state === "suspended") this.audioCtx.resume();
 
     const now = this.audioCtx.currentTime;
     const osc = this.audioCtx.createOscillator();
     const gain = this.audioCtx.createGain();
 
     osc.type = "sine";
-    // First tone (587.33 Hz - D5) then ramp to (880 Hz - A5)
     osc.frequency.setValueAtTime(587.33, now);
     osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
 
@@ -58,7 +52,6 @@ App.register("kitchen", {
     osc.stop(now + 0.55);
   },
 
-  // 2. Sound Toggle & Simulate Order
   bindHeaderControls() {
     const audioBtn = App.qs("#audio-toggle-btn");
     const simBtn = App.qs("#simulate-order-btn");
@@ -70,11 +63,9 @@ App.register("kitchen", {
         if (this.soundEnabled && this.audioCtx.state === "suspended") {
           this.audioCtx.resume();
         }
-
         audioBtn.textContent = this.soundEnabled ? "🔔 Sound ON" : "Enable Sound";
         audioBtn.classList.toggle("btn--primary", this.soundEnabled);
         audioBtn.classList.toggle("btn--ghost", !this.soundEnabled);
-
         if (this.soundEnabled) this.playChime();
       });
     }
@@ -86,17 +77,58 @@ App.register("kitchen", {
     }
   },
 
-  simulateRealisticOrder() {
-    const names = ["Jordan M.", "Priya S.", "Lucas R.", "Elena D.", "Liam K."];
-    const streets = ["42 Oakway Lane", "18 Maple Crescent", "88 Pine Street", "7 Harbor View"];
-    const name = names[Math.floor(Math.random() * names.length)];
-    const mode = Math.random() > 0.5 ? "delivery" : "pickup";
-    const address = mode === "delivery" ? streets[Math.floor(Math.random() * streets.length)] : "Pickup at Counter";
+  // Interactive Table QR Generator for Restaurants
+  initQRModal() {
+    const openBtn = App.qs("#qr-modal-open-btn");
+    const backdrop = App.qs("#qr-backdrop");
+    const closeBtn = App.qs("#qr-close-btn");
+    const select = App.qs("#table-select-input");
+    const imgWrap = App.qs("#qr-code-img-wrap");
+    const linkText = App.qs("#qr-scan-link-text");
+    const testBtn = App.qs("#qr-test-open-btn");
 
-    // Random items from MENU
+    if (!openBtn || !backdrop) return;
+
+    const updateQR = (tableNum) => {
+      const origin = window.location.origin + window.location.pathname.replace("kitchen.html", "index.html");
+      const targetUrl = `${origin}?table=${tableNum}`;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=12-10-0E&bgcolor=F7-F0-E6&data=${encodeURIComponent(targetUrl)}`;
+
+      imgWrap.innerHTML = `<img src="${qrApiUrl}" alt="Table ${tableNum} QR Code" class="qr-img">`;
+      linkText.textContent = `Scan with phone to order directly at Table #${tableNum}`;
+      testBtn.textContent = `Test Open as Table #${tableNum}`;
+      testBtn.onclick = () => window.open(targetUrl, "_blank");
+    };
+
+    openBtn.addEventListener("click", () => {
+      backdrop.style.display = "flex";
+      updateQR(select.value);
+    });
+
+    closeBtn?.addEventListener("click", () => {
+      backdrop.style.display = "none";
+    });
+
+    select?.addEventListener("change", (e) => {
+      updateQR(e.target.value);
+    });
+
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) backdrop.style.display = "none";
+    });
+  },
+
+  simulateRealisticOrder() {
+    const isTableOrder = Math.random() > 0.4;
+    const tableNum = Math.floor(1 + Math.random() * 8);
+    const names = ["Jordan M.", "Priya S.", "Lucas R.", "Elena D.", "Liam K."];
+    const name = names[Math.floor(Math.random() * names.length)];
+    const mode = isTableOrder ? "table" : (Math.random() > 0.5 ? "delivery" : "pickup");
+    const address = isTableOrder ? `Dine-In: Table #${tableNum}` : (mode === "delivery" ? "42 Oakway Lane" : "Pickup at Counter");
+
     const allItems = window.MENU?.items || [];
-    const item1 = allItems[Math.floor(Math.random() * 5)] || allItems[0]; // Pizza
-    const item2 = allItems[5 + Math.floor(Math.random() * (allItems.length - 5))]; // Side or Drink
+    const item1 = allItems[Math.floor(Math.random() * 5)] || allItems[0];
+    const item2 = allItems[5 + Math.floor(Math.random() * (allItems.length - 5))];
 
     const lines = [
       {
@@ -105,7 +137,7 @@ App.register("kitchen", {
         priceCents: item1.priceCents,
         unitPriceCents: item1.priceCents + 300,
         options: { size: "Medium 12\"", crust: "Classic", extras: ["Extra cheese"] },
-        notes: "Crispy crust please",
+        notes: isTableOrder ? `Dine-in Table #${tableNum}` : "Crispy crust please",
         qty: 1
       }
     ];
@@ -126,7 +158,8 @@ App.register("kitchen", {
 
     App.orders.create({
       mode,
-      timeLabel: `ASAP (${mode === "delivery" ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup})`,
+      tableNumber: isTableOrder ? tableNum : null,
+      timeLabel: isTableOrder ? `Dine-in (Table #${tableNum})` : `ASAP (${mode === "delivery" ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup})`,
       customer: {
         name,
         phone: "+1 555-0182",
@@ -138,11 +171,10 @@ App.register("kitchen", {
       deliveryFee: totals.deliveryFee,
       tax: totals.tax,
       total: totals.total,
-      notes: ""
+      notes: isTableOrder ? `Table #${tableNum}` : ""
     });
   },
 
-  // 3. Render Columns and Counters
   renderBoard(highlightId = null) {
     const orders = App.orders.list();
 
@@ -155,7 +187,6 @@ App.register("kitchen", {
 
     if (!cols.new || !cols.preparing || !cols.ready || !cols.completed) return;
 
-    // Filter buckets
     const buckets = {
       new: orders.filter((o) => o.status === "new"),
       preparing: orders.filter((o) => o.status === "preparing"),
@@ -163,19 +194,16 @@ App.register("kitchen", {
       completed: orders.filter((o) => o.status === "completed")
     };
 
-    // Update counters
     App.qs("#count-new").textContent = buckets.new.length;
     App.qs("#count-preparing").textContent = buckets.preparing.length;
     App.qs("#count-ready").textContent = buckets.ready.length;
     App.qs("#count-completed").textContent = buckets.completed.length;
 
-    // Render cards
     Object.keys(buckets).forEach((status) => {
       let list = buckets[status];
       if (status === "completed" && list.length > 10) {
         list = list.slice(0, 10);
       }
-
       cols[status].innerHTML = list.map((order) => this.renderOrderCard(order, highlightId)).join("");
     });
 
@@ -185,15 +213,25 @@ App.register("kitchen", {
   renderOrderCard(order, highlightId) {
     const isNewFlash = order.id === highlightId;
     const elapsed = this.getElapsedTime(order.createdAt);
+    const isTable = order.mode === "table";
     const isDelivery = order.mode === "delivery";
+
+    let modeBadgeHtml = "";
+    if (isTable) {
+      modeBadgeHtml = `<span class="badge badge--table">🍽️ DINE-IN ${order.customer?.address || ""}</span>`;
+    } else if (isDelivery) {
+      modeBadgeHtml = `<span class="badge badge--del">🛵 DELIVERY</span>`;
+    } else {
+      modeBadgeHtml = `<span class="badge badge--pic">🛍️ PICKUP</span>`;
+    }
 
     let nextActionHtml = "";
     if (order.status === "new") {
-      nextActionHtml = `<button type="button" class="btn btn--primary k-action-btn" data-action="preparing" data-id="${order.id}">Accept & Prepare →</button>`;
+      nextActionHtml = `<button type="button" class="btn btn--primary k-action-btn" data-action="preparing" data-id="${order.id}">Accept & Fire →</button>`;
     } else if (order.status === "preparing") {
-      nextActionHtml = `<button type="button" class="btn btn--ready k-action-btn" data-action="ready" data-id="${order.id}">Mark Ready (${isDelivery ? "Deliver" : "Pickup"}) →</button>`;
+      nextActionHtml = `<button type="button" class="btn btn--ready k-action-btn" data-action="ready" data-id="${order.id}">Mark Ready →</button>`;
     } else if (order.status === "ready") {
-      nextActionHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}">Complete Order ✓</button>`;
+      nextActionHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}">Served / Completed ✓</button>`;
     } else {
       nextActionHtml = `<span class="k-archived-tag">Fulfillment Done</span>`;
     }
@@ -203,14 +241,14 @@ App.register("kitchen", {
         <div class="k-card__head">
           <div>
             <span class="k-card__id">${order.id}</span>
-            <span class="k-card__name">${order.customer?.name || "Customer"}</span>
+            <span class="k-card__name">${order.customer?.name || "Guest"}</span>
           </div>
           <span class="k-timer" data-created="${order.createdAt}">${elapsed}</span>
         </div>
 
         <div class="k-card__meta">
-          <span class="badge ${isDelivery ? "badge--del" : "badge--pic"}">${order.mode.toUpperCase()}</span>
-          <span class="k-card__phone">${order.customer?.phone || ""}</span>
+          ${modeBadgeHtml}
+          ${!isTable ? `<span class="k-card__phone">${order.customer?.phone || ""}</span>` : ""}
         </div>
 
         ${isDelivery ? `<p class="k-card__addr">📍 ${order.customer?.address || ""}</p>` : ""}
