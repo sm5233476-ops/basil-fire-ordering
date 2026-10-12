@@ -1,90 +1,217 @@
-// Kitchen Board Display, WebAudio Chime, Simulation & Table QR Generator
+// Kitchen KDS Engine with Staff PIN Security (1234), Table Support & Audio Chime
 window.App = window.App || {};
 
 App.register("kitchen", {
   init() {
-    this.soundEnabled = false;
     this.audioCtx = null;
+    this.currentPin = "";
+    this.masterPin = "1234";
 
-    this.bindHeaderControls();
+    this.initSecurityGate();
+    this.initAudioContext();
     this.initQRModal();
-    this.renderBoard();
     this.initTimers();
 
+    // Cross-Tab Orders Synchronizer
     if (App.orders && App.orders.subscribe) {
       App.orders.subscribe((event) => {
         if (event.type === "created") {
           this.playChime();
         }
-        this.renderBoard(event.order?.id);
+        if (this.isAuthenticated()) {
+          this.renderBoard(event.order?.id);
+        }
       });
     }
   },
 
-  initAudio() {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      this.audioCtx = new AudioContext();
-    } catch (e) {
-      console.warn("[WebAudio] Not supported", e);
+  // 1. PIN Gate: Protects KDS from random public visitors
+  isAuthenticated() {
+    return sessionStorage.getItem("bf_kds_auth") === "true";
+  },
+
+  initSecurityGate() {
+    const lockScreen = App.qs("#pin-lock-screen");
+    const kdsWrapper = App.qs("#kds-wrapper");
+    const dots = App.qs("#pin-dots");
+
+    const updateDots = () => {
+      if (!dots) return;
+      const dotEls = dots.querySelectorAll(".dot");
+      dotEls.forEach((d, idx) => {
+        d.classList.toggle("is-filled", idx < this.currentPin.length);
+      });
+    };
+
+    const unlock = () => {
+      sessionStorage.setItem("bf_kds_auth", "true");
+      if (window.gsap && !App.prefersReducedMotion()) {
+        gsap.to(lockScreen, {
+          opacity: 0,
+          scale: 0.98,
+          duration: 0.35,
+          onComplete: () => {
+            lockScreen.style.display = "none";
+            kdsWrapper.style.display = "block";
+            this.renderBoard();
+          }
+        });
+      } else {
+        lockScreen.style.display = "none";
+        kdsWrapper.style.display = "block";
+        this.renderBoard();
+      }
+    };
+
+    if (this.isAuthenticated()) {
+      lockScreen.style.display = "none";
+      kdsWrapper.style.display = "block";
+      this.renderBoard();
     }
+
+    // Keypad Click Listeners
+    document.querySelectorAll(".pin-key[data-num]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (this.currentPin.length < 4) {
+          this.currentPin += btn.dataset.num;
+          updateDots();
+          App.haptic(10);
+
+          if (this.currentPin.length === 4) {
+            setTimeout(() => {
+              if (this.currentPin === this.masterPin) {
+                unlock();
+              } else {
+                this.shakePin();
+                this.currentPin = "";
+                updateDots();
+                App.haptic(40);
+              }
+            }, 120);
+          }
+        }
+      });
+    });
+
+    // Clear and Backspace
+    App.qs("#pin-clear")?.addEventListener("click", () => {
+      this.currentPin = "";
+      updateDots();
+    });
+
+    App.qs("#pin-back")?.addEventListener("click", () => {
+      this.currentPin = this.currentPin.slice(0, -1);
+      updateDots();
+    });
+
+    // Keyboard support for typing PIN directly
+    window.addEventListener("keydown", (e) => {
+      if (this.isAuthenticated()) return;
+      if (e.key >= "0" && e.key <= "9" && this.currentPin.length < 4) {
+        this.currentPin += e.key;
+        updateDots();
+        if (this.currentPin.length === 4) {
+          if (this.currentPin === this.masterPin) unlock();
+          else {
+            this.shakePin();
+            this.currentPin = "";
+            updateDots();
+          }
+        }
+      } else if (e.key === "Backspace") {
+        this.currentPin = this.currentPin.slice(0, -1);
+        updateDots();
+      }
+    });
+
+    // Lock KDS Button
+    App.qs("#lock-kds-btn")?.addEventListener("click", () => {
+      sessionStorage.removeItem("bf_kds_auth");
+      this.currentPin = "";
+      updateDots();
+      kdsWrapper.style.display = "none";
+      lockScreen.style.display = "flex";
+      lockScreen.style.opacity = "1";
+    });
+
+    // Simulate Order Button
+    App.qs("#simulate-order-btn")?.addEventListener("click", () => {
+      this.simulateRealisticOrder();
+      App.haptic(15);
+    });
+
+    // Mobile Column Switcher Pills
+    document.querySelectorAll(".kds-tab-pill").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".kds-tab-pill").forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        const col = btn.dataset.col;
+        document.querySelectorAll(".kds-column").forEach((c) => {
+          c.classList.toggle("is-mob-visible", c.dataset.status === col);
+        });
+      });
+    });
+  },
+
+  shakePin() {
+    const dots = App.qs("#pin-dots");
+    if (!dots) return;
+    dots.classList.add("is-error");
+    setTimeout(() => dots.classList.remove("is-error"), 400);
+  },
+
+  // 2. Synthesized WebAudio Chime (No ugly button, plays automatically on new order)
+  initAudioContext() {
+    const unlockAudio = () => {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!this.audioCtx) this.audioCtx = new AudioContext();
+        if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+      } catch (e) {
+        console.warn("[WebAudio] Init note:", e);
+      }
+      window.removeEventListener("click", unlockAudio);
+    };
+    window.addEventListener("click", unlockAudio, { once: true });
   },
 
   playChime() {
-    if (!this.soundEnabled || !this.audioCtx) return;
-    if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+    try {
+      if (!this.audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.audioCtx = new AudioContext();
+      }
+      if (this.audioCtx.state === "suspended") this.audioCtx.resume();
 
-    const now = this.audioCtx.currentTime;
-    const osc = this.audioCtx.createOscillator();
-    const gain = this.audioCtx.createGain();
+      const now = this.audioCtx.currentTime;
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
 
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(587.33, now);
-    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
 
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
 
-    osc.connect(gain);
-    gain.connect(this.audioCtx.destination);
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
 
-    osc.start(now);
-    osc.stop(now + 0.55);
-  },
-
-  bindHeaderControls() {
-    const audioBtn = App.qs("#audio-toggle-btn");
-    const simBtn = App.qs("#simulate-order-btn");
-
-    if (audioBtn) {
-      audioBtn.addEventListener("click", () => {
-        if (!this.audioCtx) this.initAudio();
-        this.soundEnabled = !this.soundEnabled;
-        if (this.soundEnabled && this.audioCtx.state === "suspended") {
-          this.audioCtx.resume();
-        }
-        audioBtn.textContent = this.soundEnabled ? "🔔 Sound ON" : "Enable Sound";
-        audioBtn.classList.toggle("btn--primary", this.soundEnabled);
-        audioBtn.classList.toggle("btn--ghost", !this.soundEnabled);
-        if (this.soundEnabled) this.playChime();
-      });
-    }
-
-    if (simBtn) {
-      simBtn.addEventListener("click", () => {
-        this.simulateRealisticOrder();
-      });
+      osc.start(now);
+      osc.stop(now + 0.55);
+    } catch (e) {
+      console.warn("[Audio Error]:", e);
     }
   },
 
-  // Interactive Table QR Generator for Restaurants
+  // 3. Dine-In Table QR Generator
   initQRModal() {
     const openBtn = App.qs("#qr-modal-open-btn");
     const backdrop = App.qs("#qr-backdrop");
     const closeBtn = App.qs("#qr-close-btn");
     const select = App.qs("#table-select-input");
     const imgWrap = App.qs("#qr-code-img-wrap");
-    const linkText = App.qs("#qr-scan-link-text");
+    const headline = App.qs("#qr-table-headline");
     const testBtn = App.qs("#qr-test-open-btn");
 
     if (!openBtn || !backdrop) return;
@@ -92,11 +219,11 @@ App.register("kitchen", {
     const updateQR = (tableNum) => {
       const origin = window.location.origin + window.location.pathname.replace("kitchen.html", "index.html");
       const targetUrl = `${origin}?table=${tableNum}`;
-      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=12-10-0E&bgcolor=F7-F0-E6&data=${encodeURIComponent(targetUrl)}`;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=12-10-0E&bgcolor=F7-F0-E6&data=${encodeURIComponent(targetUrl)}`;
 
       imgWrap.innerHTML = `<img src="${qrApiUrl}" alt="Table ${tableNum} QR Code" class="qr-img">`;
-      linkText.textContent = `Scan with phone to order directly at Table #${tableNum}`;
-      testBtn.textContent = `Test Open as Table #${tableNum}`;
+      headline.textContent = `TABLE #${tableNum.padStart(2, "0")}`;
+      testBtn.textContent = `Test Open Table #${tableNum} in New Tab ↗`;
       testBtn.onclick = () => window.open(targetUrl, "_blank");
     };
 
@@ -118,13 +245,14 @@ App.register("kitchen", {
     });
   },
 
+  // 4. Order Simulation
   simulateRealisticOrder() {
-    const isTableOrder = Math.random() > 0.4;
+    const isTableOrder = Math.random() > 0.45;
     const tableNum = Math.floor(1 + Math.random() * 8);
     const names = ["Jordan M.", "Priya S.", "Lucas R.", "Elena D.", "Liam K."];
     const name = names[Math.floor(Math.random() * names.length)];
     const mode = isTableOrder ? "table" : (Math.random() > 0.5 ? "delivery" : "pickup");
-    const address = isTableOrder ? `Dine-In: Table #${tableNum}` : (mode === "delivery" ? "42 Oakway Lane" : "Pickup at Counter");
+    const address = isTableOrder ? `Table #${tableNum}` : (mode === "delivery" ? "42 Oakway Lane" : "Counter Pickup");
 
     const allItems = window.MENU?.items || [];
     const item1 = allItems[Math.floor(Math.random() * 5)] || allItems[0];
@@ -137,7 +265,7 @@ App.register("kitchen", {
         priceCents: item1.priceCents,
         unitPriceCents: item1.priceCents + 300,
         options: { size: "Medium 12\"", crust: "Classic", extras: ["Extra cheese"] },
-        notes: isTableOrder ? `Dine-in Table #${tableNum}` : "Crispy crust please",
+        notes: isTableOrder ? `Table #${tableNum}` : "Well done crust",
         qty: 1
       }
     ];
@@ -159,7 +287,7 @@ App.register("kitchen", {
     App.orders.create({
       mode,
       tableNumber: isTableOrder ? tableNum : null,
-      timeLabel: isTableOrder ? `Dine-in (Table #${tableNum})` : `ASAP (${mode === "delivery" ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup})`,
+      timeLabel: isTableOrder ? `Dine-In (Table #${tableNum})` : `ASAP (${mode === "delivery" ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup})`,
       customer: {
         name,
         phone: "+1 555-0182",
@@ -175,7 +303,9 @@ App.register("kitchen", {
     });
   },
 
+  // 5. Render Board
   renderBoard(highlightId = null) {
+    if (!this.isAuthenticated()) return;
     const orders = App.orders.list();
 
     const cols = {
@@ -194,11 +324,16 @@ App.register("kitchen", {
       completed: orders.filter((o) => o.status === "completed")
     };
 
-    App.qs("#count-new").textContent = buckets.new.length;
-    App.qs("#count-preparing").textContent = buckets.preparing.length;
-    App.qs("#count-ready").textContent = buckets.ready.length;
-    App.qs("#count-completed").textContent = buckets.completed.length;
+    // Update Counter Badges
+    ["new", "preparing", "ready", "completed"].forEach((status) => {
+      const count = buckets[status].length;
+      const elDesk = App.qs(`#count-${status}`);
+      const elMob = App.qs(`#mob-count-${status}`);
+      if (elDesk) elDesk.textContent = count;
+      if (elMob) elMob.textContent = count;
+    });
 
+    // Render Cards in Each Column
     Object.keys(buckets).forEach((status) => {
       let list = buckets[status];
       if (status === "completed" && list.length > 10) {
@@ -216,60 +351,60 @@ App.register("kitchen", {
     const isTable = order.mode === "table";
     const isDelivery = order.mode === "delivery";
 
-    let modeBadgeHtml = "";
+    let badgeHtml = "";
     if (isTable) {
-      modeBadgeHtml = `<span class="badge badge--table">🍽️ DINE-IN ${order.customer?.address || ""}</span>`;
+      badgeHtml = `<span class="k-badge k-badge--table">🍽️ DINE-IN ${order.customer?.address || ""}</span>`;
     } else if (isDelivery) {
-      modeBadgeHtml = `<span class="badge badge--del">🛵 DELIVERY</span>`;
+      badgeHtml = `<span class="k-badge k-badge--del">🛵 DELIVERY</span>`;
     } else {
-      modeBadgeHtml = `<span class="badge badge--pic">🛍️ PICKUP</span>`;
+      badgeHtml = `<span class="k-badge k-badge--pic">🛍️ PICKUP</span>`;
     }
 
-    let nextActionHtml = "";
+    let nextBtnHtml = "";
     if (order.status === "new") {
-      nextActionHtml = `<button type="button" class="btn btn--primary k-action-btn" data-action="preparing" data-id="${order.id}">Accept & Fire →</button>`;
+      nextBtnHtml = `<button type="button" class="btn btn--primary k-action-btn" data-action="preparing" data-id="${order.id}">Accept & Fire →</button>`;
     } else if (order.status === "preparing") {
-      nextActionHtml = `<button type="button" class="btn btn--ready k-action-btn" data-action="ready" data-id="${order.id}">Mark Ready →</button>`;
+      nextBtnHtml = `<button type="button" class="btn btn--ready k-action-btn" data-action="ready" data-id="${order.id}">Mark Ready →</button>`;
     } else if (order.status === "ready") {
-      nextActionHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}">Served / Completed ✓</button>`;
+      nextBtnHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}">Served / Done ✓</button>`;
     } else {
-      nextActionHtml = `<span class="k-archived-tag">Fulfillment Done</span>`;
+      nextBtnHtml = `<span class="k-done-tag">Order Fulfilled</span>`;
     }
 
     return `
       <article class="k-card ${isNewFlash ? "card-flash" : ""}" data-order-id="${order.id}">
-        <div class="k-card__head">
-          <div>
-            <span class="k-card__id">${order.id}</span>
-            <span class="k-card__name">${order.customer?.name || "Guest"}</span>
+        <div class="k-card__top">
+          <div class="k-order-identity">
+            <span class="k-order-id">${order.id}</span>
+            <span class="k-customer-name">${order.customer?.name || "Guest"}</span>
           </div>
-          <span class="k-timer" data-created="${order.createdAt}">${elapsed}</span>
+          <span class="k-timer-pill" data-created="${order.createdAt}">⏱️ ${elapsed}</span>
         </div>
 
         <div class="k-card__meta">
-          ${modeBadgeHtml}
-          ${!isTable ? `<span class="k-card__phone">${order.customer?.phone || ""}</span>` : ""}
+          ${badgeHtml}
+          ${!isTable && order.customer?.phone ? `<span class="k-phone-tag">${order.customer.phone}</span>` : ""}
         </div>
 
-        ${isDelivery ? `<p class="k-card__addr">📍 ${order.customer?.address || ""}</p>` : ""}
+        ${isDelivery ? `<p class="k-addr-tag">📍 ${order.customer?.address || ""}</p>` : ""}
 
-        <div class="k-card__items">
+        <div class="k-card__items-box">
           ${order.lines.map((l) => {
             const opts = l.options ? Object.values(l.options).flat().filter(Boolean).join(", ") : "";
             return `
-              <div class="k-card__item-line">
-                <span class="k-item-qty">${l.qty}x</span>
-                <span class="k-item-name">${l.name}</span>
-                ${opts ? `<span class="k-item-opts">(${opts})</span>` : ""}
-                ${l.notes ? `<div class="k-item-note">Note: "${l.notes}"</div>` : ""}
+              <div class="k-item-line">
+                <span class="k-qty-num">${l.qty}x</span>
+                <span class="k-food-name">${l.name}</span>
+                ${opts ? `<span class="k-opts-text">(${opts})</span>` : ""}
+                ${l.notes ? `<div class="k-note-highlight">“${l.notes}”</div>` : ""}
               </div>
             `;
           }).join("")}
         </div>
 
-        <div class="k-card__foot">
-          <span class="k-card__total">${App.money.format(order.total)}</span>
-          ${nextActionHtml}
+        <div class="k-card__bottom">
+          <span class="k-order-price">${App.money.format(order.total)}</span>
+          ${nextBtnHtml}
         </div>
       </article>
     `;
@@ -284,9 +419,9 @@ App.register("kitchen", {
 
   initTimers() {
     setInterval(() => {
-      document.querySelectorAll(".k-timer").forEach((el) => {
+      document.querySelectorAll(".k-timer-pill").forEach((el) => {
         const timestamp = parseInt(el.dataset.created, 10);
-        if (timestamp) el.textContent = this.getElapsedTime(timestamp);
+        if (timestamp) el.textContent = `⏱️ ${this.getElapsedTime(timestamp)}`;
       });
     }, 30000);
   },
