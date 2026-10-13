@@ -1,4 +1,4 @@
-// Kitchen KDS Engine with Cloud Refresh, Multi-Device Clear & Payment Management
+// Kitchen KDS Engine: Mandatory Passcode Gate on Every Visit & Multi-Device Sync
 window.App = window.App || {};
 
 App.register("kitchen", {
@@ -18,15 +18,25 @@ App.register("kitchen", {
         if (event.type === "created") {
           this.playChime();
         }
-        if (this.isAuthenticated()) {
+        if (this.unlocked) {
           this.renderBoard(event.order?.id);
         }
       });
     }
 
-    // Auto sync from cloud immediately
+    // React live to PIN updates from other devices
+    if (App.on) {
+      App.on("pin:updated", (newPin) => {
+        const hintText = App.qs("#kds-pin-hint-text");
+        if (hintText) hintText.innerHTML = `Passcode: <strong>${newPin}</strong>`;
+      });
+    }
+
+    // Always fetch latest state from cloud on boot
     if (App.orders && App.orders.syncFromCloud) {
-      App.orders.syncFromCloud().then(() => this.renderBoard());
+      App.orders.syncFromCloud().then(() => {
+        if (this.unlocked) this.renderBoard();
+      });
     }
   },
 
@@ -34,15 +44,16 @@ App.register("kitchen", {
     return App.storage.get("bf_custom_pin", "1234");
   },
 
-  isAuthenticated() {
-    return sessionStorage.getItem("bf_kds_auth") === "true";
-  },
-
   initSecurityGate() {
     const lockScreen = App.qs("#pin-lock-screen");
     const kdsWrapper = App.qs("#kds-wrapper");
     const dots = App.qs("#pin-dots");
     const hintText = App.qs("#kds-pin-hint-text");
+
+    // Always require PIN on entry/reload (never bypass)
+    this.unlocked = false;
+    lockScreen.style.display = "flex";
+    kdsWrapper.style.display = "none";
 
     if (hintText) {
       hintText.innerHTML = `Passcode: <strong>${this.getMasterPin()}</strong>`;
@@ -58,7 +69,7 @@ App.register("kitchen", {
     };
 
     const unlock = () => {
-      sessionStorage.setItem("bf_kds_auth", "true");
+      this.unlocked = true;
       if (window.gsap && !App.prefersReducedMotion()) {
         gsap.to(lockScreen, {
           opacity: 0,
@@ -76,12 +87,6 @@ App.register("kitchen", {
         this.renderBoard();
       }
     };
-
-    if (this.isAuthenticated()) {
-      lockScreen.style.display = "none";
-      kdsWrapper.style.display = "block";
-      this.renderBoard();
-    }
 
     document.querySelectorAll(".pin-key[data-num]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -117,7 +122,7 @@ App.register("kitchen", {
     });
 
     window.addEventListener("keydown", (e) => {
-      if (this.isAuthenticated()) return;
+      if (this.unlocked) return;
       if (e.key >= "0" && e.key <= "9" && this.currentPin.length < 4) {
         this.currentPin += e.key;
         updateDots();
@@ -135,7 +140,6 @@ App.register("kitchen", {
       }
     });
 
-    // Clear Done: Clears across all devices via cloud sync
     App.qs("#btn-clear-done")?.addEventListener("click", () => {
       App.orders.archiveCompleted();
       this.renderBoard();
@@ -210,11 +214,12 @@ App.register("kitchen", {
       if (e.target === backdrop) backdrop.style.display = "none";
     });
 
+    // Save Passcode and broadcast to ALL devices via cloud
     btnSavePin?.addEventListener("click", () => {
       const newPin = (pinInput?.value || "").trim();
       if (/^\d{4}$/.test(newPin)) {
-        App.storage.set("bf_custom_pin", newPin);
-        pinMsg.textContent = `✓ Passcode updated to ${newPin}!`;
+        App.orders.broadcastPinChange(newPin);
+        pinMsg.textContent = `✓ Passcode updated to ${newPin} on all devices!`;
         pinMsg.style.color = "#8BD18F";
         pinInput.value = "";
         App.haptic(15);
@@ -316,7 +321,7 @@ App.register("kitchen", {
   },
 
   renderBoard(highlightId = null) {
-    if (!this.isAuthenticated()) return;
+    if (!this.unlocked) return;
     const orders = App.orders.list();
 
     const cols = {
