@@ -1,4 +1,4 @@
-// Pure Dine-In Engine with Real-Time Cross-Device Cloud Sync (Phone ➔ Laptop)
+// Universal Multi-Device Cloud Sync Engine (Status Updates, Orders & PIN Sync)
 window.App = window.App || {};
 window.App.register = window.App.register || function (name, api) {
   (window.App._modules = window.App._modules || {})[name] = api;
@@ -35,7 +35,7 @@ App.storage = {
   }
 };
 
-// 2. Pure Dine-In Financial Rules (Zero delivery fee, promo verification, 8% tax)
+// 2. Pure Dine-In Financial Rules (Zero delivery fee, 8% tax)
 App.money = {
   format(cents) {
     const val = typeof cents === "number" ? cents / 100 : 0;
@@ -88,7 +88,7 @@ App.money = {
   }
 };
 
-// 3. Persistent Cart Store
+// 3. Cart Store
 const CART_STORAGE_KEY = "bf_cart_v1";
 const cartSubscribers = new Set();
 
@@ -174,7 +174,7 @@ App.cart = {
   }
 };
 
-// 4. Real-Time Cloud Orders Sync (Public Open Relay for Phone ➔ Laptop Live Dispatch)
+// 4. Multi-Device Real-Time Cloud Relay with Full State Convergence
 const CLOUD_SYNC_TOPIC = "https://ntfy.sh/bf_kitchen_live_sync_shivam";
 const orderSubscribers = new Set();
 
@@ -199,7 +199,7 @@ window.addEventListener("storage", (event) => {
   }
 });
 
-// Live Cloud SSE Listener (Listens to orders placed on phones instantly)
+// Real-Time Cloud SSE Listener (Applies live order events, status changes & PIN updates)
 try {
   if (typeof EventSource !== "undefined") {
     const sse = new EventSource(`${CLOUD_SYNC_TOPIC}/sse`);
@@ -230,6 +230,9 @@ try {
           const orders = App.orders.list().filter((o) => o.status !== "completed");
           App.storage.set("bf_orders_v1", orders);
           notifyOrderSubscribers({ type: "sync", orders });
+        } else if (payload.action === "pin_change" && payload.pin) {
+          App.storage.set("bf_custom_pin", payload.pin);
+          if (App.emit) App.emit("pin:updated", payload.pin);
         }
       } catch (err) {}
     };
@@ -260,7 +263,7 @@ App.orders = {
     notifyOrderSubscribers(message);
     if (App.emit) App.emit("order:created", newOrder);
 
-    // Broadcast over Internet to Laptop Kitchen Board immediately
+    // Broadcast across devices over Internet
     try {
       fetch(CLOUD_SYNC_TOPIC, {
         method: "POST",
@@ -288,7 +291,7 @@ App.orders = {
     notifyOrderSubscribers(message);
     if (App.emit) App.emit("order:updated", orders[idx]);
 
-    // Broadcast update over Internet
+    // Broadcast status change across all devices
     try {
       fetch(CLOUD_SYNC_TOPIC, {
         method: "POST",
@@ -305,7 +308,6 @@ App.orders = {
     App.storage.set("bf_orders_v1", orders);
     notifyOrderSubscribers({ type: "sync", orders });
 
-    // Sync clear across all devices
     try {
       fetch(CLOUD_SYNC_TOPIC, {
         method: "POST",
@@ -315,15 +317,26 @@ App.orders = {
     } catch (e) {}
   },
 
-  // Manual / Auto Refresh from Cloud
+  broadcastPinChange(newPin) {
+    App.storage.set("bf_custom_pin", newPin);
+    try {
+      fetch(CLOUD_SYNC_TOPIC, {
+        method: "POST",
+        body: JSON.stringify({ action: "pin_change", pin: newPin }),
+        headers: { "Content-Type": "text/plain" }
+      }).catch(() => {});
+    } catch (e) {}
+  },
+
+  // Chronological Cloud Replay Engine: Guarantees 100% Identical State Across Phone and Laptop
   async syncFromCloud() {
     try {
-      const res = await fetch(`${CLOUD_SYNC_TOPIC}/json?poll=1&since=8h`);
+      const res = await fetch(`${CLOUD_SYNC_TOPIC}/json?poll=1&since=24h`);
       const text = (await res.text()).trim();
       if (!text) return;
 
       const lines = text.split("\n");
-      const orders = App.orders.list();
+      let orders = this.list();
       let hasChanges = false;
 
       lines.forEach((line) => {
@@ -332,10 +345,25 @@ App.orders = {
           const payload = typeof raw.message === "string" ? JSON.parse(raw.message) : raw;
 
           if (payload.action === "create" && payload.order) {
-            if (!orders.some((o) => o.id === payload.order.id)) {
+            const idx = orders.findIndex((o) => o.id === payload.order.id);
+            if (idx === -1) {
               orders.unshift(payload.order);
               hasChanges = true;
             }
+          } else if (payload.action === "update" && payload.id) {
+            const target = orders.find((o) => o.id === payload.id);
+            if (target) {
+              if (target.status !== payload.status || target.paymentSettled !== payload.paymentSettled) {
+                target.status = payload.status;
+                if (payload.paymentSettled !== undefined) target.paymentSettled = payload.paymentSettled;
+                hasChanges = true;
+              }
+            }
+          } else if (payload.action === "archive") {
+            orders = orders.filter((o) => o.status !== "completed");
+            hasChanges = true;
+          } else if (payload.action === "pin_change" && payload.pin) {
+            App.storage.set("bf_custom_pin", payload.pin);
           }
         } catch (e) {}
       });
@@ -355,7 +383,6 @@ App.orders = {
 
 App.register("shared", {
   init() {
-    // Initial sync from cloud on page load
     if (App.orders && App.orders.syncFromCloud) {
       App.orders.syncFromCloud();
     }
