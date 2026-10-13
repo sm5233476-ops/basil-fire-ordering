@@ -1,4 +1,4 @@
-// Clean Customer UI: Left Brand, Right Staff, Minimal Hero & Custom Timings
+// Clean Customer UI with Demo Tour Guide Banner & Pickup Station Info
 window.App = window.App || {};
 
 App.register("menu", {
@@ -21,6 +21,7 @@ App.register("menu", {
     this.activeCategory = window.MENU?.categories[0]?.id || "pizza";
     this.isProgrammaticScroll = false;
 
+    this.renderDemoTourBanner();
     this.renderHeader();
     this.renderHero();
     this.renderTabs();
@@ -40,7 +41,25 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Header: Extreme Left Brand & Extreme Right Staff Portal
+  // Interactive Recruiter/Client Demo Walkthrough Banner
+  renderDemoTourBanner() {
+    let banner = App.qs("#demo-guide-banner");
+    if (!banner) {
+      banner = document.createElement("div");
+      banner.id = "demo-guide-banner";
+      banner.className = "demo-guide-banner";
+      document.body.prepend(banner);
+    }
+
+    banner.innerHTML = `
+      <div class="demo-banner-content">
+        <span class="demo-badge">Live Portfolio Demo</span>
+        <span class="demo-text">👉 Recruiter/Client Tip: Open <strong>Staff Portal 🔒</strong> in another tab side-by-side to test real-time order dispatch!</span>
+        <a href="kitchen.html" class="demo-open-link" target="_blank">Open Kitchen KDS ↗</a>
+      </div>
+    `;
+  },
+
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -70,12 +89,10 @@ App.register("menu", {
     `;
   },
 
-  // 2. Hero Section (Clean: Delivery Chip Removed, Hours Kept)
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
 
-    // Read custom timing if configured in KDS settings
     const customTiming = App.storage.get("bf_custom_timing", null);
     const hoursText = customTiming?.hoursText || window.CONFIG.hoursText;
 
@@ -112,13 +129,15 @@ App.register("menu", {
               <span class="live-dot" style="margin:0 4px 0 0;"></span>
               ${hoursText}
             </span>
+            <span class="chip chip--pickup-loc">
+              📍 Pickup Point: Kitchen Counter 1
+            </span>
           </div>
         </div>
       </div>
     `;
   },
 
-  // 3. Category Tabs
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -209,7 +228,6 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 4. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
@@ -455,7 +473,7 @@ App.register("menu", {
           <div class="sheet-group">
             <label for="item-notes" class="sheet-group__legend">Special Instructions</label>
             <div class="notes-wrap">
-              <textarea id="item-notes" maxlength="140" rows="2" placeholder="e.g. Well done, extra crispy, sauce on the side..."></textarea>
+              <textarea id="item-notes" maxlength="140" rows="2" placeholder="e.g. Extra crispy, sauce on the side..."></textarea>
               <span class="notes-count" id="notes-count">0 / 140</span>
             </div>
           </div>
