@@ -1,4 +1,4 @@
-// Pure Dine-In Customer Ordering: Table Picker Header & Direct Kitchen Flow
+// Clean Customer UI with Modern Box Badges & Exact Table QR Detection
 window.App = window.App || {};
 
 App.register("menu", {
@@ -7,12 +7,10 @@ App.register("menu", {
     const tableParam = urlParams.get("table");
 
     if (tableParam) {
-      // Scanned directly from physical desk QR code
       this.tableNumber = String(tableParam);
       this.isLockedByQR = true;
       App.storage.set("bf_table_num", this.tableNumber);
     } else {
-      // Direct visitor: load saved table or default to Table #01
       this.tableNumber = App.storage.get("bf_table_num", "1");
       this.isLockedByQR = false;
     }
@@ -40,7 +38,7 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Full-Width Header: Left Brand, Center Table Picker, Right Staff Portal
+  // 1. Full-Width Header with Rectangular Badges
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -50,14 +48,15 @@ App.register("menu", {
       tableControlHtml = `
         <div class="table-pill table-pill--locked" title="Ordering at Table #${this.tableNumber}">
           <span class="table-icon">🍽️</span>
-          <span class="table-name">Table #${String(this.tableNumber).padStart(2, "0")}</span>
-          <span class="qr-lock-icon" title="Locked via QR">🔒</span>
+          <span class="table-name">Dine-In Table #${String(this.tableNumber).padStart(2, "0")}</span>
+          <span class="qr-lock-icon">🔒</span>
         </div>
       `;
     } else {
       tableControlHtml = `
         <div class="table-pill table-pill--selector">
           <span class="table-icon">🍽️</span>
+          <span class="table-label-text">Dine-In</span>
           <select id="header-table-select" class="header-table-dropdown" aria-label="Select Table Number">
             ${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `
               <option value="${n}" ${String(this.tableNumber) === String(n) ? "selected" : ""}>
@@ -84,13 +83,12 @@ App.register("menu", {
 
         <div class="nav-right-actions">
           <a href="kitchen.html" class="staff-portal-btn" title="Open Staff Kitchen Portal">
-            🔒 Staff Portal
+            🔒 Staff
           </a>
         </div>
       </div>
     `;
 
-    // Handle Table Picker dropdown change
     const tableSelect = App.qs("#header-table-select", root);
     if (tableSelect) {
       tableSelect.addEventListener("change", (e) => {
@@ -103,7 +101,7 @@ App.register("menu", {
     }
   },
 
-  // 2. Hero Section (Clean Dine-In Table Badge)
+  // 2. Hero Section
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
@@ -234,7 +232,6 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 4. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
