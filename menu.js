@@ -1,4 +1,4 @@
-// Clean Customer UI with Demo Tour Guide Banner & Pickup Station Info
+// Pure Dine-In Customer Ordering: Table Picker Header & Direct Kitchen Flow
 window.App = window.App || {};
 
 App.register("menu", {
@@ -7,21 +7,20 @@ App.register("menu", {
     const tableParam = urlParams.get("table");
 
     if (tableParam) {
-      this.tableNumber = tableParam;
-      this.orderMode = "table";
-      App.storage.set("bf_table_num", tableParam);
-      App.storage.set("bf_order_mode", "table");
+      // Scanned directly from physical desk QR code
+      this.tableNumber = String(tableParam);
+      this.isLockedByQR = true;
+      App.storage.set("bf_table_num", this.tableNumber);
     } else {
-      this.tableNumber = null;
-      App.storage.remove("bf_table_num");
-      this.orderMode = App.storage.get("bf_order_mode", "delivery");
-      if (this.orderMode === "table") this.orderMode = "delivery";
+      // Direct visitor: load saved table or default to Table #01
+      this.tableNumber = App.storage.get("bf_table_num", "1");
+      this.isLockedByQR = false;
     }
 
+    this.orderMode = "table";
     this.activeCategory = window.MENU?.categories[0]?.id || "pizza";
     this.isProgrammaticScroll = false;
 
-    this.renderDemoTourBanner();
     this.renderHeader();
     this.renderHero();
     this.renderTabs();
@@ -41,30 +40,34 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // Interactive Recruiter/Client Demo Walkthrough Banner
-  renderDemoTourBanner() {
-    let banner = App.qs("#demo-guide-banner");
-    if (!banner) {
-      banner = document.createElement("div");
-      banner.id = "demo-guide-banner";
-      banner.className = "demo-guide-banner";
-      document.body.prepend(banner);
-    }
-
-    banner.innerHTML = `
-      <div class="demo-banner-content">
-        <span class="demo-badge">Live Portfolio Demo</span>
-        <span class="demo-text">👉 Recruiter/Client Tip: Open <strong>Staff Portal 🔒</strong> in another tab side-by-side to test real-time order dispatch!</span>
-        <a href="kitchen.html" class="demo-open-link" target="_blank">Open Kitchen KDS ↗</a>
-      </div>
-    `;
-  },
-
+  // 1. Full-Width Header: Left Brand, Center Table Picker, Right Staff Portal
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
 
-    const isTable = this.orderMode === "table";
+    let tableControlHtml = "";
+    if (this.isLockedByQR) {
+      tableControlHtml = `
+        <div class="table-pill table-pill--locked" title="Ordering at Table #${this.tableNumber}">
+          <span class="table-icon">🍽️</span>
+          <span class="table-name">Table #${String(this.tableNumber).padStart(2, "0")}</span>
+          <span class="qr-lock-icon" title="Locked via QR">🔒</span>
+        </div>
+      `;
+    } else {
+      tableControlHtml = `
+        <div class="table-pill table-pill--selector">
+          <span class="table-icon">🍽️</span>
+          <select id="header-table-select" class="header-table-dropdown" aria-label="Select Table Number">
+            ${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `
+              <option value="${n}" ${String(this.tableNumber) === String(n) ? "selected" : ""}>
+                Table #${String(n).padStart(2, "0")}
+              </option>
+            `).join("")}
+          </select>
+        </div>
+      `;
+    }
 
     root.innerHTML = `
       <div class="nav-container nav-container--spaced">
@@ -75,35 +78,38 @@ App.register("menu", {
           </a>
         </div>
 
+        <div class="nav-center-table">
+          ${tableControlHtml}
+        </div>
+
         <div class="nav-right-actions">
-          ${isTable ? `
-            <div class="table-desk-badge">
-              🍽️ Table #${this.tableNumber}
-            </div>
-          ` : ""}
           <a href="kitchen.html" class="staff-portal-btn" title="Open Staff Kitchen Portal">
             🔒 Staff Portal
           </a>
         </div>
       </div>
     `;
+
+    // Handle Table Picker dropdown change
+    const tableSelect = App.qs("#header-table-select", root);
+    if (tableSelect) {
+      tableSelect.addEventListener("change", (e) => {
+        this.tableNumber = e.target.value;
+        App.storage.set("bf_table_num", this.tableNumber);
+        this.renderHero();
+        if (App.toast) App.toast(`Switched to Table #${this.tableNumber}`);
+        App.haptic(10);
+      });
+    }
   },
 
+  // 2. Hero Section (Clean Dine-In Table Badge)
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
 
     const customTiming = App.storage.get("bf_custom_timing", null);
     const hoursText = customTiming?.hoursText || window.CONFIG.hoursText;
-
-    let chipHtml = "";
-    if (this.orderMode === "table") {
-      chipHtml = `
-        <span class="chip chip--table">
-          🍽️ Dine-In · Table #${this.tableNumber}
-        </span>
-      `;
-    }
 
     root.innerHTML = `
       <div class="hero-card">
@@ -124,13 +130,12 @@ App.register("menu", {
           <h1 class="hero-title">${window.CONFIG.name}</h1>
           <p class="hero-tagline">${window.CONFIG.tagline}</p>
           <div class="hero-chips">
-            ${chipHtml}
+            <span class="chip chip--table-active">
+              🍽️ Contactless Dine-In · Table #${String(this.tableNumber).padStart(2, "0")}
+            </span>
             <span class="chip">
               <span class="live-dot" style="margin:0 4px 0 0;"></span>
               ${hoursText}
-            </span>
-            <span class="chip chip--pickup-loc">
-              📍 Pickup Point: Kitchen Counter 1
             </span>
           </div>
         </div>
@@ -138,6 +143,7 @@ App.register("menu", {
     `;
   },
 
+  // 3. Category Tabs
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -228,6 +234,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
+  // 4. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
@@ -397,7 +404,7 @@ App.register("menu", {
       qty: 1
     });
 
-    if (App.toast) App.toast(`Added ${item.name} to order`);
+    if (App.toast) App.toast(`Added ${item.name} for Table #${this.tableNumber}`);
     this.flyToCart(originEl);
     App.haptic(10);
   },
@@ -471,9 +478,9 @@ App.register("menu", {
           `).join("")}
 
           <div class="sheet-group">
-            <label for="item-notes" class="sheet-group__legend">Special Instructions</label>
+            <label for="item-notes" class="sheet-group__legend">Kitchen Instructions</label>
             <div class="notes-wrap">
-              <textarea id="item-notes" maxlength="140" rows="2" placeholder="e.g. Extra crispy, sauce on the side..."></textarea>
+              <textarea id="item-notes" maxlength="140" rows="2" placeholder="e.g. Extra crispy, sauce on side..."></textarea>
               <span class="notes-count" id="notes-count">0 / 140</span>
             </div>
           </div>
@@ -606,7 +613,7 @@ App.register("menu", {
         qty: state.qty
       });
 
-      if (App.toast) App.toast(`Added ${item.name} to order`);
+      if (App.toast) App.toast(`Added ${item.name} for Table #${this.tableNumber}`);
       this.flyToCart(e.currentTarget);
       App.haptic(15);
       closeSheet();
@@ -621,7 +628,7 @@ App.register("menu", {
       <aside class="cart-bar" id="cart-bar" role="button" tabindex="0" aria-label="Open Cart Sheet">
         <div class="cart-bar__left">
           <span class="cart-bar__badge" id="cart-bar-badge">0</span>
-          <span class="cart-bar__title">View Order</span>
+          <span class="cart-bar__title">Table #${this.tableNumber} Order</span>
         </div>
         <div class="cart-bar__right">
           <span class="cart-bar__total" id="cart-bar-total">$0.00</span>
@@ -645,8 +652,7 @@ App.register("menu", {
 
     const count = App.cart.getCount();
     const totals = App.money.calcTotals({
-      lines: App.cart.getLines(),
-      mode: this.orderMode
+      lines: App.cart.getLines()
     });
 
     if (count > 0) {
