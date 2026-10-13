@@ -3290,3 +3290,118 @@ body.is-locked {
   margin-right: 6px;
   accent-color: var(--tomato);
 }
+/* ==========================================================================
+   Recruiter Demo Guide Banner, Payment Status Badges & Pickup Counter Info
+   ========================================================================== */
+
+/* 1. Recruiter / Client Interactive Demo Guide Banner */
+.demo-guide-banner {
+  background: linear-gradient(90deg, #1E1813 0%, #2A211B 100%);
+  border-bottom: 1px solid var(--line-strong);
+  padding: 8px 16px;
+  position: relative;
+  z-index: 70;
+}
+
+.demo-banner-content {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.demo-badge {
+  background: var(--tomato);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.demo-text {
+  color: var(--text);
+  font-weight: 500;
+  flex: 1;
+}
+
+.demo-open-link {
+  color: var(--gold);
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(242, 193, 78, 0.12);
+  border: 1px solid rgba(242, 193, 78, 0.35);
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.demo-open-link:hover {
+  background: var(--gold);
+  color: #12100E;
+}
+
+/* 2. Generic Pickup Point Location Chip in Hero (No city/country rule compliant) */
+.chip--pickup-loc {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text);
+}
+
+/* 3. KDS Payment Status Badges & Mark Paid Button */
+.btn-mark-paid {
+  background: rgba(255, 90, 54, 0.15);
+  border: 1px solid var(--tomato);
+  color: #FFA590;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-mark-paid:hover {
+  background: var(--tomato);
+  color: #FFFFFF;
+}
+
+.k-pay-badge--paid {
+  background: rgba(139, 209, 143, 0.2);
+  border: 1px solid var(--basil);
+  color: var(--basil);
+  font-weight: 800;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* 4. Clear Fulfilled Orders Button */
+.done-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-clear-done {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-clear-done:hover {
+  border-color: var(--tomato);
+  color: var(--tomato);
+}
