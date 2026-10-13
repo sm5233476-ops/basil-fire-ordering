@@ -1,18 +1,17 @@
-// Kitchen KDS Engine with Staff PIN Security (1234), Table Support & Audio Chime
+// Kitchen KDS Engine with Settings Manager (PIN Change & Timing Editor)
 window.App = window.App || {};
 
 App.register("kitchen", {
   init() {
     this.audioCtx = null;
     this.currentPin = "";
-    this.masterPin = "1234";
 
     this.initSecurityGate();
     this.initAudioContext();
+    this.initSettingsModal();
     this.initQRModal();
     this.initTimers();
 
-    // Cross-Tab Orders Synchronizer
     if (App.orders && App.orders.subscribe) {
       App.orders.subscribe((event) => {
         if (event.type === "created") {
@@ -25,8 +24,15 @@ App.register("kitchen", {
     }
   },
 
-  // 1. PIN Gate: Protects KDS from random public visitors
+  getMasterPin() {
+    return App.storage.get("bf_custom_pin", "1234");
+  },
+
   isAuthenticated() {
+    const remember = App.storage.get("bf_remember_kds_pin", false);
+    if (remember) {
+      return App.storage.get("bf_kds_auth_perm", false) === true;
+    }
     return sessionStorage.getItem("bf_kds_auth") === "true";
   },
 
@@ -34,17 +40,32 @@ App.register("kitchen", {
     const lockScreen = App.qs("#pin-lock-screen");
     const kdsWrapper = App.qs("#kds-wrapper");
     const dots = App.qs("#pin-dots");
+    const hintText = App.qs("#kds-pin-hint-text");
+    const rememberCheckbox = App.qs("#remember-pin-checkbox");
+
+    if (hintText) {
+      hintText.innerHTML = `Passcode: <strong>${this.getMasterPin()}</strong>`;
+    }
 
     const updateDots = () => {
       if (!dots) return;
       const dotEls = dots.querySelectorAll(".dot");
       dotEls.forEach((d, idx) => {
-        d.classList.toggle("is-filled", idx < this.currentPin.length);
+        d.classList.toggle(".is-filled", idx < this.currentPin.length);
+        d.style.backgroundColor = idx < this.currentPin.length ? "#FF5A36" : "transparent";
+        d.style.borderColor = idx < this.currentPin.length ? "#FF5A36" : "rgba(255,255,255,0.2)";
       });
     };
 
     const unlock = () => {
+      const isRemember = rememberCheckbox?.checked;
+      App.storage.set("bf_remember_kds_pin", Boolean(isRemember));
+
+      if (isRemember) {
+        App.storage.set("bf_kds_auth_perm", true);
+      }
       sessionStorage.setItem("bf_kds_auth", "true");
+
       if (window.gsap && !App.prefersReducedMotion()) {
         gsap.to(lockScreen, {
           opacity: 0,
@@ -69,7 +90,6 @@ App.register("kitchen", {
       this.renderBoard();
     }
 
-    // Keypad Click Listeners
     document.querySelectorAll(".pin-key[data-num]").forEach((btn) => {
       btn.addEventListener("click", () => {
         if (this.currentPin.length < 4) {
@@ -79,7 +99,7 @@ App.register("kitchen", {
 
           if (this.currentPin.length === 4) {
             setTimeout(() => {
-              if (this.currentPin === this.masterPin) {
+              if (this.currentPin === this.getMasterPin()) {
                 unlock();
               } else {
                 this.shakePin();
@@ -93,7 +113,6 @@ App.register("kitchen", {
       });
     });
 
-    // Clear and Backspace
     App.qs("#pin-clear")?.addEventListener("click", () => {
       this.currentPin = "";
       updateDots();
@@ -104,14 +123,13 @@ App.register("kitchen", {
       updateDots();
     });
 
-    // Keyboard support for typing PIN directly
     window.addEventListener("keydown", (e) => {
       if (this.isAuthenticated()) return;
       if (e.key >= "0" && e.key <= "9" && this.currentPin.length < 4) {
         this.currentPin += e.key;
         updateDots();
         if (this.currentPin.length === 4) {
-          if (this.currentPin === this.masterPin) unlock();
+          if (this.currentPin === this.getMasterPin()) unlock();
           else {
             this.shakePin();
             this.currentPin = "";
@@ -124,9 +142,9 @@ App.register("kitchen", {
       }
     });
 
-    // Lock KDS Button
     App.qs("#lock-kds-btn")?.addEventListener("click", () => {
       sessionStorage.removeItem("bf_kds_auth");
+      App.storage.remove("bf_kds_auth_perm");
       this.currentPin = "";
       updateDots();
       kdsWrapper.style.display = "none";
@@ -134,13 +152,6 @@ App.register("kitchen", {
       lockScreen.style.opacity = "1";
     });
 
-    // Simulate Order Button
-    App.qs("#simulate-order-btn")?.addEventListener("click", () => {
-      this.simulateRealisticOrder();
-      App.haptic(15);
-    });
-
-    // Mobile Column Switcher Pills
     document.querySelectorAll(".kds-tab-pill").forEach((btn) => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".kds-tab-pill").forEach((b) => b.classList.remove("is-active"));
@@ -160,7 +171,72 @@ App.register("kitchen", {
     setTimeout(() => dots.classList.remove("is-error"), 400);
   },
 
-  // 2. Synthesized WebAudio Chime (No ugly button, plays automatically on new order)
+  // Settings Modal (Passcode & Timings)
+  initSettingsModal() {
+    const openBtn = App.qs("#kds-settings-open-btn");
+    const backdrop = App.qs("#kds-settings-backdrop");
+    const closeBtn = App.qs("#settings-close-btn");
+
+    const pinInput = App.qs("#input-new-pin");
+    const btnSavePin = App.qs("#btn-save-new-pin");
+    const pinMsg = App.qs("#pin-change-status");
+
+    const delInput = App.qs("#input-eta-delivery");
+    const picInput = App.qs("#input-eta-pickup");
+    const hoursInput = App.qs("#input-hours-text");
+    const btnSaveTimings = App.qs("#btn-save-timings");
+    const timingMsg = App.qs("#timing-change-status");
+
+    if (!openBtn || !backdrop) return;
+
+    openBtn.addEventListener("click", () => {
+      backdrop.style.display = "flex";
+      const customTiming = App.storage.get("bf_custom_timing", null);
+      if (delInput) delInput.value = customTiming?.etaDelivery || window.CONFIG.etaDelivery;
+      if (picInput) picInput.value = customTiming?.etaPickup || window.CONFIG.etaPickup;
+      if (hoursInput) hoursInput.value = customTiming?.hoursText || window.CONFIG.hoursText;
+      if (pinMsg) pinMsg.textContent = "";
+      if (timingMsg) timingMsg.textContent = "";
+    });
+
+    closeBtn?.addEventListener("click", () => {
+      backdrop.style.display = "none";
+    });
+
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) backdrop.style.display = "none";
+    });
+
+    // Save Passcode
+    btnSavePin?.addEventListener("click", () => {
+      const newPin = (pinInput?.value || "").trim();
+      if (/^\d{4}$/.test(newPin)) {
+        App.storage.set("bf_custom_pin", newPin);
+        pinMsg.textContent = `✓ Passcode updated to ${newPin}!`;
+        pinMsg.style.color = "#8BD18F";
+        pinInput.value = "";
+        App.haptic(15);
+      } else {
+        pinMsg.textContent = "Please enter exactly 4 digits (e.g. 5678)";
+        pinMsg.style.color = "#FF5A36";
+        App.haptic(25);
+      }
+    });
+
+    // Save Timings
+    btnSaveTimings?.addEventListener("click", () => {
+      const newTiming = {
+        etaDelivery: delInput?.value.trim() || window.CONFIG.etaDelivery,
+        etaPickup: picInput?.value.trim() || window.CONFIG.etaPickup,
+        hoursText: hoursInput?.value.trim() || window.CONFIG.hoursText
+      };
+      App.storage.set("bf_custom_timing", newTiming);
+      timingMsg.textContent = "✓ Kitchen Timings & Hours saved!";
+      timingMsg.style.color = "#8BD18F";
+      App.haptic(15);
+    });
+  },
+
   initAudioContext() {
     const unlockAudio = () => {
       try {
@@ -188,8 +264,8 @@ App.register("kitchen", {
       const gain = this.audioCtx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(587.33, now); // D5
-      osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+      osc.frequency.setValueAtTime(587.33, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
 
       gain.gain.setValueAtTime(0.2, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
@@ -204,7 +280,6 @@ App.register("kitchen", {
     }
   },
 
-  // 3. Dine-In Table QR Generator
   initQRModal() {
     const openBtn = App.qs("#qr-modal-open-btn");
     const backdrop = App.qs("#qr-backdrop");
@@ -222,7 +297,7 @@ App.register("kitchen", {
       const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=12-10-0E&bgcolor=F7-F0-E6&data=${encodeURIComponent(targetUrl)}`;
 
       imgWrap.innerHTML = `<img src="${qrApiUrl}" alt="Table ${tableNum} QR Code" class="qr-img">`;
-      headline.textContent = `TABLE #${tableNum.padStart(2, "0")}`;
+      headline.textContent = `TABLE #${String(tableNum).padStart(2, "0")}`;
       testBtn.textContent = `Test Open Table #${tableNum} in New Tab ↗`;
       testBtn.onclick = () => window.open(targetUrl, "_blank");
     };
@@ -245,65 +320,6 @@ App.register("kitchen", {
     });
   },
 
-  // 4. Order Simulation
-  simulateRealisticOrder() {
-    const isTableOrder = Math.random() > 0.45;
-    const tableNum = Math.floor(1 + Math.random() * 8);
-    const names = ["Jordan M.", "Priya S.", "Lucas R.", "Elena D.", "Liam K."];
-    const name = names[Math.floor(Math.random() * names.length)];
-    const mode = isTableOrder ? "table" : (Math.random() > 0.5 ? "delivery" : "pickup");
-    const address = isTableOrder ? `Table #${tableNum}` : (mode === "delivery" ? "42 Oakway Lane" : "Counter Pickup");
-
-    const allItems = window.MENU?.items || [];
-    const item1 = allItems[Math.floor(Math.random() * 5)] || allItems[0];
-    const item2 = allItems[5 + Math.floor(Math.random() * (allItems.length - 5))];
-
-    const lines = [
-      {
-        itemId: item1.id,
-        name: item1.name,
-        priceCents: item1.priceCents,
-        unitPriceCents: item1.priceCents + 300,
-        options: { size: "Medium 12\"", crust: "Classic", extras: ["Extra cheese"] },
-        notes: isTableOrder ? `Table #${tableNum}` : "Well done crust",
-        qty: 1
-      }
-    ];
-
-    if (item2) {
-      lines.push({
-        itemId: item2.id,
-        name: item2.name,
-        priceCents: item2.priceCents,
-        unitPriceCents: item2.priceCents,
-        options: null,
-        notes: "",
-        qty: 1
-      });
-    }
-
-    const totals = App.money.calcTotals({ lines, mode });
-
-    App.orders.create({
-      mode,
-      tableNumber: isTableOrder ? tableNum : null,
-      timeLabel: isTableOrder ? `Dine-In (Table #${tableNum})` : `ASAP (${mode === "delivery" ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup})`,
-      customer: {
-        name,
-        phone: "+1 555-0182",
-        address
-      },
-      lines,
-      subtotal: totals.subtotal,
-      discount: 0,
-      deliveryFee: totals.deliveryFee,
-      tax: totals.tax,
-      total: totals.total,
-      notes: isTableOrder ? `Table #${tableNum}` : ""
-    });
-  },
-
-  // 5. Render Board
   renderBoard(highlightId = null) {
     if (!this.isAuthenticated()) return;
     const orders = App.orders.list();
@@ -324,7 +340,6 @@ App.register("kitchen", {
       completed: orders.filter((o) => o.status === "completed")
     };
 
-    // Update Counter Badges
     ["new", "preparing", "ready", "completed"].forEach((status) => {
       const count = buckets[status].length;
       const elDesk = App.qs(`#count-${status}`);
@@ -333,13 +348,22 @@ App.register("kitchen", {
       if (elMob) elMob.textContent = count;
     });
 
-    // Render Cards in Each Column
     Object.keys(buckets).forEach((status) => {
       let list = buckets[status];
       if (status === "completed" && list.length > 10) {
         list = list.slice(0, 10);
       }
-      cols[status].innerHTML = list.map((order) => this.renderOrderCard(order, highlightId)).join("");
+
+      if (list.length === 0) {
+        cols[status].innerHTML = `
+          <div class="kds-empty-col">
+            <span class="empty-col-icon">✨</span>
+            <p>No orders</p>
+          </div>
+        `;
+      } else {
+        cols[status].innerHTML = list.map((order) => this.renderOrderCard(order, highlightId)).join("");
+      }
     });
 
     this.bindCardActions();
