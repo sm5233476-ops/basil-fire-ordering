@@ -1,4 +1,4 @@
-// Checkout Flow, Inline Fulfillment Mode Selection & Table QR Integration
+// Checkout Flow with Tactile Fulfillment Cards & Dynamic Kitchen Timings
 window.App = window.App || {};
 
 App.register("checkout", {
@@ -38,6 +38,10 @@ App.register("checkout", {
     const tableNumber = App.storage.get("bf_table_num", null);
     const isTable = this.orderMode === "table" && Boolean(tableNumber);
 
+    const customTiming = App.storage.get("bf_custom_timing", null);
+    const etaDel = customTiming?.etaDelivery || window.CONFIG.etaDelivery;
+    const etaPic = customTiming?.etaPickup || window.CONFIG.etaPickup;
+
     const promoCode = App.storage.get("bf_promo_code", "");
     const totals = App.money.calcTotals({
       lines: App.cart.getLines(),
@@ -58,8 +62,8 @@ App.register("checkout", {
     if (!this.selectedSlot) this.selectedSlot = firstActiveSlot;
 
     const etaText = isTable 
-      ? "Served Directly to Your Table"
-      : (this.orderMode === "delivery" ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup);
+      ? "Served to Your Table"
+      : (this.orderMode === "delivery" ? etaDel : etaPic);
 
     root.innerHTML = `
       <div class="sheet-backdrop" id="checkout-backdrop"></div>
@@ -74,24 +78,37 @@ App.register("checkout", {
 
         <form class="sheet__scroll-content checkout-form" id="checkout-form" novalidate>
           
-          <!-- 1. Fulfillment Mode Selection -->
+          <!-- 1. Rich Tactile Fulfillment Option Cards -->
           <div class="checkout-section">
-            <label class="checkout-label">Fulfillment Option</label>
+            <label class="checkout-label">Select Fulfillment Option</label>
             ${isTable ? `
               <div class="table-checkout-notice">
                 <span class="table-icon">🍽️</span>
                 <div>
                   <strong>Dine-In Service · Table #${tableNumber}</strong>
-                  <p>Food will be brought directly to your table.</p>
+                  <p>Order is sent directly to your table.</p>
                 </div>
               </div>
             ` : `
-              <div class="segmented-control segmented-control--full">
-                <button type="button" class="seg-btn ${this.orderMode === "delivery" ? "is-active" : ""}" data-co-mode="delivery">
-                  🛵 Delivery (${window.CONFIG.etaDelivery})
+              <div class="tactile-modes-grid">
+                <button type="button" class="mode-card ${this.orderMode === "delivery" ? "is-selected" : ""}" data-co-mode="delivery">
+                  <div class="mode-card__radio">
+                    <span class="radio-indicator"></span>
+                  </div>
+                  <div class="mode-card__content">
+                    <span class="mode-card__title">🛵 Delivery</span>
+                    <span class="mode-card__time">${etaDel}</span>
+                  </div>
                 </button>
-                <button type="button" class="seg-btn ${this.orderMode === "pickup" ? "is-active" : ""}" data-co-mode="pickup">
-                  🛍️ Pickup (${window.CONFIG.etaPickup})
+
+                <button type="button" class="mode-card ${this.orderMode === "pickup" ? "is-selected" : ""}" data-co-mode="pickup">
+                  <div class="mode-card__radio">
+                    <span class="radio-indicator"></span>
+                  </div>
+                  <div class="mode-card__content">
+                    <span class="mode-card__title">🛍️ Takeaway / Pickup</span>
+                    <span class="mode-card__time">${etaPic}</span>
+                  </div>
                 </button>
               </div>
             `}
@@ -101,7 +118,7 @@ App.register("checkout", {
           <div class="checkout-section">
             <label class="checkout-label">${isTable ? "Your Name (For Server)" : "Contact Details"}</label>
             <div class="form-group">
-              <input type="text" id="cust-name" class="form-input" placeholder="Your Name *" required>
+              <input type="text" id="cust-name" class="form-input" placeholder="Your Full Name *" required>
               <span class="field-error" id="err-name"></span>
             </div>
             ${!isTable ? `
@@ -112,7 +129,7 @@ App.register("checkout", {
             ` : ""}
           </div>
 
-          <!-- 3. Delivery Address (ONLY shown if online Delivery mode) -->
+          <!-- 3. Delivery Address (ONLY for Delivery) -->
           <div class="checkout-section ${this.orderMode !== "delivery" ? "is-hidden" : ""}" id="address-section">
             <label class="checkout-label">Delivery Destination</label>
             <div class="form-group">
@@ -120,19 +137,19 @@ App.register("checkout", {
               <span class="field-error" id="err-street"></span>
             </div>
             <div class="form-group">
-              <input type="text" id="cust-apt" class="form-input" placeholder="Apt, Suite, Floor (Optional)">
+              <input type="text" id="cust-apt" class="form-input" placeholder="Apartment, Suite, Unit (Optional)">
             </div>
           </div>
 
-          <!-- Special Request / Table Instructions -->
+          <!-- Special Notes -->
           <div class="checkout-section">
-            <label class="checkout-label">${isTable ? "Kitchen Notes" : "Instructions"}</label>
+            <label class="checkout-label">${isTable ? "Kitchen Notes" : "Order Instructions"}</label>
             <div class="form-group">
-              <textarea id="cust-notes" class="form-input form-textarea" rows="2" placeholder="${isTable ? 'e.g. Extra napkins, cutlery, less spicy...' : 'e.g. Leave at front door, ring doorbell...'}"></textarea>
+              <textarea id="cust-notes" class="form-input form-textarea" rows="2" placeholder="${isTable ? 'e.g. Extra napkins, less spicy...' : 'e.g. Leave at door, call upon arrival...'}"></textarea>
             </div>
           </div>
 
-          <!-- 4. Timing Selector (For Online Orders) -->
+          <!-- 4. Timing Selector -->
           ${!isTable ? `
             <div class="checkout-section">
               <label class="checkout-label">Preparation Timing</label>
@@ -146,7 +163,7 @@ App.register("checkout", {
               </div>
 
               <div class="slots-container ${this.timeType !== "scheduled" ? "is-hidden" : ""}" id="slots-picker">
-                <p class="slots-hint">Select a convenient slot today:</p>
+                <p class="slots-hint">Select a time slot today:</p>
                 <div class="slots-grid">
                   ${slots.map((s) => `
                     <button 
@@ -169,8 +186,8 @@ App.register("checkout", {
             <div class="payment-badge">
               <span class="payment-icon">💵</span>
               <div class="payment-info">
-                <strong>${isTable ? "Pay at Table or Counter" : "Pay on Delivery or Pickup"}</strong>
-                <p>${isTable ? "Pay cash or card to your server when meal arrives." : "Card machine or cash upon handover. No online advance needed."}</p>
+                <strong>${isTable ? "Pay at Table" : "Pay on Delivery or Pickup"}</strong>
+                <p>${isTable ? "Pay card or cash to your server after your meal." : "Card machine or cash upon handover. No card needed right now."}</p>
               </div>
             </div>
           </div>
@@ -210,7 +227,7 @@ App.register("checkout", {
     closeBtn?.addEventListener("click", () => this.closeCheckout());
     backdrop?.addEventListener("click", () => this.closeCheckout());
 
-    // Switch Delivery vs Pickup inside Checkout Sheet
+    // Switch Delivery vs Pickup with tactile response
     root.querySelectorAll("[data-co-mode]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const mode = btn.dataset.coMode;
@@ -218,11 +235,11 @@ App.register("checkout", {
         this.orderMode = mode;
         App.storage.set("bf_order_mode", mode);
         if (App.emit) App.emit("mode:changed", mode);
-        this.openCheckout(); // Re-render checkout with new mode
+        App.haptic(10);
+        this.openCheckout();
       });
     });
 
-    // Time Selection
     root.querySelectorAll("[data-time-type]").forEach((btn) => {
       btn.addEventListener("click", () => {
         this.timeType = btn.dataset.timeType;
@@ -231,7 +248,6 @@ App.register("checkout", {
       });
     });
 
-    // Slot click
     root.querySelectorAll(".slot-btn:not(.is-disabled)").forEach((btn) => {
       btn.addEventListener("click", () => {
         this.selectedSlot = btn.dataset.slot;
@@ -239,12 +255,10 @@ App.register("checkout", {
       });
     });
 
-    // Place Order Button
     App.qs("#btn-place-order", root)?.addEventListener("click", () => {
       this.handleOrderSubmission(false, isTable, tableNumber);
     });
 
-    // WhatsApp Button
     App.qs("#btn-order-whatsapp", root)?.addEventListener("click", () => {
       this.handleOrderSubmission(true, isTable, tableNumber);
     });
@@ -265,7 +279,6 @@ App.register("checkout", {
     [nameInput, phoneInput, streetInput].forEach((el) => el?.classList.remove("is-invalid"));
     [errName, errPhone, errStreet].forEach((el) => { if (el) el.textContent = ""; });
 
-    // Validate Name
     if (!nameInput?.value.trim() || nameInput.value.trim().length < 2) {
       isValid = false;
       nameInput.classList.add("is-invalid");
@@ -273,7 +286,6 @@ App.register("checkout", {
       if (!firstInvalid) firstInvalid = nameInput;
     }
 
-    // If online order, validate phone
     if (!isTable && phoneInput) {
       const digits = (phoneInput.value || "").replace(/\D/g, "");
       if (digits.length < 8) {
@@ -284,7 +296,6 @@ App.register("checkout", {
       }
     }
 
-    // If online delivery, validate street
     if (this.orderMode === "delivery" && !isTable && streetInput) {
       if (!streetInput.value.trim() || streetInput.value.trim().length < 4) {
         isValid = false;
@@ -309,6 +320,10 @@ App.register("checkout", {
     const btnPlace = App.qs("#btn-place-order");
     if (btnPlace) btnPlace.textContent = "Processing order...";
 
+    const customTiming = App.storage.get("bf_custom_timing", null);
+    const etaDel = customTiming?.etaDelivery || window.CONFIG.etaDelivery;
+    const etaPic = customTiming?.etaPickup || window.CONFIG.etaPickup;
+
     const promoCode = App.storage.get("bf_promo_code", "");
     const totals = App.money.calcTotals({
       lines: App.cart.getLines(),
@@ -330,10 +345,10 @@ App.register("checkout", {
       timeLabel = `Dine-In (Table #${tableNumber})`;
     } else if (this.orderMode === "delivery") {
       fullAddress = `${streetVal}${aptVal ? ", " + aptVal : ""}`;
-      timeLabel = this.timeType === "asap" ? `ASAP (${window.CONFIG.etaDelivery})` : `Scheduled: ${this.selectedSlot}`;
+      timeLabel = this.timeType === "asap" ? `ASAP (${etaDel})` : `Scheduled: ${this.selectedSlot}`;
     } else {
       fullAddress = "Counter Pickup";
-      timeLabel = this.timeType === "asap" ? `ASAP (${window.CONFIG.etaPickup})` : `Scheduled: ${this.selectedSlot}`;
+      timeLabel = this.timeType === "asap" ? `ASAP (${etaPic})` : `Scheduled: ${this.selectedSlot}`;
     }
 
     const orderData = {
@@ -365,7 +380,6 @@ App.register("checkout", {
     this.isSubmitting = false;
     this.closeCheckout();
 
-    // Trigger Live Tracker modal
     if (App.emit) App.emit("order:created", newOrder);
   },
 
