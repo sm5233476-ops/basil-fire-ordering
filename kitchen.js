@@ -1,4 +1,4 @@
-// Kitchen KDS Engine with Payment Status (Paid/Unpaid) & Archive Done List
+// Kitchen KDS Engine with Cloud Refresh, Multi-Device Clear & Payment Management
 window.App = window.App || {};
 
 App.register("kitchen", {
@@ -11,6 +11,7 @@ App.register("kitchen", {
     this.initSettingsModal();
     this.initQRModal();
     this.initTimers();
+    this.initRefreshButton();
 
     if (App.orders && App.orders.subscribe) {
       App.orders.subscribe((event) => {
@@ -21,6 +22,11 @@ App.register("kitchen", {
           this.renderBoard(event.order?.id);
         }
       });
+    }
+
+    // Auto sync from cloud immediately
+    if (App.orders && App.orders.syncFromCloud) {
+      App.orders.syncFromCloud().then(() => this.renderBoard());
     }
   },
 
@@ -129,11 +135,9 @@ App.register("kitchen", {
       }
     });
 
-    // Clear Done / Archive Completed Orders
+    // Clear Done: Clears across all devices via cloud sync
     App.qs("#btn-clear-done")?.addEventListener("click", () => {
-      const orders = App.orders.list();
-      const activeOnly = orders.filter((o) => o.status !== "completed");
-      App.storage.set("bf_orders_v1", activeOnly);
+      App.orders.archiveCompleted();
       this.renderBoard();
       App.haptic(15);
     });
@@ -148,6 +152,23 @@ App.register("kitchen", {
           c.classList.toggle("is-mob-visible", c.dataset.status === col);
         });
       });
+    });
+  },
+
+  initRefreshButton() {
+    const refreshBtn = App.qs("#btn-refresh-orders");
+    if (!refreshBtn) return;
+
+    refreshBtn.addEventListener("click", async () => {
+      refreshBtn.classList.add("is-spinning");
+      if (App.orders && App.orders.syncFromCloud) {
+        await App.orders.syncFromCloud();
+      }
+      this.renderBoard();
+      App.haptic(15);
+      setTimeout(() => {
+        refreshBtn.classList.remove("is-spinning");
+      }, 500);
     });
   },
 
@@ -167,8 +188,6 @@ App.register("kitchen", {
     const btnSavePin = App.qs("#btn-save-new-pin");
     const pinMsg = App.qs("#pin-change-status");
 
-    const delInput = App.qs("#input-eta-delivery");
-    const picInput = App.qs("#input-eta-pickup");
     const hoursInput = App.qs("#input-hours-text");
     const btnSaveTimings = App.qs("#btn-save-timings");
     const timingMsg = App.qs("#timing-change-status");
@@ -178,8 +197,6 @@ App.register("kitchen", {
     openBtn.addEventListener("click", () => {
       backdrop.style.display = "flex";
       const customTiming = App.storage.get("bf_custom_timing", null);
-      if (delInput) delInput.value = customTiming?.etaDelivery || window.CONFIG.etaDelivery;
-      if (picInput) picInput.value = customTiming?.etaPickup || window.CONFIG.etaPickup;
       if (hoursInput) hoursInput.value = customTiming?.hoursText || window.CONFIG.hoursText;
       if (pinMsg) pinMsg.textContent = "";
       if (timingMsg) timingMsg.textContent = "";
@@ -210,12 +227,10 @@ App.register("kitchen", {
 
     btnSaveTimings?.addEventListener("click", () => {
       const newTiming = {
-        etaDelivery: delInput?.value.trim() || window.CONFIG.etaDelivery,
-        etaPickup: picInput?.value.trim() || window.CONFIG.etaPickup,
         hoursText: hoursInput?.value.trim() || window.CONFIG.hoursText
       };
       App.storage.set("bf_custom_timing", newTiming);
-      timingMsg.textContent = "✓ Kitchen Timings saved!";
+      timingMsg.textContent = "✓ Opening Hours saved!";
       timingMsg.style.color = "#8BD18F";
       App.haptic(15);
     });
@@ -348,18 +363,10 @@ App.register("kitchen", {
   renderOrderCard(order, highlightId) {
     const isNewFlash = order.id === highlightId;
     const elapsed = this.getElapsedTime(order.createdAt);
-    const isTable = order.mode === "table";
-    const isDelivery = order.mode === "delivery";
     const isPaid = order.paymentSettled === true;
+    const tableBadgeText = order.customer?.address || `Table #${order.tableNumber || "01"}`;
 
-    let badgeHtml = "";
-    if (isTable) {
-      badgeHtml = `<span class="k-badge k-badge--table">🍽️ DINE-IN ${order.customer?.address || ""}</span>`;
-    } else if (isDelivery) {
-      badgeHtml = `<span class="k-badge k-badge--del">🛵 DELIVERY</span>`;
-    } else {
-      badgeHtml = `<span class="k-badge k-badge--pic">🛍️ PICKUP</span>`;
-    }
+    const badgeHtml = `<span class="k-badge k-badge--table">🍽️ DINE-IN ${tableBadgeText}</span>`;
 
     const payStatusHtml = isPaid
       ? `<span class="k-pay-badge k-pay-badge--paid">PAID ✓</span>`
@@ -373,7 +380,7 @@ App.register("kitchen", {
     } else if (order.status === "ready") {
       nextBtnHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}">Done ✓</button>`;
     } else {
-      nextBtnHtml = `<span class="k-done-tag">Order Fulfilled</span>`;
+      nextBtnHtml = `<span class="k-done-tag">Fulfilled</span>`;
     }
 
     return `
@@ -389,10 +396,7 @@ App.register("kitchen", {
         <div class="k-card__meta">
           ${badgeHtml}
           ${payStatusHtml}
-          ${!isTable && order.customer?.phone ? `<span class="k-phone-tag">${order.customer.phone}</span>` : ""}
         </div>
-
-        ${isDelivery ? `<p class="k-addr-tag">📍 ${order.customer?.address || ""}</p>` : ""}
 
         <div class="k-card__items-box">
           ${order.lines.map((l) => {
@@ -433,7 +437,6 @@ App.register("kitchen", {
   },
 
   bindCardActions() {
-    // Advance Order Status
     document.querySelectorAll(".k-action-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.dataset.id;
@@ -443,15 +446,13 @@ App.register("kitchen", {
       });
     });
 
-    // Mark Paid Toggle
     document.querySelectorAll(".btn-mark-paid").forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.dataset.id;
         const orders = App.orders.list();
         const target = orders.find((o) => o.id === id);
         if (target) {
-          target.paymentSettled = true;
-          App.storage.set("bf_orders_v1", orders);
+          App.orders.updateStatus(id, target.status, true);
           this.renderBoard();
           App.haptic(15);
         }
