@@ -3400,7 +3400,98 @@ body.is-locked {
   cursor: pointer;
   transition: all 0.15s ease;
 }
+/* ==========================================================================
+   Pure Dine-In Table Selector, QR Lock Pill & Clean Full-Width Header
+   ========================================================================== */
 
+/* Center Table Picker Pill */
+.nav-center-table {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--gold);
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: var(--text);
+  box-shadow: 0 0 12px rgba(242, 193, 78, 0.2);
+}
+
+.table-pill--locked {
+  background: rgba(139, 209, 143, 0.15);
+  border-color: var(--basil);
+  color: var(--basil);
+}
+
+.table-icon {
+  font-size: 1rem;
+}
+
+.table-name {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.qr-lock-icon {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.header-table-dropdown {
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.header-table-dropdown option {
+  background: #1B1815;
+  color: #F7F0E6;
+}
+
+/* Active Dine-In Table Badge in Hero */
+.chip--table-active {
+  background: rgba(242, 193, 78, 0.18);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 800;
+}
+
+/* Dine-In Checkout Table Banner */
+.table-checkout-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(242, 193, 78, 0.12);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.table-checkout-notice strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--gold);
+}
+
+.table-checkout-notice p {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
 .btn-clear-done:hover {
   border-color: var(--tomato);
   color: var(--tomato);
