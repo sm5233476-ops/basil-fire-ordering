@@ -1,4 +1,4 @@
-// Kitchen KDS Engine with Settings Manager (PIN Change & Timing Editor)
+// Kitchen KDS Engine with Payment Status (Paid/Unpaid) & Archive Done List
 window.App = window.App || {};
 
 App.register("kitchen", {
@@ -29,10 +29,6 @@ App.register("kitchen", {
   },
 
   isAuthenticated() {
-    const remember = App.storage.get("bf_remember_kds_pin", false);
-    if (remember) {
-      return App.storage.get("bf_kds_auth_perm", false) === true;
-    }
     return sessionStorage.getItem("bf_kds_auth") === "true";
   },
 
@@ -41,7 +37,6 @@ App.register("kitchen", {
     const kdsWrapper = App.qs("#kds-wrapper");
     const dots = App.qs("#pin-dots");
     const hintText = App.qs("#kds-pin-hint-text");
-    const rememberCheckbox = App.qs("#remember-pin-checkbox");
 
     if (hintText) {
       hintText.innerHTML = `Passcode: <strong>${this.getMasterPin()}</strong>`;
@@ -51,21 +46,13 @@ App.register("kitchen", {
       if (!dots) return;
       const dotEls = dots.querySelectorAll(".dot");
       dotEls.forEach((d, idx) => {
-        d.classList.toggle(".is-filled", idx < this.currentPin.length);
         d.style.backgroundColor = idx < this.currentPin.length ? "#FF5A36" : "transparent";
         d.style.borderColor = idx < this.currentPin.length ? "#FF5A36" : "rgba(255,255,255,0.2)";
       });
     };
 
     const unlock = () => {
-      const isRemember = rememberCheckbox?.checked;
-      App.storage.set("bf_remember_kds_pin", Boolean(isRemember));
-
-      if (isRemember) {
-        App.storage.set("bf_kds_auth_perm", true);
-      }
       sessionStorage.setItem("bf_kds_auth", "true");
-
       if (window.gsap && !App.prefersReducedMotion()) {
         gsap.to(lockScreen, {
           opacity: 0,
@@ -142,16 +129,16 @@ App.register("kitchen", {
       }
     });
 
-    App.qs("#lock-kds-btn")?.addEventListener("click", () => {
-      sessionStorage.removeItem("bf_kds_auth");
-      App.storage.remove("bf_kds_auth_perm");
-      this.currentPin = "";
-      updateDots();
-      kdsWrapper.style.display = "none";
-      lockScreen.style.display = "flex";
-      lockScreen.style.opacity = "1";
+    // Clear Done / Archive Completed Orders
+    App.qs("#btn-clear-done")?.addEventListener("click", () => {
+      const orders = App.orders.list();
+      const activeOnly = orders.filter((o) => o.status !== "completed");
+      App.storage.set("bf_orders_v1", activeOnly);
+      this.renderBoard();
+      App.haptic(15);
     });
 
+    // Mobile Column Switcher Pills
     document.querySelectorAll(".kds-tab-pill").forEach((btn) => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".kds-tab-pill").forEach((b) => b.classList.remove("is-active"));
@@ -171,7 +158,6 @@ App.register("kitchen", {
     setTimeout(() => dots.classList.remove("is-error"), 400);
   },
 
-  // Settings Modal (Passcode & Timings)
   initSettingsModal() {
     const openBtn = App.qs("#kds-settings-open-btn");
     const backdrop = App.qs("#kds-settings-backdrop");
@@ -207,7 +193,6 @@ App.register("kitchen", {
       if (e.target === backdrop) backdrop.style.display = "none";
     });
 
-    // Save Passcode
     btnSavePin?.addEventListener("click", () => {
       const newPin = (pinInput?.value || "").trim();
       if (/^\d{4}$/.test(newPin)) {
@@ -217,13 +202,12 @@ App.register("kitchen", {
         pinInput.value = "";
         App.haptic(15);
       } else {
-        pinMsg.textContent = "Please enter exactly 4 digits (e.g. 5678)";
+        pinMsg.textContent = "Enter exactly 4 digits";
         pinMsg.style.color = "#FF5A36";
         App.haptic(25);
       }
     });
 
-    // Save Timings
     btnSaveTimings?.addEventListener("click", () => {
       const newTiming = {
         etaDelivery: delInput?.value.trim() || window.CONFIG.etaDelivery,
@@ -231,7 +215,7 @@ App.register("kitchen", {
         hoursText: hoursInput?.value.trim() || window.CONFIG.hoursText
       };
       App.storage.set("bf_custom_timing", newTiming);
-      timingMsg.textContent = "✓ Kitchen Timings & Hours saved!";
+      timingMsg.textContent = "✓ Kitchen Timings saved!";
       timingMsg.style.color = "#8BD18F";
       App.haptic(15);
     });
@@ -243,9 +227,7 @@ App.register("kitchen", {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!this.audioCtx) this.audioCtx = new AudioContext();
         if (this.audioCtx.state === "suspended") this.audioCtx.resume();
-      } catch (e) {
-        console.warn("[WebAudio] Init note:", e);
-      }
+      } catch (e) {}
       window.removeEventListener("click", unlockAudio);
     };
     window.addEventListener("click", unlockAudio, { once: true });
@@ -275,9 +257,7 @@ App.register("kitchen", {
 
       osc.start(now);
       osc.stop(now + 0.55);
-    } catch (e) {
-      console.warn("[Audio Error]:", e);
-    }
+    } catch (e) {}
   },
 
   initQRModal() {
@@ -350,15 +330,11 @@ App.register("kitchen", {
 
     Object.keys(buckets).forEach((status) => {
       let list = buckets[status];
-      if (status === "completed" && list.length > 10) {
-        list = list.slice(0, 10);
-      }
-
       if (list.length === 0) {
         cols[status].innerHTML = `
           <div class="kds-empty-col">
             <span class="empty-col-icon">✨</span>
-            <p>No orders</p>
+            <p>Station clear</p>
           </div>
         `;
       } else {
@@ -374,6 +350,7 @@ App.register("kitchen", {
     const elapsed = this.getElapsedTime(order.createdAt);
     const isTable = order.mode === "table";
     const isDelivery = order.mode === "delivery";
+    const isPaid = order.paymentSettled === true;
 
     let badgeHtml = "";
     if (isTable) {
@@ -384,13 +361,17 @@ App.register("kitchen", {
       badgeHtml = `<span class="k-badge k-badge--pic">🛍️ PICKUP</span>`;
     }
 
+    const payStatusHtml = isPaid
+      ? `<span class="k-pay-badge k-pay-badge--paid">PAID ✓</span>`
+      : `<button type="button" class="btn-mark-paid" data-id="${order.id}">Mark Paid 💵</button>`;
+
     let nextBtnHtml = "";
     if (order.status === "new") {
       nextBtnHtml = `<button type="button" class="btn btn--primary k-action-btn" data-action="preparing" data-id="${order.id}">Accept & Fire →</button>`;
     } else if (order.status === "preparing") {
       nextBtnHtml = `<button type="button" class="btn btn--ready k-action-btn" data-action="ready" data-id="${order.id}">Mark Ready →</button>`;
     } else if (order.status === "ready") {
-      nextBtnHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}">Served / Done ✓</button>`;
+      nextBtnHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}">Done ✓</button>`;
     } else {
       nextBtnHtml = `<span class="k-done-tag">Order Fulfilled</span>`;
     }
@@ -407,6 +388,7 @@ App.register("kitchen", {
 
         <div class="k-card__meta">
           ${badgeHtml}
+          ${payStatusHtml}
           ${!isTable && order.customer?.phone ? `<span class="k-phone-tag">${order.customer.phone}</span>` : ""}
         </div>
 
@@ -451,12 +433,28 @@ App.register("kitchen", {
   },
 
   bindCardActions() {
+    // Advance Order Status
     document.querySelectorAll(".k-action-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.dataset.id;
         const nextStatus = btn.dataset.action;
         App.orders.updateStatus(id, nextStatus);
         App.haptic(10);
+      });
+    });
+
+    // Mark Paid Toggle
+    document.querySelectorAll(".btn-mark-paid").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const orders = App.orders.list();
+        const target = orders.find((o) => o.id === id);
+        if (target) {
+          target.paymentSettled = true;
+          App.storage.set("bf_orders_v1", orders);
+          this.renderBoard();
+          App.haptic(15);
+        }
       });
     });
   }
