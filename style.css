@@ -3496,3 +3496,58 @@ body.is-locked {
   border-color: var(--tomato);
   color: var(--tomato);
 }
+/* ==========================================================================
+   Live Cloud Sync Refresh Button & KDS Polished Header
+   ========================================================================== */
+
+.cloud-sync-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--basil);
+  background: rgba(139, 209, 143, 0.12);
+  border: 1px solid rgba(139, 209, 143, 0.35);
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+/* Refresh Button in Kitchen Header */
+.btn--refresh {
+  background: var(--surface-3) !important;
+  border: 1px solid var(--line-strong) !important;
+  color: var(--text) !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease !important;
+}
+
+.btn--refresh:hover {
+  border-color: var(--gold) !important;
+  color: var(--gold) !important;
+}
+
+.btn--refresh.is-spinning .refresh-icon {
+  animation: spinIcon 0.5s ease;
+}
+
+@keyframes spinIcon {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Luxury KDS Card Top Border Accents */
+.kds-column[data-status="new"] .k-card {
+  border-left: 3px solid var(--tomato);
+}
+.kds-column[data-status="preparing"] .k-card {
+  border-left: 3px solid var(--gold);
+}
+.kds-column[data-status="ready"] .k-card {
+  border-left: 3px solid var(--basil);
+}
+.kds-column[data-status="completed"] .k-card {
+  border-left: 3px solid var(--muted);
+}
