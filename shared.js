@@ -1,4 +1,4 @@
-// Storage, Currency, Calculations, Cart Store & Orders Sync
+// Pure Dine-In Table Engine, Zero Delivery Fees & Cross-Tab Orders Sync
 window.App = window.App || {};
 window.App.register = window.App.register || function (name, api) {
   (window.App._modules = window.App._modules || {})[name] = api;
@@ -35,7 +35,7 @@ App.storage = {
   }
 };
 
-// 2. Money Formatting and Calculation Rules
+// 2. Pure Dine-In Financial Rules (No delivery fees, promo support, 8% tax)
 App.money = {
   format(cents) {
     const val = typeof cents === "number" ? cents / 100 : 0;
@@ -45,7 +45,7 @@ App.money = {
     }).format(val);
   },
 
-  calcTotals({ lines = [], mode = "delivery", promoCode = "" }) {
+  calcTotals({ lines = [], promoCode = "" }) {
     const subtotal = lines.reduce((acc, line) => {
       let unit = line.priceCents || 0;
       if (typeof line.unitPriceCents === "number") {
@@ -71,38 +71,16 @@ App.money = {
       : 0;
 
     const netSubtotal = Math.max(0, subtotal - discount);
-
-    let deliveryFee = 0;
-    let deliveryBlocked = false;
-    let deliveryShortfall = 0;
-    let deliveryMessage = "";
-
-    if (mode === "delivery") {
-      if (netSubtotal < window.CONFIG.minDeliveryCents) {
-        deliveryBlocked = true;
-        deliveryShortfall = window.CONFIG.minDeliveryCents - netSubtotal;
-        deliveryMessage = `Add ${App.money.format(deliveryShortfall)} more for delivery`;
-      }
-      if (netSubtotal >= window.CONFIG.freeDeliveryOverCents) {
-        deliveryFee = 0;
-      } else {
-        deliveryFee = window.CONFIG.deliveryFeeCents;
-      }
-    } else {
-      deliveryFee = 0;
-    }
-
-    const tax = Math.round(netSubtotal * window.CONFIG.taxRate);
-    const total = netSubtotal + (deliveryBlocked ? 0 : deliveryFee) + tax;
+    const tax = Math.round(netSubtotal * (window.CONFIG.taxRate || 0.08));
+    const total = netSubtotal + tax; // Zero delivery fee for in-house table dining
 
     return {
       subtotal,
       discount,
       netSubtotal,
-      deliveryFee,
-      deliveryBlocked,
-      deliveryShortfall,
-      deliveryMessage,
+      deliveryFee: 0,
+      deliveryBlocked: false,
+      deliveryMessage: "",
       tax,
       total,
       isPromoValid
@@ -196,7 +174,7 @@ App.cart = {
   }
 };
 
-// 4. Orders Sync with BroadcastChannel and Fallback
+// 4. Live Orders Synchronizer (BroadcastChannel + Storage Fallback)
 const CHANNEL_NAME = "bf-orders";
 let channel = null;
 try {
@@ -274,55 +252,6 @@ App.orders = {
   }
 };
 
-// 5. Console Tests for Pricing Scenarios
-window.__testMoney = function () {
-  console.group("%c[Basil & Fire] Money Verification Tests", "color:#8BD18F; font-weight:bold; font-size:12px;");
-
-  const s1 = App.money.calcTotals({
-    lines: [{ unitPriceCents: 1700, qty: 2 }, { unitPriceCents: 700, qty: 1 }],
-    mode: "delivery",
-    promoCode: ""
-  });
-  const p1 = s1.subtotal === 4100 && s1.deliveryFee === 0 && s1.tax === 328 && s1.total === 4428;
-  console.log(`Test 1 (Delivery over $35, no promo): ${p1 ? "PASS" : "FAIL"}`, s1);
-
-  const s2 = App.money.calcTotals({
-    lines: [{ unitPriceCents: 1700, qty: 2 }, { unitPriceCents: 700, qty: 1 }],
-    mode: "delivery",
-    promoCode: "WELCOME10"
-  });
-  const p2 = s2.discount === 410 && s2.deliveryFee === 0 && s2.tax === 295 && s2.total === 3985;
-  console.log(`Test 2 (Delivery with WELCOME10): ${p2 ? "PASS" : "FAIL"}`, s2);
-
-  const s3 = App.money.calcTotals({
-    lines: [{ unitPriceCents: 400, qty: 1 }],
-    mode: "delivery"
-  });
-  const p3 = s3.deliveryBlocked === true && s3.deliveryMessage === "Add $6.00 more for delivery";
-  console.log(`Test 3 (Delivery under minimum): ${p3 ? "PASS" : "FAIL"}`, s3);
-
-  const s4 = App.money.calcTotals({
-    lines: [{ unitPriceCents: 400, qty: 1 }],
-    mode: "pickup"
-  });
-  const p4 = s4.subtotal === 400 && s4.deliveryFee === 0 && s4.tax === 32 && s4.total === 432;
-  console.log(`Test 4 (Pickup 1 Lemonade): ${p4 ? "PASS" : "FAIL"}`, s4);
-
-  const s5 = App.money.calcTotals({
-    lines: [{ unitPriceCents: 600, qty: 1 }, { unitPriceCents: 400, qty: 1 }],
-    mode: "delivery"
-  });
-  const p5 = s5.subtotal === 1000 && s5.deliveryFee === 350 && s5.tax === 80 && s5.total === 1430;
-  console.log(`Test 5 (Delivery exact min $10): ${p5 ? "PASS" : "FAIL"}`, s5);
-
-  const allPass = p1 && p2 && p3 && p4 && p5;
-  console.log(`%cFinal Result: ${allPass ? "ALL 5 TESTS PASSED" : "TESTS FAILED"}`, `color:${allPass ? "#8BD18F" : "#FF5A36"}; font-weight:bold; font-size:13px;`);
-  console.groupEnd();
-  return allPass;
-};
-
 App.register("shared", {
-  init() {
-    window.__testMoney();
-  }
+  init() {}
 });
