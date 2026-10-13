@@ -3551,3 +3551,103 @@ body.is-locked {
 .kds-column[data-status="completed"] .k-card {
   border-left: 3px solid var(--muted);
 }
+/* ==========================================================================
+   Rectangular Modern Box Badges & Single-Row Mobile KDS Grid
+   ========================================================================== */
+
+/* Modern Rectangular Box Badges (Replaces Cylindrical Oval Look) */
+.cloud-sync-status {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  color: var(--basil) !important;
+  background: rgba(139, 209, 143, 0.12) !important;
+  border: 1px solid rgba(139, 209, 143, 0.35) !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+.table-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: var(--surface-2) !important;
+  border: 1px solid var(--gold) !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important; /* Clean rectangular box with rounded corners */
+  color: var(--text) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+.table-label-text {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: var(--gold) !important;
+}
+
+.staff-portal-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: var(--surface-3) !important;
+  border: 1px solid var(--line-strong) !important;
+  color: var(--text) !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important; /* Clean box */
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+.staff-portal-btn:hover {
+  border-color: var(--gold) !important;
+}
+
+/* Mobile KDS Header: Compact Fit so "Customer Menu" Doesn't Get Cut Off */
+@media (max-width: 768px) {
+  .kds-header {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+  }
+
+  .kds-title {
+    font-size: 1.1rem !important;
+  }
+
+  .kds-nav-actions {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    width: auto !important;
+  }
+
+  .kds-nav-actions .btn {
+    min-height: 34px !important;
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+    white-space: nowrap !important;
+    border-radius: 6px !important;
+  }
+
+  /* Single-Row Mobile Tabs: All 4 Pillars Fit in One Screen (Zero Horizontal Scroll) */
+  .kds-mobile-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+    padding: 10px 0 4px !important;
+  }
+
+  .kds-tab-pill {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 6px 2px !important;
+    font-size: 0.72rem !important;
+    border-radius: 6px !important;
+  }
+}
