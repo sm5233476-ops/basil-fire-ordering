@@ -1,4 +1,4 @@
-// Clean Luxury Customer UI, Mobile Header Polish & Table QR Detection
+// Clean Customer UI: Left Brand, Right Staff, Minimal Hero & Custom Timings
 window.App = window.App || {};
 
 App.register("menu", {
@@ -40,7 +40,7 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Ultra-Clean Header (Mobile shows Brand + Staff; Desktop includes Toggle)
+  // 1. Header: Extreme Left Brand & Extreme Right Staff Portal
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -48,7 +48,7 @@ App.register("menu", {
     const isTable = this.orderMode === "table";
 
     root.innerHTML = `
-      <div class="nav-container">
+      <div class="nav-container nav-container--spaced">
         <div class="nav-brand">
           <a href="index.html" class="brand-link" aria-label="Basil and Fire Home">
             <span class="brand-dot"></span>
@@ -56,77 +56,34 @@ App.register("menu", {
           </a>
         </div>
 
-        <div class="nav-actions-wrap">
+        <div class="nav-right-actions">
           ${isTable ? `
             <div class="table-desk-badge">
               🍽️ Table #${this.tableNumber}
             </div>
-          ` : `
-            <div class="segmented-control desktop-only-control" role="group" aria-label="Order mode toggle">
-              <div class="seg-thumb" id="seg-thumb"></div>
-              <button type="button" class="seg-btn ${this.orderMode === "delivery" ? "is-active" : ""}" data-mode="delivery">
-                Delivery
-              </button>
-              <button type="button" class="seg-btn ${this.orderMode === "pickup" ? "is-active" : ""}" data-mode="pickup">
-                Pickup
-              </button>
-            </div>
-          `}
-
-          <!-- Discreet Staff Portal Button -->
+          ` : ""}
           <a href="kitchen.html" class="staff-portal-btn" title="Open Staff Kitchen Portal">
-            🔒 Staff
+            🔒 Staff Portal
           </a>
         </div>
       </div>
     `;
-
-    if (!isTable) {
-      this.updateSegmentedThumb();
-      root.querySelectorAll(".seg-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const mode = btn.dataset.mode;
-          if (mode === this.orderMode) return;
-          this.orderMode = mode;
-          App.storage.set("bf_order_mode", mode);
-          root.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
-          this.updateSegmentedThumb();
-          this.renderHero();
-          this.updateCartBar();
-          if (App.emit) App.emit("mode:changed", mode);
-          App.haptic(10);
-        });
-      });
-    }
   },
 
-  updateSegmentedThumb() {
-    const thumb = App.qs("#seg-thumb");
-    const activeBtn = App.qs(`.seg-btn[data-mode="${this.orderMode}"]`);
-    if (!thumb || !activeBtn) return;
-    thumb.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
-    thumb.style.width = `${activeBtn.offsetWidth}px`;
-  },
-
-  // 2. Hero Section
+  // 2. Hero Section (Clean: Delivery Chip Removed, Hours Kept)
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
+
+    // Read custom timing if configured in KDS settings
+    const customTiming = App.storage.get("bf_custom_timing", null);
+    const hoursText = customTiming?.hoursText || window.CONFIG.hoursText;
 
     let chipHtml = "";
     if (this.orderMode === "table") {
       chipHtml = `
         <span class="chip chip--table">
           🍽️ Dine-In · Table #${this.tableNumber}
-        </span>
-      `;
-    } else {
-      const isDelivery = this.orderMode === "delivery";
-      const eta = isDelivery ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup;
-      chipHtml = `
-        <span class="chip chip--accent">
-          <svg class="chip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-          ${isDelivery ? "Delivery" : "Pickup"} ${eta}
         </span>
       `;
     }
@@ -153,7 +110,7 @@ App.register("menu", {
             ${chipHtml}
             <span class="chip">
               <span class="live-dot" style="margin:0 4px 0 0;"></span>
-              ${window.CONFIG.hoursText}
+              ${hoursText}
             </span>
           </div>
         </div>
@@ -427,7 +384,6 @@ App.register("menu", {
     App.haptic(10);
   },
 
-  // 5. Customizer Sheet
   openItemSheet(item) {
     const root = App.qs("#item-sheet-root");
     if (!root) return;
@@ -639,7 +595,6 @@ App.register("menu", {
     });
   },
 
-  // 6. Floating Cart Bar
   renderCartBar() {
     const root = App.qs("#cart-bar-root");
     if (!root) return;
@@ -720,7 +675,6 @@ App.register("menu", {
 
   bindEvents() {
     window.addEventListener("resize", () => {
-      this.updateSegmentedThumb();
       this.updateTabUnderline();
     });
   }
