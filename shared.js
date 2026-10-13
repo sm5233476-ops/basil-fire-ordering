@@ -1,4 +1,4 @@
-// Pure Dine-In Table Engine, Zero Delivery Fees & Cross-Tab Orders Sync
+// Pure Dine-In Engine with Real-Time Cross-Device Cloud Sync (Phone ➔ Laptop)
 window.App = window.App || {};
 window.App.register = window.App.register || function (name, api) {
   (window.App._modules = window.App._modules || {})[name] = api;
@@ -35,7 +35,7 @@ App.storage = {
   }
 };
 
-// 2. Pure Dine-In Financial Rules (No delivery fees, promo support, 8% tax)
+// 2. Pure Dine-In Financial Rules (Zero delivery fee, promo verification, 8% tax)
 App.money = {
   format(cents) {
     const val = typeof cents === "number" ? cents / 100 : 0;
@@ -72,7 +72,7 @@ App.money = {
 
     const netSubtotal = Math.max(0, subtotal - discount);
     const tax = Math.round(netSubtotal * (window.CONFIG.taxRate || 0.08));
-    const total = netSubtotal + tax; // Zero delivery fee for in-house table dining
+    const total = netSubtotal + tax;
 
     return {
       subtotal,
@@ -174,33 +174,67 @@ App.cart = {
   }
 };
 
-// 4. Live Orders Synchronizer (BroadcastChannel + Storage Fallback)
-const CHANNEL_NAME = "bf-orders";
-let channel = null;
-try {
-  if (typeof BroadcastChannel !== "undefined") {
-    channel = new BroadcastChannel(CHANNEL_NAME);
-  }
-} catch (e) {
-  channel = null;
-}
-
+// 4. Real-Time Cloud Orders Sync (Public Open Relay for Phone ➔ Laptop Live Dispatch)
+const CLOUD_SYNC_TOPIC = "https://ntfy.sh/bf_kitchen_live_sync_shivam";
 const orderSubscribers = new Set();
+
 function notifyOrderSubscribers(eventData) {
   orderSubscribers.forEach((cb) => {
     try { cb(eventData); } catch (err) { console.error("[Orders Sync] Subscriber error:", err); }
   });
 }
 
-if (channel) {
-  channel.onmessage = (event) => notifyOrderSubscribers(event.data);
-}
+// Local BroadcastChannel for same-device tabs
+let channel = null;
+try {
+  if (typeof BroadcastChannel !== "undefined") {
+    channel = new BroadcastChannel("bf-orders");
+    channel.onmessage = (event) => notifyOrderSubscribers(event.data);
+  }
+} catch (e) {}
 
 window.addEventListener("storage", (event) => {
   if (event.key === "bf_orders_v1") {
     notifyOrderSubscribers({ type: "sync", orders: App.storage.get("bf_orders_v1", []) });
   }
 });
+
+// Live Cloud SSE Listener (Listens to orders placed on phones instantly)
+try {
+  if (typeof EventSource !== "undefined") {
+    const sse = new EventSource(`${CLOUD_SYNC_TOPIC}/sse`);
+    sse.onmessage = (event) => {
+      try {
+        const raw = JSON.parse(event.data);
+        const payload = typeof raw.message === "string" ? JSON.parse(raw.message) : raw;
+
+        if (payload.action === "create" && payload.order) {
+          const orders = App.orders.list();
+          if (!orders.some((o) => o.id === payload.order.id)) {
+            orders.unshift(payload.order);
+            App.storage.set("bf_orders_v1", orders);
+            notifyOrderSubscribers({ type: "created", order: payload.order });
+            if (App.emit) App.emit("order:created", payload.order);
+          }
+        } else if (payload.action === "update") {
+          const orders = App.orders.list();
+          const target = orders.find((o) => o.id === payload.id);
+          if (target) {
+            target.status = payload.status;
+            if (payload.paymentSettled !== undefined) target.paymentSettled = payload.paymentSettled;
+            App.storage.set("bf_orders_v1", orders);
+            notifyOrderSubscribers({ type: "updated", order: target });
+            if (App.emit) App.emit("order:updated", target);
+          }
+        } else if (payload.action === "archive") {
+          const orders = App.orders.list().filter((o) => o.status !== "completed");
+          App.storage.set("bf_orders_v1", orders);
+          notifyOrderSubscribers({ type: "sync", orders });
+        }
+      } catch (err) {}
+    };
+  }
+} catch (e) {}
 
 App.orders = {
   list() {
@@ -226,16 +260,27 @@ App.orders = {
     notifyOrderSubscribers(message);
     if (App.emit) App.emit("order:created", newOrder);
 
+    // Broadcast over Internet to Laptop Kitchen Board immediately
+    try {
+      fetch(CLOUD_SYNC_TOPIC, {
+        method: "POST",
+        body: JSON.stringify({ action: "create", order: newOrder }),
+        headers: { "Content-Type": "text/plain" }
+      }).catch(() => {});
+    } catch (e) {}
+
     return newOrder;
   },
 
-  updateStatus(id, newStatus) {
+  updateStatus(id, newStatus, paymentSettled) {
     const orders = this.list();
     const idx = orders.findIndex((o) => o.id === id);
     if (idx === -1) return null;
 
     orders[idx].status = newStatus;
     orders[idx].updatedAt = Date.now();
+    if (paymentSettled !== undefined) orders[idx].paymentSettled = paymentSettled;
+
     App.storage.set("bf_orders_v1", orders);
 
     const message = { type: "updated", order: orders[idx] };
@@ -243,7 +288,63 @@ App.orders = {
     notifyOrderSubscribers(message);
     if (App.emit) App.emit("order:updated", orders[idx]);
 
+    // Broadcast update over Internet
+    try {
+      fetch(CLOUD_SYNC_TOPIC, {
+        method: "POST",
+        body: JSON.stringify({ action: "update", id, status: newStatus, paymentSettled: orders[idx].paymentSettled }),
+        headers: { "Content-Type": "text/plain" }
+      }).catch(() => {});
+    } catch (e) {}
+
     return orders[idx];
+  },
+
+  archiveCompleted() {
+    const orders = this.list().filter((o) => o.status !== "completed");
+    App.storage.set("bf_orders_v1", orders);
+    notifyOrderSubscribers({ type: "sync", orders });
+
+    // Sync clear across all devices
+    try {
+      fetch(CLOUD_SYNC_TOPIC, {
+        method: "POST",
+        body: JSON.stringify({ action: "archive" }),
+        headers: { "Content-Type": "text/plain" }
+      }).catch(() => {});
+    } catch (e) {}
+  },
+
+  // Manual / Auto Refresh from Cloud
+  async syncFromCloud() {
+    try {
+      const res = await fetch(`${CLOUD_SYNC_TOPIC}/json?poll=1&since=8h`);
+      const text = (await res.text()).trim();
+      if (!text) return;
+
+      const lines = text.split("\n");
+      const orders = App.orders.list();
+      let hasChanges = false;
+
+      lines.forEach((line) => {
+        try {
+          const raw = JSON.parse(line);
+          const payload = typeof raw.message === "string" ? JSON.parse(raw.message) : raw;
+
+          if (payload.action === "create" && payload.order) {
+            if (!orders.some((o) => o.id === payload.order.id)) {
+              orders.unshift(payload.order);
+              hasChanges = true;
+            }
+          }
+        } catch (e) {}
+      });
+
+      if (hasChanges) {
+        App.storage.set("bf_orders_v1", orders);
+        notifyOrderSubscribers({ type: "sync", orders });
+      }
+    } catch (e) {}
   },
 
   subscribe(callback) {
@@ -253,5 +354,10 @@ App.orders = {
 };
 
 App.register("shared", {
-  init() {}
+  init() {
+    // Initial sync from cloud on page load
+    if (App.orders && App.orders.syncFromCloud) {
+      App.orders.syncFromCloud();
+    }
+  }
 });
