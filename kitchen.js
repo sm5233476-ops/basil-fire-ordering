@@ -1,4 +1,4 @@
-// Kitchen KDS Engine: Universal 9899 Passcode, Cloud Sync & Non-Truncated Actions
+// Kitchen KDS Engine: Multi-Device PIN & Timing Cloud Broadcast
 window.App = window.App || {};
 
 App.register("kitchen", {
@@ -39,7 +39,6 @@ App.register("kitchen", {
   },
 
   getMasterPin() {
-    // 9899 is the default master PIN across all devices
     return App.storage.get("bf_custom_pin") || "9899";
   },
 
@@ -211,6 +210,7 @@ App.register("kitchen", {
       if (e.target === backdrop) backdrop.style.display = "none";
     });
 
+    // Save Passcode and broadcast to all devices
     btnSavePin?.addEventListener("click", () => {
       const newPin = (pinInput?.value || "").trim();
       if (/^\d{4}$/.test(newPin)) {
@@ -226,12 +226,13 @@ App.register("kitchen", {
       }
     });
 
+    // Save Hours and broadcast to all devices (Phone & Laptop)
     btnSaveTimings?.addEventListener("click", () => {
       const newTiming = {
         hoursText: hoursInput?.value.trim() || window.CONFIG.hoursText
       };
-      App.storage.set("bf_custom_timing", newTiming);
-      timingMsg.textContent = "✓ Opening Hours saved!";
+      App.orders.broadcastTimingChange(newTiming);
+      timingMsg.textContent = "✓ Hours saved and synced to all devices!";
       timingMsg.style.color = "#8BD18F";
       App.haptic(15);
     });
