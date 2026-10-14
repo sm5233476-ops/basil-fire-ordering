@@ -3733,3 +3733,70 @@ body.is-locked {
   font-size: 0.78rem !important;
   border-radius: 6px !important;
 }
+/* ==========================================================================
+   Mobile KDS Responsive Layout: Non-Truncated Customer Menu & Perfect Fit
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* 1. Header Layout on Mobile */
+  .kds-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+
+  .kds-brand-group {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .kds-title {
+    font-size: 1.25rem !important;
+  }
+
+  /* 2. Action Buttons in a Clean 2-Row / 4-Col Flow (Never Cut Off) */
+  .kds-nav-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr auto !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .btn--kds-action {
+    min-height: 38px !important;
+    padding: 0 8px !important;
+    font-size: 0.78rem !important;
+    white-space: nowrap !important;
+    justify-content: center !important;
+  }
+
+  #customer-menu-link {
+    min-height: 38px !important;
+    padding: 0 12px !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* 3. 4 Kanban Pills on Mobile (Zero Scroll, 100% Screen Width) */
+  .kds-mobile-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+    padding: 8px 14px 4px !important;
+    overflow: hidden !important;
+  }
+
+  .kds-tab-pill {
+    padding: 8px 2px !important;
+    font-size: 0.72rem !important;
+    text-align: center !important;
+  }
+}
