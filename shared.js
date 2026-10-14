@@ -1,4 +1,4 @@
-// Universal Multi-Device Cloud Sync Engine (Status Updates, Orders & PIN Sync)
+// Universal Multi-Device Cloud Sync Engine (Status Updates, Orders, PIN & Timing Sync)
 window.App = window.App || {};
 window.App.register = window.App.register || function (name, api) {
   (window.App._modules = window.App._modules || {})[name] = api;
@@ -184,7 +184,6 @@ function notifyOrderSubscribers(eventData) {
   });
 }
 
-// Local BroadcastChannel for same-device tabs
 let channel = null;
 try {
   if (typeof BroadcastChannel !== "undefined") {
@@ -199,7 +198,7 @@ window.addEventListener("storage", (event) => {
   }
 });
 
-// Real-Time Cloud SSE Listener (Applies live order events, status changes & PIN updates)
+// Real-Time Cloud SSE Listener (Listens to orders, status, PIN & Timing changes)
 try {
   if (typeof EventSource !== "undefined") {
     const sse = new EventSource(`${CLOUD_SYNC_TOPIC}/sse`);
@@ -233,6 +232,9 @@ try {
         } else if (payload.action === "pin_change" && payload.pin) {
           App.storage.set("bf_custom_pin", payload.pin);
           if (App.emit) App.emit("pin:updated", payload.pin);
+        } else if (payload.action === "timing_change" && payload.timing) {
+          App.storage.set("bf_custom_timing", payload.timing);
+          if (App.emit) App.emit("timing:updated", payload.timing);
         }
       } catch (err) {}
     };
@@ -263,7 +265,6 @@ App.orders = {
     notifyOrderSubscribers(message);
     if (App.emit) App.emit("order:created", newOrder);
 
-    // Broadcast across devices over Internet
     try {
       fetch(CLOUD_SYNC_TOPIC, {
         method: "POST",
@@ -291,7 +292,6 @@ App.orders = {
     notifyOrderSubscribers(message);
     if (App.emit) App.emit("order:updated", orders[idx]);
 
-    // Broadcast status change across all devices
     try {
       fetch(CLOUD_SYNC_TOPIC, {
         method: "POST",
@@ -328,7 +328,17 @@ App.orders = {
     } catch (e) {}
   },
 
-  // Chronological Cloud Replay Engine: Guarantees 100% Identical State Across Phone and Laptop
+  broadcastTimingChange(newTiming) {
+    App.storage.set("bf_custom_timing", newTiming);
+    try {
+      fetch(CLOUD_SYNC_TOPIC, {
+        method: "POST",
+        body: JSON.stringify({ action: "timing_change", timing: newTiming }),
+        headers: { "Content-Type": "text/plain" }
+      }).catch(() => {});
+    } catch (e) {}
+  },
+
   async syncFromCloud() {
     try {
       const res = await fetch(`${CLOUD_SYNC_TOPIC}/json?poll=1&since=24h`);
@@ -364,6 +374,9 @@ App.orders = {
             hasChanges = true;
           } else if (payload.action === "pin_change" && payload.pin) {
             App.storage.set("bf_custom_pin", payload.pin);
+          } else if (payload.action === "timing_change" && payload.timing) {
+            App.storage.set("bf_custom_timing", payload.timing);
+            if (App.emit) App.emit("timing:updated", payload.timing);
           }
         } catch (e) {}
       });
