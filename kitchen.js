@@ -1,4 +1,4 @@
-// Kitchen KDS Engine: Mandatory Passcode Gate on Every Visit & Multi-Device Sync
+// Kitchen KDS Engine: Universal 9899 Passcode, Cloud Sync & Non-Truncated Actions
 window.App = window.App || {};
 
 App.register("kitchen", {
@@ -24,7 +24,6 @@ App.register("kitchen", {
       });
     }
 
-    // React live to PIN updates from other devices
     if (App.on) {
       App.on("pin:updated", (newPin) => {
         const hintText = App.qs("#kds-pin-hint-text");
@@ -32,7 +31,6 @@ App.register("kitchen", {
       });
     }
 
-    // Always fetch latest state from cloud on boot
     if (App.orders && App.orders.syncFromCloud) {
       App.orders.syncFromCloud().then(() => {
         if (this.unlocked) this.renderBoard();
@@ -41,7 +39,8 @@ App.register("kitchen", {
   },
 
   getMasterPin() {
-    return App.storage.get("bf_custom_pin", "1234");
+    // 9899 is the default master PIN across all devices
+    return App.storage.get("bf_custom_pin") || "9899";
   },
 
   initSecurityGate() {
@@ -50,7 +49,6 @@ App.register("kitchen", {
     const dots = App.qs("#pin-dots");
     const hintText = App.qs("#kds-pin-hint-text");
 
-    // Always require PIN on entry/reload (never bypass)
     this.unlocked = false;
     lockScreen.style.display = "flex";
     kdsWrapper.style.display = "none";
@@ -146,7 +144,6 @@ App.register("kitchen", {
       App.haptic(15);
     });
 
-    // Mobile Column Switcher Pills
     document.querySelectorAll(".kds-tab-pill").forEach((btn) => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".kds-tab-pill").forEach((b) => b.classList.remove("is-active"));
@@ -214,7 +211,6 @@ App.register("kitchen", {
       if (e.target === backdrop) backdrop.style.display = "none";
     });
 
-    // Save Passcode and broadcast to ALL devices via cloud
     btnSavePin?.addEventListener("click", () => {
       const newPin = (pinInput?.value || "").trim();
       if (/^\d{4}$/.test(newPin)) {
