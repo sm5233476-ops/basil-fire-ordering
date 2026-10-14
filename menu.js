@@ -1,4 +1,4 @@
-// Clean Customer UI with Modern Box Badges & Exact Table QR Detection
+// Clean Customer UI: Single-Line Header, Compact Table Selector & Hero
 window.App = window.App || {};
 
 App.register("menu", {
@@ -38,7 +38,7 @@ App.register("menu", {
     this.updateCartBar();
   },
 
-  // 1. Full-Width Header with Rectangular Badges
+  // 1. Single-Line Mobile-Optimized Header (Never wraps into multiple lines)
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -46,21 +46,19 @@ App.register("menu", {
     let tableControlHtml = "";
     if (this.isLockedByQR) {
       tableControlHtml = `
-        <div class="table-pill table-pill--locked" title="Ordering at Table #${this.tableNumber}">
-          <span class="table-icon">🍽️</span>
-          <span class="table-name">Dine-In Table #${String(this.tableNumber).padStart(2, "0")}</span>
-          <span class="qr-lock-icon">🔒</span>
+        <div class="table-compact-badge table-compact-badge--locked" title="Locked via QR">
+          <span class="table-badge-num">Table #${String(this.tableNumber).padStart(2, "0")}</span>
+          <span class="table-lock-mini">🔒</span>
         </div>
       `;
     } else {
       tableControlHtml = `
-        <div class="table-pill table-pill--selector">
-          <span class="table-icon">🍽️</span>
-          <span class="table-label-text">Dine-In</span>
-          <select id="header-table-select" class="header-table-dropdown" aria-label="Select Table Number">
+        <div class="table-compact-badge">
+          <span class="table-badge-icon">🍽️</span>
+          <select id="header-table-select" class="header-table-dropdown" aria-label="Select Table">
             ${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `
               <option value="${n}" ${String(this.tableNumber) === String(n) ? "selected" : ""}>
-                Table #${String(n).padStart(2, "0")}
+                T-${String(n).padStart(2, "0")}
               </option>
             `).join("")}
           </select>
@@ -69,20 +67,15 @@ App.register("menu", {
     }
 
     root.innerHTML = `
-      <div class="nav-container nav-container--spaced">
-        <div class="nav-brand">
-          <a href="index.html" class="brand-link" aria-label="Basil and Fire Home">
-            <span class="brand-dot"></span>
-            <span class="brand-text">${window.CONFIG.name}</span>
-          </a>
-        </div>
+      <div class="nav-container nav-container--clean">
+        <a href="index.html" class="brand-link" aria-label="Basil and Fire Home">
+          <span class="brand-dot"></span>
+          <span class="brand-text">${window.CONFIG.name}</span>
+        </a>
 
-        <div class="nav-center-table">
+        <div class="nav-controls-cluster">
           ${tableControlHtml}
-        </div>
-
-        <div class="nav-right-actions">
-          <a href="kitchen.html" class="staff-portal-btn" title="Open Staff Kitchen Portal">
+          <a href="kitchen.html" class="staff-portal-btn" title="Staff KDS Login">
             🔒 Staff
           </a>
         </div>
@@ -232,6 +225,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
+  // 4. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
