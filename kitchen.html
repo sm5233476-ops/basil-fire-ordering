@@ -29,7 +29,7 @@
 </head>
 <body class="kitchen-body">
 
-  <!-- 1. Mandatory Security PIN Lock Screen (Always prompted on every visit/reload) -->
+  <!-- 1. Mandatory Security PIN Lock Screen -->
   <div class="pin-lock-screen" id="pin-lock-screen">
     <div class="pin-card">
       <div class="pin-brand">
@@ -63,7 +63,7 @@
         <button type="button" class="pin-key pin-key--ghost" id="pin-back">⌫</button>
       </div>
 
-      <p class="pin-hint" id="kds-pin-hint-text">Passcode: <strong>1234</strong></p>
+      <p class="pin-hint" id="kds-pin-hint-text">Passcode: <strong>9899</strong></p>
       <a href="index.html" class="pin-exit-link">← Return to Customer Menu</a>
     </div>
   </div>
@@ -78,22 +78,22 @@
       </div>
 
       <div class="kds-nav-actions">
-        <button type="button" class="btn btn--refresh" id="btn-refresh-orders" title="Sync orders from cloud">
+        <button type="button" class="btn btn--kds-action" id="btn-refresh-orders" title="Sync orders from cloud">
           <span class="refresh-icon">🔄</span> Refresh
         </button>
-        <button type="button" class="btn btn--table-qr" id="qr-modal-open-btn">
+        <button type="button" class="btn btn--kds-action btn--table-qr" id="qr-modal-open-btn">
           📷 Table QR
         </button>
-        <button type="button" class="btn btn--settings" id="kds-settings-open-btn" title="KDS Settings">
+        <button type="button" class="btn btn--kds-action" id="kds-settings-open-btn" title="KDS Settings">
           ⚙️ Settings
         </button>
         <a href="index.html" class="btn btn--glow-portal" id="customer-menu-link">
-          ← Menu
+          ← Customer Menu
         </a>
       </div>
     </header>
 
-    <!-- Mobile Column Tabs Bar (1 Single Row - All 4 Fit Neatly) -->
+    <!-- Mobile Column Tabs Bar (Fits 100% on Single Screen, Zero Scroll) -->
     <div class="kds-mobile-tabs" id="kds-mobile-tabs">
       <button type="button" class="kds-tab-pill is-active" data-col="new">New (<span id="mob-count-new">0</span>)</button>
       <button type="button" class="kds-tab-pill" data-col="preparing">Prep (<span id="mob-count-preparing">0</span>)</button>
@@ -156,7 +156,7 @@
     </footer>
   </div>
 
-  <!-- Settings Modal (Cloud-Synced PIN & Hours) -->
+  <!-- Settings Modal -->
   <div class="qr-modal-backdrop" id="kds-settings-backdrop" style="display:none;">
     <div class="qr-modal kds-settings-modal" id="kds-settings-modal">
       <div class="qr-modal__head">
@@ -169,8 +169,8 @@
 
       <div class="settings-content">
         <div class="settings-group">
-          <h4>🔒 Change Staff Passcode (Syncs to Phone & Laptop)</h4>
-          <p class="settings-hint">Set a new 4-digit PIN for all kitchen devices:</p>
+          <h4>🔒 Change Staff Passcode (Syncs to All Devices)</h4>
+          <p class="settings-hint">Set a new 4-digit PIN for KDS access:</p>
           <div class="settings-input-row">
             <input type="password" id="input-new-pin" class="form-input" maxlength="4" placeholder="New 4-digit PIN">
             <button type="button" class="btn btn--primary" id="btn-save-new-pin">Update PIN</button>
