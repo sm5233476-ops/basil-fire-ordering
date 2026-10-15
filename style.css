@@ -1,6 +1,6 @@
 /* ==========================================================================
    Basil & Fire — Ember & Flour Design System
-   Phase C: Luxury Shell, Floating Smart Navbar, Section Rhythm & Editorial Footer
+   Phase D: 100svh 12-Col Hero, Preloader, Circular Pizza Disc & Rising Embers
    ========================================================================== */
 
 :root {
@@ -38,10 +38,10 @@
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* --- Fluid Typography Scale --- */
-  --fs-display: clamp(3rem, 8vw, 7.5rem);
-  --fs-h1: clamp(2.4rem, 5.5vw, 4.5rem);
-  --fs-h2: clamp(1.9rem, 3.6vw, 3rem);
-  --fs-h3: clamp(1.3rem, 2vw, 1.6rem);
+  --fs-display: clamp(2.8rem, 7vw, 6.5rem);
+  --fs-h1: clamp(2.2rem, 5vw, 4.2rem);
+  --fs-h2: clamp(1.8rem, 3.4vw, 2.8rem);
+  --fs-h3: clamp(1.25rem, 2vw, 1.6rem);
   --fs-body: 1rem;
   --fs-small: 0.875rem;
   --fs-label: 0.75rem;
@@ -73,7 +73,7 @@
   --dur-reveal: 800ms;
   --dur-sheet: 450ms;
 
-  /* Module Compatibility Aliases */
+  /* Compatibility Aliases */
   --font-heading: var(--font-display);
   --radius-sm: var(--r-sm);
   --radius-md: var(--r-md);
@@ -242,7 +242,55 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Shell Navbar (72px Desktop / 64px Mobile, Fixed Top, Hide-on-Scroll)
+   Signature Preloader (≤ 1.2s, Full-Screen Oven Layer, Wipe-Up)
+   ========================================================================== */
+
+.preloader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: var(--oven-950);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.preloader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.preloader-flame-svg {
+  width: 56px;
+  height: 56px;
+  filter: drop-shadow(0 0 16px var(--glow));
+}
+
+.flame-stroke-path {
+  stroke: var(--ember-500);
+}
+
+.preloader-line-track {
+  width: 120px;
+  height: 2px;
+  background: rgba(246, 235, 221, 0.15);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+.preloader-line-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--ember-500);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* ==========================================================================
+   Shell Navbar (Fixed Top, 64px Mobile / 72px Desktop)
    ========================================================================== */
 
 .app-header {
@@ -267,7 +315,6 @@ body.is-locked {
   }
 }
 
-/* Scrolled State: Solid surface at 88% + blur + border */
 .app-header.is-scrolled {
   background: rgba(18, 14, 11, 0.88);
   backdrop-filter: blur(12px);
@@ -276,7 +323,6 @@ body.is-locked {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Hide on Scroll Down past 120px */
 .app-header.is-hidden {
   transform: translateY(-100%);
 }
@@ -290,7 +336,6 @@ body.is-locked {
   margin: 0 auto;
 }
 
-/* Wordmark & Animated SVG Flame/Basil Mark */
 .brand-link {
   display: inline-flex;
   align-items: center;
@@ -328,7 +373,6 @@ body.is-locked {
   gap: 10px;
 }
 
-/* Table Selector Pill */
 .table-compact-badge {
   display: inline-flex;
   align-items: center;
@@ -369,7 +413,6 @@ body.is-locked {
   color: var(--flour-100);
 }
 
-/* Navbar 44px Cart Pill with Count Badge & Bump */
 .nav-cart-btn {
   display: inline-flex;
   align-items: center;
@@ -410,7 +453,6 @@ body.is-locked {
   font-variant-numeric: tabular-nums;
 }
 
-/* 350ms Signature Cart Bump Animation */
 .cart-bump {
   animation: cartBump 350ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
@@ -443,24 +485,290 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Section Rhythm & Decorative Transitions
+   Hero Section Layout (100svh, 12-Col Desktop Grid, Mobile Stacked)
    ========================================================================== */
 
-/* Pad top of shell to accommodate fixed 64px/72px navbar */
 .hero-section {
-  padding-top: calc(64px + var(--space-4));
-  padding-bottom: var(--space-6);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: clamp(84px, 12vw, 130px);
+  padding-bottom: var(--space-10);
   background: var(--oven-900);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Background Rising Embers Canvas */
+.hero-embers-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-8);
+  align-items: center;
 }
 
 @media (min-width: 1024px) {
-  .hero-section {
-    padding-top: calc(72px + var(--space-6));
-    padding-bottom: var(--space-8);
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--space-8);
+    align-items: center;
   }
 }
 
-/* Scalloped Decorative Section Transitions */
+.hero-content-col {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  text-align: left;
+}
+
+@media (min-width: 1024px) {
+  .hero-content-col {
+    grid-column: span 7;
+    padding-right: var(--space-4);
+  }
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pulsing-ember-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ember-500);
+  box-shadow: 0 0 10px var(--ember-400);
+  animation: emberPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes emberPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+.eyebrow-text {
+  color: var(--ember-400);
+  font-size: var(--fs-label);
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+.hero-headline-mask {
+  overflow: hidden;
+  padding: 4px 0;
+}
+
+.hero-headline {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  line-height: 1.02;
+  color: #FFFDF9;
+  letter-spacing: -0.025em;
+  will-change: transform;
+}
+
+.headline-emphasis {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ember-400);
+  text-shadow: 0 0 28px rgba(255, 106, 43, 0.35);
+}
+
+.hero-subtext {
+  font-size: var(--fs-body);
+  color: var(--text-muted);
+  max-width: 48ch;
+  line-height: 1.6;
+}
+
+.hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.btn-arrow-icon {
+  display: inline-block;
+  transition: transform var(--dur-hover) var(--ease-out);
+}
+
+.btn:hover .btn-arrow-icon {
+  transform: translateY(3px);
+}
+
+.hero-meta-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.hero-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  background: rgba(246, 235, 221, 0.08);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.hero-meta-pill--table {
+  background: rgba(226, 178, 74, 0.14);
+  border-color: var(--gold-400);
+  color: var(--gold-400);
+}
+
+/* ==========================================================================
+   Hero Visual Column: Circular Pizza Disc over Radial Ember Glow
+   ========================================================================== */
+
+.hero-visual-col {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 1024px) {
+  .hero-visual-col {
+    grid-column: span 5;
+  }
+}
+
+.hero-ember-backdrop {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  top: -10%;
+  left: -10%;
+  background: radial-gradient(60% 60% at 50% 50%, var(--glow), transparent 70%);
+  filter: blur(28px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-pizza-stage {
+  position: relative;
+  z-index: 2;
+  width: clamp(240px, 68vw, 420px);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Circular Pizza Disc with Warm Shadow */
+.pizza-disc-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 106, 43, 0.2);
+  will-change: transform;
+}
+
+.pizza-disc-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  border-radius: 50%;
+  transform-origin: center center;
+}
+
+/* Pizza Radial Fallback Art */
+.pizza-fallback-art {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--tomato-700) 0%, var(--oven-700) 65%, var(--gold-400) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pizza-disc-crust {
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  border: 4px dashed var(--gold-400);
+}
+
+/* Floating Decorative Basil Leaves */
+.basil-leaf {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+}
+
+.leaf-1 {
+  top: 4%;
+  left: -4%;
+  animation: leafDrift1 5.2s ease-in-out infinite alternate;
+}
+
+.leaf-2 {
+  bottom: 8%;
+  right: -6%;
+  animation: leafDrift2 6.5s ease-in-out infinite alternate;
+}
+
+.leaf-3 {
+  top: 40%;
+  right: -8%;
+  animation: leafDrift3 4.8s ease-in-out infinite alternate;
+}
+
+@keyframes leafDrift1 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(8px, -10px) rotate(12deg); }
+}
+
+@keyframes leafDrift2 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-6px, 9px) rotate(-8deg); }
+}
+
+@keyframes leafDrift3 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(7px, 6px) rotate(15deg); }
+}
+
+/* ==========================================================================
+   Section Rhythm & Decorative Transitions
+   ========================================================================== */
+
 .section-divider {
   position: relative;
   width: 100%;
@@ -479,237 +787,7 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Editorial Footer with Pizza-Cutter Track & Fraunces Wordmark
-   ========================================================================== */
-
-.app-footer {
-  position: relative;
-  background: var(--oven-900);
-  color: #F6EBDD;
-  padding: var(--space-12) var(--space-4) calc(var(--space-8) + env(safe-area-inset-bottom));
-  text-align: center;
-  border-top: 1px solid var(--border);
-  overflow: hidden;
-}
-
-/* Dashed Pizza-Cutter Divider Line */
-.footer-cutter-divider {
-  position: relative;
-  max-width: 680px;
-  margin: 0 auto var(--space-8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.cutter-dashed-track {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  border-top: 1px dashed rgba(246, 235, 221, 0.28);
-  z-index: 1;
-}
-
-.cutter-wheel {
-  position: relative;
-  z-index: 2;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--oven-800);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ember-400);
-  box-shadow: 0 0 12px rgba(255, 106, 43, 0.2);
-  transition: transform 600ms var(--ease-out);
-}
-
-.footer-cutter-divider:hover .cutter-wheel {
-  transform: rotate(180deg);
-}
-
-/* Outlined to Solid Fill Large Fraunces Wordmark */
-.footer-wordmark-wrap {
-  margin: var(--space-6) 0 var(--space-8);
-  user-select: none;
-}
-
-.footer-wordmark {
-  font-family: var(--font-display);
-  font-size: clamp(3.2rem, 11vw, 8.5rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 0.95;
-  display: inline-block;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(246, 235, 221, 0.35);
-  transition: color 450ms ease, -webkit-text-stroke-color 450ms ease, text-shadow 450ms ease;
-  cursor: default;
-}
-
-.footer-wordmark:hover {
-  color: #F6EBDD;
-  -webkit-text-stroke-color: transparent;
-  text-shadow: 0 0 32px var(--glow);
-}
-
-.footer-disclaimer {
-  font-size: var(--fs-small);
-  color: #BFB2A3;
-  max-width: 460px;
-  margin: 0 auto;
-  line-height: 1.5;
-}
-
-/* ==========================================================================
-   Structural Layout & Sticky Desktop Sidebar
-   ========================================================================== */
-
-.app-shell {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-}
-
-.main-column {
-  width: 100%;
-  max-width: 680px;
-  margin: 0 auto;
-  padding-bottom: var(--space-6);
-}
-
-.desktop-cart-column {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .app-shell {
-    max-width: 1280px;
-    display: grid !important;
-    grid-template-columns: 1fr 380px !important;
-    align-items: start !important;
-    gap: var(--space-8);
-    padding: 0 var(--space-6);
-  }
-
-  .main-column {
-    max-width: 100%;
-    padding-bottom: var(--space-8);
-  }
-
-  .desktop-cart-column {
-    display: block !important;
-    position: -webkit-sticky !important;
-    position: sticky !important;
-    top: calc(72px + var(--space-4)) !important;
-    height: calc(100vh - 100px) !important;
-    max-height: calc(100svh - 100px) !important;
-    overflow-y: auto !important;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: var(--space-6);
-    box-shadow: var(--shadow-sm);
-    z-index: 20 !important;
-  }
-}
-
-/* ==========================================================================
-   Hero Section Card & Overlay
-   ========================================================================== */
-
-.hero-card {
-  position: relative;
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  min-height: 240px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.hero-media {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-.hero-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 45%;
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(18, 14, 11, 0.25) 0%, rgba(18, 14, 11, 0.88) 75%, rgba(18, 14, 11, 0.98) 100%);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  padding: var(--space-5);
-}
-
-.hero-title {
-  font-size: var(--fs-h1);
-  font-weight: 800;
-  line-height: 1.05;
-  color: #FFFDF9;
-}
-
-.hero-tagline {
-  color: var(--text-muted);
-  font-size: var(--fs-small);
-  margin-top: 4px;
-}
-
-.hero-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: var(--r-pill);
-  font-size: var(--fs-label);
-  font-weight: 700;
-  background: rgba(246, 235, 221, 0.08);
-  border: 1px solid var(--border);
-  color: var(--text);
-}
-
-.chip--table-active {
-  background: rgba(226, 178, 74, 0.16);
-  border-color: var(--gold-400);
-  color: var(--gold-400);
-}
-
-.live-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background: var(--success);
-  border-radius: 50%;
-}
-
-/* ==========================================================================
-   Sticky Category Tabs (Flour Scope)
+   Category Tabs (Flour Scope)
    ========================================================================== */
 
 .category-tabs {
@@ -771,7 +849,7 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Menu Catalog & Food Cards (Flour Scope)
+   Menu Catalog & Cards (Flour Scope)
    ========================================================================== */
 
 .menu-catalog {
@@ -1009,7 +1087,7 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Floating Mobile Cart Bar & Desktop Sidebar (Oven Scope)
+   Floating Cart Bar & Desktop Sidebar (Oven Scope)
    ========================================================================== */
 
 .cart-bar-anchor {
@@ -1071,7 +1149,42 @@ body.is-locked {
   font-variant-numeric: tabular-nums;
 }
 
-/* Desktop Cart Panel */
+.desktop-cart-column {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    max-width: 1280px;
+    display: grid !important;
+    grid-template-columns: 1fr 380px !important;
+    align-items: start !important;
+    gap: var(--space-8);
+    padding: 0 var(--space-6);
+  }
+
+  .main-column {
+    max-width: 100%;
+    padding-bottom: var(--space-8);
+  }
+
+  .desktop-cart-column {
+    display: block !important;
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: calc(72px + var(--space-4)) !important;
+    height: calc(100vh - 100px) !important;
+    max-height: calc(100svh - 100px) !important;
+    overflow-y: auto !important;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+    z-index: 20 !important;
+  }
+}
+
 .cart-panel {
   display: flex;
   flex-direction: column;
@@ -1532,7 +1645,7 @@ body.is-locked {
   margin-top: var(--space-1);
 }
 
-/* Order Tracker Elements */
+/* Order Tracker */
 .tracker-content {
   display: flex;
   flex-direction: column;
@@ -1659,6 +1772,90 @@ body.is-locked {
 }
 
 /* ==========================================================================
+   Editorial Footer with Pizza-Cutter Track & Fraunces Wordmark
+   ========================================================================== */
+
+.app-footer {
+  position: relative;
+  background: var(--oven-900);
+  color: #F6EBDD;
+  padding: var(--space-12) var(--space-4) calc(var(--space-8) + env(safe-area-inset-bottom));
+  text-align: center;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.footer-cutter-divider {
+  position: relative;
+  max-width: 680px;
+  margin: 0 auto var(--space-8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cutter-dashed-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed rgba(246, 235, 221, 0.28);
+  z-index: 1;
+}
+
+.cutter-wheel {
+  position: relative;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--oven-800);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ember-400);
+  box-shadow: 0 0 12px rgba(255, 106, 43, 0.2);
+  transition: transform 600ms var(--ease-out);
+}
+
+.footer-cutter-divider:hover .cutter-wheel {
+  transform: rotate(180deg);
+}
+
+.footer-wordmark-wrap {
+  margin: var(--space-6) 0 var(--space-8);
+  user-select: none;
+}
+
+.footer-wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 11vw, 8.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  display: inline-block;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(246, 235, 221, 0.35);
+  transition: color 450ms ease, -webkit-text-stroke-color 450ms ease, text-shadow 450ms ease;
+  cursor: default;
+}
+
+.footer-wordmark:hover {
+  color: #F6EBDD;
+  -webkit-text-stroke-color: transparent;
+  text-shadow: 0 0 32px var(--glow);
+}
+
+.footer-disclaimer {
+  font-size: var(--fs-small);
+  color: #BFB2A3;
+  max-width: 460px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
    Kitchen Display System (Oven Scope)
    ========================================================================== */
 
@@ -1741,7 +1938,6 @@ body.is-locked {
   text-decoration: none;
 }
 
-/* KDS Kanban Columns */
 .kds-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
