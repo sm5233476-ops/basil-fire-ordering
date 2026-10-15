@@ -1,4 +1,4 @@
-// Clean Luxury Customer UI: 12-Col Hero, Smart Navbar, Circular Pizza & Canvas Anchor
+// Phase E: Luxury Menu Catalog, Aspect-Ratio Food Cards, SVG Badges & Oven Customizer
 window.App = window.App || {};
 
 App.register("menu", {
@@ -182,7 +182,7 @@ App.register("menu", {
     }, { passive: true });
   },
 
-  // 2. Editorial 12-Column Hero Layout (Oven Scope, Ember Glow & Floating Pizza Disc)
+  // 2. Editorial 12-Column Hero Layout
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
@@ -192,11 +192,10 @@ App.register("menu", {
 
     root.innerHTML = `
       <div class="hero-container container" id="hero-interactive-zone">
-        <!-- Background Canvas for Rising Ember Particles -->
         <canvas id="hero-embers-canvas" class="hero-embers-canvas" aria-hidden="true"></canvas>
 
         <div class="hero-grid">
-          <!-- LEFT: Editorial Eyebrow, Split Headline, Subtext & CTAs -->
+          <!-- LEFT: Editorial Eyebrow, Split Headline, Subtext & Magnetic CTAs -->
           <div class="hero-content-col">
             <div class="hero-eyebrow">
               <span class="pulsing-ember-dot" aria-hidden="true"></span>
@@ -214,12 +213,12 @@ App.register("menu", {
             </p>
 
             <div class="hero-cta-group">
-              <button type="button" class="btn btn--primary hero-btn-magnetic" id="hero-explore-btn">
+              <button type="button" class="btn btn--primary hero-cta-btn" id="hero-explore-btn">
                 <span>Explore Menu</span>
                 <span class="btn-arrow-icon" aria-hidden="true">↓</span>
               </button>
 
-              <button type="button" class="btn btn--ghost hero-btn-magnetic" id="hero-table-cta">
+              <button type="button" class="btn btn--ghost hero-cta-btn" id="hero-table-cta">
                 <span aria-hidden="true">🍽️</span>
                 <span>Table #${String(this.tableNumber).padStart(2, "0")} Order</span>
               </button>
@@ -260,7 +259,6 @@ App.register("menu", {
                 </svg>
               </span>
 
-              <!-- Large Circular Pizza Display with Fallback -->
               <div class="pizza-disc-wrapper" id="pizza-disc-wrapper">
                 <img 
                   src="margherita.jpg" 
@@ -280,7 +278,6 @@ App.register("menu", {
       </div>
     `;
 
-    // Smooth scroll CTA
     App.qs("#hero-explore-btn")?.addEventListener("click", () => {
       const tabs = App.qs("#tabs-root");
       if (tabs) {
@@ -297,7 +294,7 @@ App.register("menu", {
     });
   },
 
-  // 3. Category Tabs
+  // 3. Category Tabs (Flour Scope, Sticky with Sliding Indicator)
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -309,11 +306,15 @@ App.register("menu", {
     `).join("");
 
     root.innerHTML = `
-      <div class="tabs-scroller">
-        <div class="tabs-track">
-          ${tabsHtml}
-          <div class="tab-underline" id="tab-underline"></div>
+      <div class="tabs-scroller-wrap">
+        <div class="tabs-edge-fade tabs-edge-fade--left" aria-hidden="true"></div>
+        <div class="tabs-scroller">
+          <div class="tabs-track">
+            ${tabsHtml}
+            <div class="tab-underline" id="tab-underline"></div>
+          </div>
         </div>
+        <div class="tabs-edge-fade tabs-edge-fade--right" aria-hidden="true"></div>
       </div>
     `;
 
@@ -388,7 +389,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 4. Menu Catalog
+  // 4. Menu Catalog: Aspect-Ratio Food Cards, Clean SVG Badges & DM Sans Price
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
@@ -401,7 +402,9 @@ App.register("menu", {
       html += `
         <section class="category-section" id="cat-sec-${cat.id}" data-cat-id="${cat.id}">
           <div class="category-header">
-            <h2 class="category-title">${cat.name}</h2>
+            <h2 class="category-title">
+              <em>${cat.name}</em>
+            </h2>
             <span class="category-count">${items.length} items</span>
           </div>
           <div class="menu-grid">
@@ -421,7 +424,7 @@ App.register("menu", {
     const isSpicy = item.tags && item.tags.includes("spicy");
 
     return `
-      <article class="item-card" data-id="${item.id}" tabindex="0">
+      <article class="item-card card" data-id="${item.id}" tabindex="0">
         <div class="item-card__media">
           ${item.image ? `
             <div class="media-skeleton skeleton" id="skel-${item.id}"></div>
@@ -438,8 +441,23 @@ App.register("menu", {
             <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13H5.5L12 6.5z"/></svg>
           </div>
           <div class="item-badges">
-            ${isVeg ? `<span class="badge badge--veg"><span class="badge-dot"></span>Veg</span>` : ""}
-            ${isSpicy ? `<span class="badge badge--spicy">🌶️ Spicy</span>` : ""}
+            ${isVeg ? `
+              <span class="badge badge--veg" title="Vegetarian">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                </svg>
+                <span>Veg</span>
+              </span>
+            ` : ""}
+            ${isSpicy ? `
+              <span class="badge badge--spicy" title="Spicy">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                </svg>
+                <span>Spicy</span>
+              </span>
+            ` : ""}
           </div>
         </div>
 
@@ -449,15 +467,16 @@ App.register("menu", {
             <p class="item-desc">${item.desc}</p>
           </div>
           <div class="item-card__footer">
-            <span class="item-price">${App.money.format(item.priceCents)}</span>
+            <span class="item-price price">${App.money.format(item.priceCents)}</span>
             <div class="item-action" data-item-id="${item.id}">
               ${hasOptions ? `
-                <button type="button" class="btn-action btn-action--custom" aria-label="Customize ${item.name}">
-                  Add +
+                <button type="button" class="btn btn-action btn-action--custom" aria-label="Customize ${item.name}">
+                  <span>Add</span>
+                  <span aria-hidden="true">+</span>
                 </button>
               ` : `
                 <div class="stepper-morph" data-stepper-for="${item.id}">
-                  <button type="button" class="btn-action btn-action--add" aria-label="Add ${item.name}">
+                  <button type="button" class="btn btn-action btn-action--add" aria-label="Add ${item.name}">
                     +
                   </button>
                 </div>
@@ -487,13 +506,13 @@ App.register("menu", {
         container.innerHTML = `
           <div class="stepper">
             <button type="button" class="stepper-btn stepper-btn--minus" data-action="minus" aria-label="Decrease quantity">−</button>
-            <span class="stepper-val">${qty}</span>
+            <span class="stepper-val price">${qty}</span>
             <button type="button" class="stepper-btn stepper-btn--plus" data-action="plus" aria-label="Increase quantity">+</button>
           </div>
         `;
       } else {
         container.innerHTML = `
-          <button type="button" class="btn-action btn-action--add" aria-label="Add ${item.name}">+</button>
+          <button type="button" class="btn btn-action btn-action--add" aria-label="Add ${item.name}">+</button>
         `;
       }
     });
@@ -563,6 +582,7 @@ App.register("menu", {
     App.haptic(10);
   },
 
+  // 5. Item Detail Customizer Modal (Oven Scope, Ember Ring Selected States)
   openItemSheet(item) {
     const root = App.qs("#item-sheet-root");
     if (!root) return;
@@ -588,8 +608,8 @@ App.register("menu", {
 
     root.innerHTML = `
       <div class="sheet-backdrop" id="sheet-backdrop"></div>
-      <div class="sheet" id="sheet-container" role="document">
-        <div class="sheet__handle"></div>
+      <div class="sheet" id="sheet-container" data-theme="oven" role="document">
+        <div class="sheet__handle" aria-hidden="true"></div>
         <div class="sheet__head">
           <div class="sheet__title-row">
             <h2 class="sheet__title">${item.name}</h2>
@@ -603,7 +623,7 @@ App.register("menu", {
             <fieldset class="sheet-group">
               <legend class="sheet-group__legend">
                 <span>${grp.name}</span>
-                <span class="sheet-group__hint">${grp.required ? "Required" : "Optional"}</span>
+                <span class="sheet-group__hint label">${grp.required ? "Required" : "Optional"}</span>
               </legend>
               <div class="sheet-options ${grp.type === "single" ? "sheet-options--grid" : "sheet-options--list"}">
                 ${grp.choices.map((choice) => {
@@ -621,8 +641,11 @@ App.register("menu", {
                         class="choice-input"
                       >
                       <div class="choice-info">
-                        <span class="choice-name">${choice.name}</span>
-                        ${choice.priceCents > 0 ? `<span class="choice-delta">+${App.money.format(choice.priceCents)}</span>` : `<span class="choice-delta choice-delta--free">+0</span>`}
+                        <div class="choice-name-row">
+                          <span class="choice-check-mark" aria-hidden="true">✓</span>
+                          <span class="choice-name">${choice.name}</span>
+                        </div>
+                        ${choice.priceCents > 0 ? `<span class="choice-delta price">+${App.money.format(choice.priceCents)}</span>` : `<span class="choice-delta choice-delta--free">+0</span>`}
                       </div>
                     </label>
                   `;
@@ -635,7 +658,7 @@ App.register("menu", {
             <label for="item-notes" class="sheet-group__legend">Kitchen Instructions</label>
             <div class="notes-wrap">
               <textarea id="item-notes" maxlength="140" rows="2" placeholder="e.g. Extra crispy, sauce on side..."></textarea>
-              <span class="notes-count" id="notes-count">0 / 140</span>
+              <span class="notes-count label" id="notes-count">0 / 140</span>
             </div>
           </div>
         </div>
@@ -643,11 +666,13 @@ App.register("menu", {
         <div class="sheet__footer">
           <div class="sheet__qty-stepper">
             <button type="button" class="sheet-qty-btn" id="sheet-qty-minus" aria-label="Decrease quantity">−</button>
-            <span class="sheet-qty-val" id="sheet-qty-val">1</span>
+            <span class="sheet-qty-val price" id="sheet-qty-val">1</span>
             <button type="button" class="sheet-qty-btn" id="sheet-qty-plus" aria-label="Increase quantity">+</button>
           </div>
           <button type="button" class="btn btn--primary sheet__add-btn" id="sheet-submit-btn">
-            Add to order · <span id="sheet-btn-price">${App.money.format(calcCurrentUnit())}</span>
+            <span>Add to order</span>
+            <span class="btn-divider" aria-hidden="true">·</span>
+            <span class="price" id="sheet-btn-price">${App.money.format(calcCurrentUnit())}</span>
           </button>
         </div>
       </div>
@@ -781,12 +806,12 @@ App.register("menu", {
     root.innerHTML = `
       <aside class="cart-bar" id="cart-bar" role="button" tabindex="0" aria-label="Open Cart Sheet">
         <div class="cart-bar__left">
-          <span class="cart-bar__badge" id="cart-bar-badge">0</span>
+          <span class="cart-bar__badge price" id="cart-bar-badge">0</span>
           <span class="cart-bar__title">Table #${this.tableNumber} Order</span>
         </div>
         <div class="cart-bar__right">
-          <span class="cart-bar__total" id="cart-bar-total">$0.00</span>
-          <span class="cart-bar__arrow">→</span>
+          <span class="cart-bar__total price" id="cart-bar-total">$0.00</span>
+          <span class="cart-bar__arrow" aria-hidden="true">→</span>
         </div>
       </aside>
     `;
@@ -819,7 +844,7 @@ App.register("menu", {
   },
 
   flyToCart(originEl) {
-    const target = App.qs("#cart-bar");
+    const target = App.qs("#cart-bar") || App.qs("#nav-cart-btn");
     if (!originEl || !target) return;
 
     if (window.gsap && !App.prefersReducedMotion()) {
@@ -829,24 +854,33 @@ App.register("menu", {
     if (App.prefersReducedMotion() || !window.gsap) return;
 
     const startRect = originEl.getBoundingClientRect();
+    const endRect = target.getBoundingClientRect();
+
     const flyer = document.createElement("div");
     flyer.className = "fly-particle";
-    flyer.innerHTML = `<span>🍕</span>`;
+    flyer.setAttribute("aria-hidden", "true");
+    flyer.innerHTML = `
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
+        <path d="M12 2L2 22h20L12 2z" fill="var(--ember-500)"/>
+        <circle cx="10" cy="14" r="1.5" fill="var(--gold-400)"/>
+        <circle cx="14" cy="17" r="1.5" fill="var(--gold-400)"/>
+      </svg>
+    `;
     document.body.appendChild(flyer);
 
     gsap.set(flyer, {
-      x: startRect.left + startRect.width / 2 - 16,
-      y: startRect.top + startRect.height / 2 - 16,
+      x: startRect.left + startRect.width / 2 - 12,
+      y: startRect.top + startRect.height / 2 - 12,
       opacity: 1
     });
 
     gsap.to(flyer, {
-      x: window.innerWidth / 2,
-      y: window.innerHeight - 50,
+      x: endRect.left + endRect.width / 2 - 12,
+      y: endRect.top + endRect.height / 2 - 12,
       scale: 0.4,
       opacity: 0,
-      duration: 0.5,
-      ease: "power2.in",
+      duration: 0.55,
+      ease: "power2.inOut",
       onComplete: () => flyer.remove()
     });
   },
