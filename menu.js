@@ -1,4 +1,4 @@
-// Clean Luxury Customer UI: Smart Floating Navbar, Scroll Progress & Cart Bump
+// Clean Luxury Customer UI: 12-Col Hero, Smart Navbar, Circular Pizza & Canvas Anchor
 window.App = window.App || {};
 
 App.register("menu", {
@@ -87,7 +87,6 @@ App.register("menu", {
         <div class="nav-controls-cluster">
           ${tableControlHtml}
 
-          <!-- Header Cart Pill with Bump Animation -->
           <button type="button" class="nav-cart-btn" id="nav-cart-btn" aria-label="Open Cart Drawer">
             <span class="nav-cart-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -99,7 +98,6 @@ App.register("menu", {
             <span class="nav-cart-badge" id="nav-cart-badge">0</span>
           </button>
 
-          <!-- Discreet Staff Portal Button -->
           <a href="kitchen.html" class="staff-portal-btn" title="Staff KDS Login">
             <span aria-hidden="true">🔒</span> Staff
           </a>
@@ -127,7 +125,6 @@ App.register("menu", {
     }
   },
 
-  // 2. Cart Bump Trigger on Item Count Change
   updateNavCart() {
     if (!App.cart) return;
     const count = App.cart.getCount();
@@ -138,14 +135,13 @@ App.register("menu", {
 
     if (cartBtn && count !== this.prevCartCount && count > 0) {
       cartBtn.classList.remove("cart-bump");
-      void cartBtn.offsetWidth; // Force reflow
+      void cartBtn.offsetWidth;
       cartBtn.classList.add("cart-bump");
       setTimeout(() => cartBtn.classList.remove("cart-bump"), 360);
     }
     this.prevCartCount = count;
   },
 
-  // 3. Smart Hide-on-Scroll-Down, Show-on-Scroll-Up & 2px Scroll-Progress Bar
   initScrollRhythm() {
     const header = App.qs(".app-header");
     const progressBar = App.qs("#scroll-progress-bar");
@@ -154,7 +150,6 @@ App.register("menu", {
       const currentScrollY = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
-      // Update 2px Scroll-Progress Line at Top
       if (progressBar && docHeight > 0) {
         const progress = Math.min(1, Math.max(0, currentScrollY / docHeight));
         progressBar.style.transform = `scaleX(${progress})`;
@@ -162,14 +157,12 @@ App.register("menu", {
 
       if (!header) return;
 
-      // Transparent over hero, solid with blur after 24px
       if (currentScrollY > 24) {
         header.classList.add("is-scrolled");
       } else {
         header.classList.remove("is-scrolled");
       }
 
-      // Check if modal/drawer is open or input is focused
       const isSheetOpen = document.body.classList.contains("is-locked");
       const isInputFocused = document.activeElement && document.activeElement.matches("input, textarea, select");
 
@@ -179,7 +172,6 @@ App.register("menu", {
         return;
       }
 
-      // Hide on scroll down past 120px, reveal on scroll up
       if (currentScrollY > 120 && currentScrollY > this.lastScrollY) {
         header.classList.add("is-hidden");
       } else {
@@ -190,7 +182,7 @@ App.register("menu", {
     }, { passive: true });
   },
 
-  // 4. Hero Section
+  // 2. Editorial 12-Column Hero Layout (Oven Scope, Ember Glow & Floating Pizza Disc)
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
@@ -199,38 +191,113 @@ App.register("menu", {
     const hoursText = customTiming?.hoursText || window.CONFIG.hoursText;
 
     root.innerHTML = `
-      <div class="hero-card">
-        <div class="hero-media">
-          <img 
-            src="${window.MENU.heroImage}" 
-            alt="Wood-fired oven" 
-            class="hero-img" 
-            loading="eager"
-            onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='hero.jpg'; } else { this.style.display='none'; this.nextElementSibling.style.display='flex'; }"
-          >
-          <div class="img-fallback" style="display:none;" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13H5.5L12 6.5z"/></svg>
+      <div class="hero-container container" id="hero-interactive-zone">
+        <!-- Background Canvas for Rising Ember Particles -->
+        <canvas id="hero-embers-canvas" class="hero-embers-canvas" aria-hidden="true"></canvas>
+
+        <div class="hero-grid">
+          <!-- LEFT: Editorial Eyebrow, Split Headline, Subtext & CTAs -->
+          <div class="hero-content-col">
+            <div class="hero-eyebrow">
+              <span class="pulsing-ember-dot" aria-hidden="true"></span>
+              <span class="eyebrow-text label">Wood-Fired Pizza Kitchen</span>
+            </div>
+
+            <div class="hero-headline-mask">
+              <h1 class="hero-headline display">
+                Basil &amp; <em class="headline-emphasis">Fire</em>
+              </h1>
+            </div>
+
+            <p class="hero-subtext">
+              ${window.CONFIG.tagline}. Hand-stretched slow-fermented dough, San Marzano tomatoes, and artisanal fior di latte baked at 900°F.
+            </p>
+
+            <div class="hero-cta-group">
+              <button type="button" class="btn btn--primary hero-btn-magnetic" id="hero-explore-btn">
+                <span>Explore Menu</span>
+                <span class="btn-arrow-icon" aria-hidden="true">↓</span>
+              </button>
+
+              <button type="button" class="btn btn--ghost hero-btn-magnetic" id="hero-table-cta">
+                <span aria-hidden="true">🍽️</span>
+                <span>Table #${String(this.tableNumber).padStart(2, "0")} Order</span>
+              </button>
+            </div>
+
+            <div class="hero-meta-strip">
+              <span class="hero-meta-pill">
+                <span class="live-pulse-dot" aria-hidden="true"></span>
+                <span>${hoursText}</span>
+              </span>
+              <span class="hero-meta-pill hero-meta-pill--table">
+                <span>Contactless Dine-In</span>
+              </span>
+            </div>
           </div>
-          <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-          <h1 class="hero-title">${window.CONFIG.name}</h1>
-          <p class="hero-tagline">${window.CONFIG.tagline}</p>
-          <div class="hero-chips">
-            <span class="chip chip--table-active">
-              🍽️ Contactless Dine-In · Table #${String(this.tableNumber).padStart(2, "0")}
-            </span>
-            <span class="chip">
-              <span class="live-dot" style="margin:0 4px 0 0;"></span>
-              ${hoursText}
-            </span>
+
+          <!-- RIGHT: Large Rotating Circular Pizza Disc over Radial Ember Glow -->
+          <div class="hero-visual-col">
+            <div class="hero-ember-backdrop" aria-hidden="true"></div>
+
+            <div class="hero-pizza-stage" id="hero-pizza-stage">
+              <!-- Floating Decorative Basil Leaves -->
+              <span class="basil-leaf leaf-1" aria-hidden="true">
+                <svg viewBox="0 0 32 32" width="38" height="38" fill="none">
+                  <path d="M16 2 C24 8 28 18 20 26 C12 34 4 24 6 16 C8 8 12 4 16 2 Z" fill="var(--basil-500)"/>
+                  <path d="M16 2 C16 12 18 20 20 26" stroke="var(--basil-300)" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="basil-leaf leaf-2" aria-hidden="true">
+                <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
+                  <path d="M16 2 C24 8 28 18 20 26 C12 34 4 24 6 16 C8 8 12 4 16 2 Z" fill="var(--basil-700)"/>
+                  <path d="M16 2 C16 12 18 20 20 26" stroke="var(--basil-500)" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="basil-leaf leaf-3" aria-hidden="true">
+                <svg viewBox="0 0 32 32" width="22" height="22" fill="none">
+                  <path d="M16 2 C24 8 28 18 20 26 C12 34 4 24 6 16 C8 8 12 4 16 2 Z" fill="var(--basil-300)"/>
+                </svg>
+              </span>
+
+              <!-- Large Circular Pizza Display with Fallback -->
+              <div class="pizza-disc-wrapper" id="pizza-disc-wrapper">
+                <img 
+                  src="margherita.jpg" 
+                  alt="Wood-Fired Margherita Pizza" 
+                  class="pizza-disc-img" 
+                  id="hero-pizza-interactive"
+                  loading="eager"
+                  onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='hero.jpg'; } else { this.style.display='none'; this.nextElementSibling.style.display='flex'; }"
+                >
+                <div class="pizza-fallback-art" style="display:none;" aria-hidden="true">
+                  <div class="pizza-disc-crust"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     `;
+
+    // Smooth scroll CTA
+    App.qs("#hero-explore-btn")?.addEventListener("click", () => {
+      const tabs = App.qs("#tabs-root");
+      if (tabs) {
+        tabs.scrollIntoView({ behavior: "smooth", block: "start" });
+        App.haptic(10);
+      }
+    });
+
+    App.qs("#hero-table-cta")?.addEventListener("click", () => {
+      const select = App.qs("#header-table-select");
+      if (select) select.focus();
+      else App.toast(`Dine-In locked at Table #${this.tableNumber}`);
+      App.haptic(10);
+    });
   },
 
-  // 5. Category Tabs
+  // 3. Category Tabs
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -259,7 +326,7 @@ App.register("menu", {
         if (!targetSection) return;
 
         this.isProgrammaticScroll = true;
-        const offset = 120;
+        const offset = 130;
         const targetTop = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
 
         window.scrollTo({ top: targetTop, behavior: "smooth" });
@@ -321,7 +388,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 6. Menu Catalog
+  // 4. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
