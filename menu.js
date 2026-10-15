@@ -1,4 +1,4 @@
-// Clean Customer UI: Single-Line Header, Compact Table Selector & Hero
+// Clean Luxury Customer UI: Smart Floating Navbar, Scroll Progress & Cart Bump
 window.App = window.App || {};
 
 App.register("menu", {
@@ -18,6 +18,8 @@ App.register("menu", {
     this.orderMode = "table";
     this.activeCategory = window.MENU?.categories[0]?.id || "pizza";
     this.isProgrammaticScroll = false;
+    this.lastScrollY = window.scrollY;
+    this.prevCartCount = 0;
 
     this.renderHeader();
     this.renderHero();
@@ -25,20 +27,23 @@ App.register("menu", {
     this.renderCatalog();
     this.renderCartBar();
     this.initScrollSpy();
+    this.initScrollRhythm();
     this.bindEvents();
 
     if (App.cart && App.cart.subscribe) {
       App.cart.subscribe(() => {
         this.updateCatalogSteppers();
         this.updateCartBar();
+        this.updateNavCart();
       });
     }
 
     this.updateCatalogSteppers();
     this.updateCartBar();
+    this.updateNavCart();
   },
 
-  // 1. Single-Line Mobile-Optimized Header (Never wraps into multiple lines)
+  // 1. Luxury Fixed Navbar with Brand Mark, Table Control & Bump Cart
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -48,13 +53,13 @@ App.register("menu", {
       tableControlHtml = `
         <div class="table-compact-badge table-compact-badge--locked" title="Locked via QR">
           <span class="table-badge-num">Table #${String(this.tableNumber).padStart(2, "0")}</span>
-          <span class="table-lock-mini">🔒</span>
+          <span class="table-lock-mini" aria-hidden="true">🔒</span>
         </div>
       `;
     } else {
       tableControlHtml = `
         <div class="table-compact-badge">
-          <span class="table-badge-icon">🍽️</span>
+          <span class="table-badge-icon" aria-hidden="true">🍽️</span>
           <select id="header-table-select" class="header-table-dropdown" aria-label="Select Table">
             ${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `
               <option value="${n}" ${String(this.tableNumber) === String(n) ? "selected" : ""}>
@@ -69,14 +74,34 @@ App.register("menu", {
     root.innerHTML = `
       <div class="nav-container nav-container--clean">
         <a href="index.html" class="brand-link" aria-label="Basil and Fire Home">
-          <span class="brand-dot"></span>
+          <span class="brand-mark-svg" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+              <path d="M12 2C8 7 5 11 5 15a7 7 0 0014 0c0-4-3-8-7-13z" fill="var(--ember-500)"/>
+              <path d="M12 7c-2 3-3.5 5-3.5 7.5a3.5 3.5 0 007 0c0-2.5-1.5-4.5-3.5-7.5z" fill="var(--gold-400)"/>
+              <path d="M15 15c2-2 4-2.5 5-2-.5 2-2 3-5 2z" fill="var(--basil-500)"/>
+            </svg>
+          </span>
           <span class="brand-text">${window.CONFIG.name}</span>
         </a>
 
         <div class="nav-controls-cluster">
           ${tableControlHtml}
+
+          <!-- Header Cart Pill with Bump Animation -->
+          <button type="button" class="nav-cart-btn" id="nav-cart-btn" aria-label="Open Cart Drawer">
+            <span class="nav-cart-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+              </svg>
+            </span>
+            <span class="nav-cart-badge" id="nav-cart-badge">0</span>
+          </button>
+
+          <!-- Discreet Staff Portal Button -->
           <a href="kitchen.html" class="staff-portal-btn" title="Staff KDS Login">
-            🔒 Staff
+            <span aria-hidden="true">🔒</span> Staff
           </a>
         </div>
       </div>
@@ -92,9 +117,80 @@ App.register("menu", {
         App.haptic(10);
       });
     }
+
+    const navCartBtn = App.qs("#nav-cart-btn", root);
+    if (navCartBtn) {
+      navCartBtn.addEventListener("click", () => {
+        if (App.emit) App.emit("sheet:open", "cart");
+        App.haptic(10);
+      });
+    }
   },
 
-  // 2. Hero Section
+  // 2. Cart Bump Trigger on Item Count Change
+  updateNavCart() {
+    if (!App.cart) return;
+    const count = App.cart.getCount();
+    const badge = App.qs("#nav-cart-badge");
+    const cartBtn = App.qs("#nav-cart-btn");
+
+    if (badge) badge.textContent = count;
+
+    if (cartBtn && count !== this.prevCartCount && count > 0) {
+      cartBtn.classList.remove("cart-bump");
+      void cartBtn.offsetWidth; // Force reflow
+      cartBtn.classList.add("cart-bump");
+      setTimeout(() => cartBtn.classList.remove("cart-bump"), 360);
+    }
+    this.prevCartCount = count;
+  },
+
+  // 3. Smart Hide-on-Scroll-Down, Show-on-Scroll-Up & 2px Scroll-Progress Bar
+  initScrollRhythm() {
+    const header = App.qs(".app-header");
+    const progressBar = App.qs("#scroll-progress-bar");
+
+    window.addEventListener("scroll", () => {
+      const currentScrollY = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+      // Update 2px Scroll-Progress Line at Top
+      if (progressBar && docHeight > 0) {
+        const progress = Math.min(1, Math.max(0, currentScrollY / docHeight));
+        progressBar.style.transform = `scaleX(${progress})`;
+      }
+
+      if (!header) return;
+
+      // Transparent over hero, solid with blur after 24px
+      if (currentScrollY > 24) {
+        header.classList.add("is-scrolled");
+      } else {
+        header.classList.remove("is-scrolled");
+      }
+
+      // Check if modal/drawer is open or input is focused
+      const isSheetOpen = document.body.classList.contains("is-locked");
+      const isInputFocused = document.activeElement && document.activeElement.matches("input, textarea, select");
+
+      if (isSheetOpen || isInputFocused) {
+        header.classList.remove("is-hidden");
+        this.lastScrollY = currentScrollY;
+        return;
+      }
+
+      // Hide on scroll down past 120px, reveal on scroll up
+      if (currentScrollY > 120 && currentScrollY > this.lastScrollY) {
+        header.classList.add("is-hidden");
+      } else {
+        header.classList.remove("is-hidden");
+      }
+
+      this.lastScrollY = currentScrollY;
+    }, { passive: true });
+  },
+
+  // 4. Hero Section
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
@@ -134,7 +230,7 @@ App.register("menu", {
     `;
   },
 
-  // 3. Category Tabs
+  // 5. Category Tabs
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -225,7 +321,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 4. Menu Catalog
+  // 6. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
