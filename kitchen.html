@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#120E0B">
   <title>Basil & Fire — Kitchen Management KDS</title>
   <meta name="description" content="Live wood-fired kitchen display system.">
 
   <!-- Tomato-Red Pizza Slice Favicon -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23FF5A36' d='M16 2 L30 28 A2 2 0 0 1 28 30 L4 30 A2 2 0 0 1 2 28 Z'/%3E%3Ccircle cx='13' cy='18' r='2.5' fill='%23F2C14E'/%3E%3Ccircle cx='20' cy='22' r='2.5' fill='%23F2C14E'/%3E%3Ccircle cx='15' cy='25' r='1.5' fill='%238BD18F'/%3E%3C/svg%3E">
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Fraunces (Display) & DM Sans (Body / UI) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css">
@@ -27,10 +28,12 @@
   <script src="kitchen.js" defer></script>
   <script src="app.js" defer></script>
 </head>
-<body class="kitchen-body">
+<body class="kitchen-body" data-theme="oven">
+  <!-- Subtle Tactile Grain Overlay -->
+  <div class="grain-overlay" aria-hidden="true"></div>
 
   <!-- 1. Mandatory Security PIN Lock Screen -->
-  <div class="pin-lock-screen" id="pin-lock-screen">
+  <div class="pin-lock-screen" id="pin-lock-screen" data-theme="oven">
     <div class="pin-card">
       <div class="pin-brand">
         <span class="pin-logo">🍕</span>
@@ -69,7 +72,7 @@
   </div>
 
   <!-- 2. Protected KDS Dashboard -->
-  <div class="kds-wrapper" id="kds-wrapper" style="display:none;">
+  <div class="kds-wrapper" id="kds-wrapper" data-theme="oven" style="display:none;">
     <header class="kds-header">
       <div class="kds-brand-group">
         <span class="live-pulse-dot" aria-hidden="true"></span>
@@ -151,13 +154,13 @@
       </section>
     </main>
 
-    <footer class="app-footer">
+    <footer class="app-footer" data-theme="oven">
       <p>Concept project by Shivam Mishra. Basil & Fire is a fictional restaurant. No payments are processed.</p>
     </footer>
   </div>
 
-  <!-- Settings Modal (Cloud-Synced Hours) -->
-  <div class="qr-modal-backdrop" id="kds-settings-backdrop" style="display:none;">
+  <!-- 3. Settings Modal -->
+  <div class="qr-modal-backdrop" id="kds-settings-backdrop" data-theme="oven" style="display:none;">
     <div class="qr-modal kds-settings-modal" id="kds-settings-modal">
       <div class="qr-modal__head">
         <div>
@@ -195,8 +198,8 @@
     </div>
   </div>
 
-  <!-- Table QR Modal -->
-  <div class="qr-modal-backdrop" id="qr-backdrop" style="display:none;">
+  <!-- 4. Table QR Modal -->
+  <div class="qr-modal-backdrop" id="qr-backdrop" data-theme="oven" style="display:none;">
     <div class="qr-modal" id="qr-modal">
       <div class="qr-modal__head">
         <div>
