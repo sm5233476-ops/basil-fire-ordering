@@ -1,4 +1,4 @@
-// Phase E: Luxury Menu Catalog, Aspect-Ratio Food Cards, SVG Badges & Oven Customizer
+// Phase F: Signature Add-to-Cart Arc Motion, 56px Thumbnail Flight & Cart Bump
 window.App = window.App || {};
 
 App.register("menu", {
@@ -134,12 +134,25 @@ App.register("menu", {
     if (badge) badge.textContent = count;
 
     if (cartBtn && count !== this.prevCartCount && count > 0) {
+      this.triggerCartBump();
+    }
+    this.prevCartCount = count;
+  },
+
+  triggerCartBump() {
+    const cartBtn = App.qs("#nav-cart-btn");
+    const barEl = App.qs("#cart-bar");
+
+    if (cartBtn) {
       cartBtn.classList.remove("cart-bump");
       void cartBtn.offsetWidth;
       cartBtn.classList.add("cart-bump");
       setTimeout(() => cartBtn.classList.remove("cart-bump"), 360);
     }
-    this.prevCartCount = count;
+
+    if (barEl && window.gsap && !App.prefersReducedMotion()) {
+      gsap.fromTo(barEl, { scale: 0.95 }, { scale: 1, duration: 0.35, ease: "back.out(2)" });
+    }
   },
 
   initScrollRhythm() {
@@ -195,7 +208,6 @@ App.register("menu", {
         <canvas id="hero-embers-canvas" class="hero-embers-canvas" aria-hidden="true"></canvas>
 
         <div class="hero-grid">
-          <!-- LEFT: Editorial Eyebrow, Split Headline, Subtext & Magnetic CTAs -->
           <div class="hero-content-col">
             <div class="hero-eyebrow">
               <span class="pulsing-ember-dot" aria-hidden="true"></span>
@@ -235,12 +247,10 @@ App.register("menu", {
             </div>
           </div>
 
-          <!-- RIGHT: Large Rotating Circular Pizza Disc over Radial Ember Glow -->
           <div class="hero-visual-col">
             <div class="hero-ember-backdrop" aria-hidden="true"></div>
 
             <div class="hero-pizza-stage" id="hero-pizza-stage">
-              <!-- Floating Decorative Basil Leaves -->
               <span class="basil-leaf leaf-1" aria-hidden="true">
                 <svg viewBox="0 0 32 32" width="38" height="38" fill="none">
                   <path d="M16 2 C24 8 28 18 20 26 C12 34 4 24 6 16 C8 8 12 4 16 2 Z" fill="var(--basil-500)"/>
@@ -532,6 +542,7 @@ App.register("menu", {
 
       const hasOptions = item.options && item.options.length > 0;
 
+      // Quick-add plus
       const addBtn = e.target.closest(".btn-action--add");
       if (addBtn) {
         e.stopPropagation();
@@ -539,17 +550,19 @@ App.register("menu", {
         return;
       }
 
+      // Stepper Plus
       const plusBtn = e.target.closest('.stepper-btn[data-action="plus"]');
       if (plusBtn) {
         e.stopPropagation();
         const line = App.cart.getLines().find((l) => l.itemId === item.id);
         if (line) App.cart.update(line.key, line.qty + 1);
         if (App.toast) App.toast(`Added another ${item.name}`);
-        this.flyToCart(plusBtn);
+        this.flyToCart(plusBtn, item.image || "margherita.jpg");
         App.haptic(10);
         return;
       }
 
+      // Stepper Minus
       const minusBtn = e.target.closest('.stepper-btn[data-action="minus"]');
       if (minusBtn) {
         e.stopPropagation();
@@ -559,6 +572,7 @@ App.register("menu", {
         return;
       }
 
+      // Open customizer sheet
       if (hasOptions || e.target.closest(".btn-action--custom")) {
         this.openItemSheet(item);
       }
@@ -578,11 +592,11 @@ App.register("menu", {
     });
 
     if (App.toast) App.toast(`Added ${item.name} for Table #${this.tableNumber}`);
-    this.flyToCart(originEl);
+    this.flyToCart(originEl, item.image || "margherita.jpg");
     App.haptic(10);
   },
 
-  // 5. Item Detail Customizer Modal (Oven Scope, Ember Ring Selected States)
+  // 5. Item Detail Customizer Modal (Oven Scope, Ember Selection Rings)
   openItemSheet(item) {
     const root = App.qs("#item-sheet-root");
     if (!root) return;
@@ -793,9 +807,62 @@ App.register("menu", {
       });
 
       if (App.toast) App.toast(`Added ${item.name} for Table #${this.tableNumber}`);
-      this.flyToCart(e.currentTarget);
+      this.flyToCart(e.currentTarget, item.image || "margherita.jpg");
       App.haptic(15);
       closeSheet();
+    });
+  },
+
+  // 6. Fly-to-Cart Arc Motion: 56px Thumbnail along Parabolic Curve to Cart Icon
+  flyToCart(srcEl, imgSrc) {
+    if (App.prefersReducedMotion() || !window.gsap || !srcEl) return;
+
+    // Target the navbar cart button or mobile cart bar
+    const cartEl = App.qs("#nav-cart-btn") || App.qs("#cart-bar");
+    if (!cartEl) return;
+
+    const s = srcEl.getBoundingClientRect();
+    const t = cartEl.getBoundingClientRect();
+
+    if (t.width === 0 && t.height === 0) return;
+
+    const dot = document.createElement("img");
+    dot.src = imgSrc || "margherita.jpg";
+    dot.alt = "";
+    Object.assign(dot.style, {
+      position: "fixed",
+      left: s.left + "px",
+      top: s.top + "px",
+      width: "56px",
+      height: "56px",
+      borderRadius: "50%",
+      objectFit: "cover",
+      zIndex: "9999",
+      pointerEvents: "none",
+      boxShadow: "0 8px 24px rgba(255, 106, 43, 0.45)"
+    });
+    document.body.appendChild(dot);
+
+    const dx = t.left + t.width / 2 - 28 - s.left;
+    const dy = t.top + t.height / 2 - 28 - s.top;
+
+    // Distinct X and Y easings to synthesize a natural parabolic arc
+    gsap.to(dot, {
+      x: dx,
+      duration: 0.8,
+      ease: "power1.in"
+    });
+
+    gsap.to(dot, {
+      y: dy,
+      scale: 0.3,
+      opacity: 0.6,
+      duration: 0.8,
+      ease: "power1.out",
+      onComplete: () => {
+        dot.remove();
+        this.triggerCartBump();
+      }
     });
   },
 
@@ -841,48 +908,6 @@ App.register("menu", {
     } else {
       barEl.classList.remove("is-visible");
     }
-  },
-
-  flyToCart(originEl) {
-    const target = App.qs("#cart-bar") || App.qs("#nav-cart-btn");
-    if (!originEl || !target) return;
-
-    if (window.gsap && !App.prefersReducedMotion()) {
-      gsap.fromTo(target, { scale: 0.95 }, { scale: 1, duration: 0.3, ease: "back.out(2)" });
-    }
-
-    if (App.prefersReducedMotion() || !window.gsap) return;
-
-    const startRect = originEl.getBoundingClientRect();
-    const endRect = target.getBoundingClientRect();
-
-    const flyer = document.createElement("div");
-    flyer.className = "fly-particle";
-    flyer.setAttribute("aria-hidden", "true");
-    flyer.innerHTML = `
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
-        <path d="M12 2L2 22h20L12 2z" fill="var(--ember-500)"/>
-        <circle cx="10" cy="14" r="1.5" fill="var(--gold-400)"/>
-        <circle cx="14" cy="17" r="1.5" fill="var(--gold-400)"/>
-      </svg>
-    `;
-    document.body.appendChild(flyer);
-
-    gsap.set(flyer, {
-      x: startRect.left + startRect.width / 2 - 12,
-      y: startRect.top + startRect.height / 2 - 12,
-      opacity: 1
-    });
-
-    gsap.to(flyer, {
-      x: endRect.left + endRect.width / 2 - 12,
-      y: endRect.top + endRect.height / 2 - 12,
-      scale: 0.4,
-      opacity: 0,
-      duration: 0.55,
-      ease: "power2.inOut",
-      onComplete: () => flyer.remove()
-    });
   },
 
   bindEvents() {
