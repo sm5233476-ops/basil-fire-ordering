@@ -1,6 +1,6 @@
 /* ==========================================================================
    Basil & Fire — Ember & Flour Design System
-   Phase D: 100svh 12-Col Hero, Preloader, Circular Pizza Disc & Rising Embers
+   Phase E: Luxury Flour Menu, Aspect-Ratio Food Cards & Signature Hover Lift
    ========================================================================== */
 
 :root {
@@ -41,7 +41,7 @@
   --fs-display: clamp(2.8rem, 7vw, 6.5rem);
   --fs-h1: clamp(2.2rem, 5vw, 4.2rem);
   --fs-h2: clamp(1.8rem, 3.4vw, 2.8rem);
-  --fs-h3: clamp(1.25rem, 2vw, 1.6rem);
+  --fs-h3: clamp(1.2rem, 1.8vw, 1.45rem);
   --fs-body: 1rem;
   --fs-small: 0.875rem;
   --fs-label: 0.75rem;
@@ -56,7 +56,6 @@
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
-  --space-16: 64px;
 
   /* --- Shape Radii --- */
   --r-sm: 10px;
@@ -96,17 +95,17 @@ body,
   --surface-2: var(--flour-200);
   --text: var(--ink-900);
   --text-muted: var(--ink-500);
-  --border: rgba(28, 20, 16, 0.14);
+  --border: rgba(28, 20, 16, 0.12);
   --accent: var(--tomato-700);
   --accent-ink: #FFF7EC;
   --link: var(--tomato-700);
   --success: var(--basil-700);
   --danger: var(--tomato-700);
   --glow: rgba(201, 53, 40, 0.18);
-  --shadow-sm: 0 1px 2px rgba(28, 20, 16, 0.08);
-  --shadow-lg: 0 12px 32px rgba(28, 20, 16, 0.12);
+  --shadow-sm: 0 1px 3px rgba(28, 20, 16, 0.08), 0 4px 12px rgba(28, 20, 16, 0.04);
+  --shadow-lg: 0 12px 32px rgba(28, 20, 16, 0.12), 0 2px 6px rgba(28, 20, 16, 0.06);
   --line: var(--border);
-  --line-strong: rgba(28, 20, 16, 0.25);
+  --line-strong: rgba(28, 20, 16, 0.22);
 }
 
 [data-theme="oven"] {
@@ -485,7 +484,7 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Hero Section Layout (100svh, 12-Col Desktop Grid, Mobile Stacked)
+   Hero Section Layout (100svh, 12-Col Desktop Grid)
    ========================================================================== */
 
 .hero-section {
@@ -505,7 +504,6 @@ body.is-locked {
   width: 100%;
 }
 
-/* Background Rising Embers Canvas */
 .hero-embers-canvas {
   position: absolute;
   inset: 0;
@@ -611,6 +609,40 @@ body.is-locked {
   margin-top: var(--space-2);
 }
 
+/* Explicit Hero CTA Button Contrast & Standards */
+.hero-cta-btn {
+  min-height: 50px;
+  padding: 14px 28px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.hero-cta-btn.btn--primary {
+  background: var(--ember-500);
+  color: var(--oven-950);
+  border: 1px solid var(--ember-500);
+  box-shadow: 0 6px 20px rgba(255, 106, 43, 0.35);
+}
+
+.hero-cta-btn.btn--primary:hover {
+  background: var(--ember-400);
+  box-shadow: 0 8px 26px rgba(255, 106, 43, 0.5);
+}
+
+.hero-cta-btn.btn--ghost {
+  background: rgba(246, 235, 221, 0.08);
+  border: 1px solid var(--border);
+  color: #F6EBDD;
+}
+
+.hero-cta-btn.btn--ghost:hover {
+  background: rgba(246, 235, 221, 0.16);
+  border-color: rgba(246, 235, 221, 0.35);
+}
+
 .btn-arrow-icon {
   display: inline-block;
   transition: transform var(--dur-hover) var(--ease-out);
@@ -686,7 +718,6 @@ body.is-locked {
   justify-content: center;
 }
 
-/* Circular Pizza Disc with Warm Shadow */
 .pizza-disc-wrapper {
   position: relative;
   width: 100%;
@@ -706,7 +737,6 @@ body.is-locked {
   transform-origin: center center;
 }
 
-/* Pizza Radial Fallback Art */
 .pizza-fallback-art {
   width: 100%;
   height: 100%;
@@ -724,7 +754,6 @@ body.is-locked {
   border: 4px dashed var(--gold-400);
 }
 
-/* Floating Decorative Basil Leaves */
 .basil-leaf {
   position: absolute;
   z-index: 3;
@@ -787,7 +816,7 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Category Tabs (Flour Scope)
+   Phase E: Sticky Category Tabs with Sliding Indicator & Edge Masks
    ========================================================================== */
 
 .category-tabs {
@@ -804,11 +833,37 @@ body.is-locked {
   }
 }
 
+.tabs-scroller-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tabs-edge-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.tabs-edge-fade--left {
+  left: 0;
+  background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+}
+
+.tabs-edge-fade--right {
+  right: 0;
+  background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);
+}
+
 .tabs-scroller {
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 0 var(--space-4);
+  scroll-snap-type: x mandatory;
 }
 
 .tabs-scroller::-webkit-scrollbar {
@@ -828,9 +883,10 @@ body.is-locked {
   font-family: var(--font-body);
   font-size: var(--fs-small);
   font-weight: 700;
-  padding: var(--space-3) var(--space-1);
+  padding: var(--space-3) var(--space-2);
   cursor: pointer;
   white-space: nowrap;
+  scroll-snap-align: center;
   transition: color var(--dur-hover) ease;
 }
 
@@ -849,11 +905,11 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Menu Catalog & Cards (Flour Scope)
+   Phase E: Menu Catalog & Luxury 1/1 Food Cards
    ========================================================================== */
 
 .menu-catalog {
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-6) var(--space-4);
   background: var(--bg);
 }
 
@@ -866,55 +922,77 @@ body.is-locked {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
   padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--border);
 }
 
 .category-title {
   font-size: var(--fs-h2);
+  color: var(--text);
+}
+
+.category-title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
 }
 
 .category-count {
   font-size: var(--fs-label);
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   font-weight: 700;
 }
 
+/* Responsive Grid: 1 col < 640px, 2 cols 640-1023px, 2-3 cols desktop */
 .menu-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4);
+  gap: clamp(16px, 2vw, 28px);
 }
 
+@media (min-width: 640px) {
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Item Card (Flour Scope: Warm Shadow, 1/1 Image Top, Hover Lift -6px, Zoom 1.05) */
 .item-card {
-  display: grid;
-  grid-template-columns: 104px 1fr;
-  gap: var(--space-3);
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  padding: var(--space-3);
+  padding: var(--space-4);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
+  transition: transform 280ms var(--ease-out), border-color var(--dur-hover) ease, box-shadow 280ms var(--ease-out);
+  position: relative;
+  overflow: hidden;
 }
 
 .item-card:hover {
-  border-color: var(--border);
+  transform: translateY(-6px);
   box-shadow: var(--shadow-lg);
+  border-color: rgba(28, 20, 16, 0.22);
 }
 
+.item-card:active {
+  transform: scale(0.98);
+}
+
+/* 1/1 Aspect-Ratio Media Container on Top */
 .item-card__media {
   position: relative;
-  width: 104px;
-  height: 104px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: var(--r-md);
   overflow: hidden;
   background: var(--surface-2);
-  flex-shrink: 0;
+  margin-bottom: var(--space-3);
 }
 
 .item-img {
@@ -922,22 +1000,32 @@ body.is-locked {
   height: 100%;
   object-fit: cover;
   object-position: center center;
+  transition: transform 600ms var(--ease-out);
 }
 
+.item-card:hover .item-img {
+  transform: scale(1.05);
+}
+
+/* Transform-Based Pseudo-Element Shimmer */
 .media-skeleton {
   position: absolute;
   inset: 0;
+  background: var(--surface-2);
+  overflow: hidden;
 }
 
-.skeleton {
-  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.6s infinite;
+.media-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 50%, transparent 100%);
+  animation: skeletonShimmer 1.5s infinite;
 }
 
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+@keyframes skeletonShimmer {
+  100% { transform: translateX(100%); }
 }
 
 .img-fallback {
@@ -951,15 +1039,16 @@ body.is-locked {
 }
 
 .img-fallback svg {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   fill: currentColor;
 }
 
+/* Shared SVG Badges */
 .item-badges {
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: 8px;
+  left: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -967,90 +1056,120 @@ body.is-locked {
 }
 
 .badge--veg {
-  background: var(--surface);
+  background: rgba(255, 250, 242, 0.94);
   color: var(--basil-700);
   border: 1px solid var(--basil-500);
-  padding: 2px 8px;
-}
-
-.badge-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--basil-500);
+  padding: 3px 8px;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  border-radius: var(--r-pill);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .badge--spicy {
-  background: var(--surface);
+  background: rgba(255, 250, 242, 0.94);
   color: var(--tomato-700);
   border: 1px solid var(--tomato-600);
-  padding: 2px 8px;
+  padding: 3px 8px;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  border-radius: var(--r-pill);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .item-card__body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: 0;
+  flex: 1;
 }
 
 .item-name {
   font-size: var(--fs-h3);
-  line-height: 1.15;
+  font-weight: 600;
+  line-height: 1.18;
+  color: var(--text);
 }
 
 .item-desc {
   font-size: var(--fs-small);
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 6px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-height: 1.5;
 }
 
 .item-card__footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-2);
 }
 
 .item-price {
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-variant-numeric: tabular-nums;
   color: var(--text);
 }
 
+/* Button with Ember Fill Sweep Effect */
 .btn-action {
-  min-width: 38px;
-  height: 38px;
+  min-width: 44px;
+  height: 44px;
   border-radius: var(--r-pill);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text);
+  border: 1px solid var(--accent);
+  background: var(--surface);
+  color: var(--accent);
   font-weight: 700;
   font-size: var(--fs-small);
-  padding: 0 14px;
+  padding: 0 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   cursor: pointer;
-  transition: transform var(--dur-tap) ease, background-color var(--dur-hover) ease;
+  position: relative;
+  overflow: hidden;
+  transition: color var(--dur-hover) ease, border-color var(--dur-hover) ease;
 }
 
-.btn-action--custom {
-  background: var(--surface-2);
-  color: var(--accent);
-  border-color: var(--accent);
+.btn-action::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-hover) var(--ease-out);
+  z-index: 0;
+}
+
+.item-card:hover .btn-action::before,
+.btn-action:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.item-card:hover .btn-action,
+.btn-action:hover {
+  color: var(--accent-ink);
+}
+
+.btn-action span {
+  position: relative;
+  z-index: 1;
 }
 
 .btn-action--add {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   padding: 0;
-  width: 38px;
+  width: 44px;
 }
 
 .stepper {
@@ -1059,18 +1178,18 @@ body.is-locked {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--r-pill);
-  height: 38px;
+  height: 42px;
   padding: 2px;
 }
 
 .stepper-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: none;
   background: transparent;
   color: var(--text);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -1079,7 +1198,7 @@ body.is-locked {
 }
 
 .stepper-val {
-  min-width: 24px;
+  min-width: 26px;
   text-align: center;
   font-weight: 700;
   font-size: var(--fs-small);
@@ -1087,7 +1206,285 @@ body.is-locked {
 }
 
 /* ==========================================================================
-   Floating Cart Bar & Desktop Sidebar (Oven Scope)
+   Item Detail Customizer Modal (Oven Scope, Ember Selection Rings)
+   ========================================================================== */
+
+.overlay-container {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+.overlay-container.is-active {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 9, 7, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.sheet {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90svh;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+}
+
+@media (min-width: 1024px) {
+  .overlay-container.is-active {
+    align-items: center;
+  }
+  .sheet {
+    max-width: 520px;
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border);
+  }
+}
+
+.sheet__handle {
+  width: 38px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--border);
+  margin: 12px auto;
+  flex-shrink: 0;
+}
+
+.sheet__head {
+  padding: 0 var(--space-5) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.sheet__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sheet__title {
+  font-size: var(--fs-h2);
+}
+
+.sheet__close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sheet__scroll-content {
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.sheet-group {
+  border: none;
+}
+
+.sheet-group__legend {
+  font-weight: 700;
+  font-size: var(--fs-small);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  color: var(--text);
+  width: 100%;
+}
+
+.sheet-options--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-2);
+}
+
+.sheet-options--list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Choice Cards: Clear Selected State with Ember Ring & Checkmark */
+.choice-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
+}
+
+.choice-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.choice-check-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  font-size: 0.75rem;
+  color: transparent;
+  transition: all var(--dur-hover) ease;
+}
+
+.choice-card.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  background: var(--surface);
+}
+
+.choice-card.is-selected .choice-check-mark {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.choice-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.choice-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.choice-name {
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+
+.choice-delta {
+  font-size: var(--fs-label);
+  color: var(--text-muted);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.choice-card.is-selected .choice-delta {
+  color: var(--accent);
+}
+
+.notes-wrap {
+  position: relative;
+}
+
+.notes-wrap textarea {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  resize: none;
+}
+
+.notes-wrap textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.notes-count {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  font-size: var(--fs-label);
+  color: var(--text-muted);
+}
+
+/* Sticky Bottom Add Bar */
+.sheet__footer {
+  margin-top: auto;
+  padding: var(--space-3) var(--space-5) max(16px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.sheet__qty-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  height: 50px;
+  padding: 0 4px;
+}
+
+.sheet-qty-btn {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.25rem;
+  font-weight: 700;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.sheet-qty-val {
+  font-weight: 800;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet__add-btn {
+  width: 100%;
+  height: 50px;
+  font-size: var(--fs-small);
+  gap: 8px;
+}
+
+.btn-divider {
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   Checkout, Floating Cart & Desktop Sidebar (Oven Scope)
    ========================================================================== */
 
 .cart-bar-anchor {
@@ -1305,266 +1702,6 @@ body.is-locked {
   padding-top: var(--space-2);
 }
 
-/* ==========================================================================
-   Modals & Customizer Sheets
-   ========================================================================== */
-
-.overlay-container {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-}
-
-.overlay-container.is-active {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.sheet-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(12, 9, 7, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.sheet {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90svh;
-  background: var(--surface);
-  color: var(--text);
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-lg);
-}
-
-@media (min-width: 1024px) {
-  .overlay-container.is-active {
-    align-items: center;
-  }
-  .sheet {
-    max-width: 520px;
-    border-radius: var(--r-lg);
-    border: 1px solid var(--border);
-  }
-}
-
-.sheet__handle {
-  width: 38px;
-  height: 4px;
-  border-radius: var(--r-pill);
-  background: var(--border);
-  margin: 12px auto;
-  flex-shrink: 0;
-}
-
-.sheet__head {
-  padding: 0 var(--space-5) var(--space-3);
-  border-bottom: 1px solid var(--border);
-}
-
-.sheet__title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.sheet__title {
-  font-size: var(--fs-h2);
-}
-
-.sheet__close-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text-muted);
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.sheet__scroll-content {
-  overflow-y: auto;
-  padding: var(--space-4) var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-.sheet-group {
-  border: none;
-}
-
-.sheet-group__legend {
-  font-weight: 700;
-  font-size: var(--fs-small);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-3);
-  color: var(--text);
-  width: 100%;
-}
-
-.sheet-options--grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: var(--space-2);
-}
-
-.sheet-options--list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.choice-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  cursor: pointer;
-}
-
-.choice-card.is-selected {
-  border-color: var(--accent);
-  background: var(--surface);
-}
-
-.choice-input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.choice-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.choice-name {
-  font-size: var(--fs-small);
-  font-weight: 600;
-}
-
-.choice-delta {
-  font-size: var(--fs-label);
-  color: var(--text-muted);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.choice-card.is-selected .choice-delta {
-  color: var(--accent);
-}
-
-.form-input {
-  width: 100%;
-  min-height: 52px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 12px 16px;
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: var(--fs-small);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-.notes-wrap {
-  position: relative;
-}
-
-.notes-wrap textarea {
-  width: 100%;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 12px 14px;
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: var(--fs-small);
-  resize: none;
-}
-
-.notes-count {
-  position: absolute;
-  right: 12px;
-  bottom: 8px;
-  font-size: var(--fs-label);
-  color: var(--text-muted);
-}
-
-.sheet__footer {
-  margin-top: auto;
-  padding: var(--space-3) var(--space-5) max(16px, env(safe-area-inset-bottom));
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: var(--space-3);
-  align-items: center;
-}
-
-.sheet__qty-stepper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  height: 50px;
-  padding: 0 4px;
-}
-
-.sheet-qty-btn {
-  background: transparent;
-  border: none;
-  color: var(--text);
-  font-size: 1.25rem;
-  font-weight: 700;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-}
-
-.sheet-qty-val {
-  font-weight: 800;
-  font-size: 1rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.sheet__add-btn {
-  width: 100%;
-  height: 50px;
-  font-size: var(--fs-small);
-}
-
-/* ==========================================================================
-   Checkout & Confirmation (Oven Scope)
-   ========================================================================== */
-
 .table-checkout-notice {
   display: flex;
   align-items: center;
@@ -1645,7 +1782,24 @@ body.is-locked {
   margin-top: var(--space-1);
 }
 
-/* Order Tracker */
+.form-input {
+  width: 100%;
+  min-height: 52px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Order Tracker Elements */
 .tracker-content {
   display: flex;
   flex-direction: column;
