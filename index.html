@@ -17,7 +17,7 @@
   <!-- Twitter Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Basil & Fire — Wood-Fired Pizza">
-  <meta name="twitter:description" content="Concept wood-fired pizza kitchen ordering web app by Shivam Mishra. Direct ordering with no marketplace commission.">
+  <meta name="twitter:description" content="Concept wood-fired pizza kitchen ordering web app by Shivam Mishra.">
   <meta name="twitter:image" content="https://basil-fire-ordering.vercel.app/og.jpg">
 
   <!-- Tomato-Red Pizza Slice Favicon (Inline SVG Data URI) -->
@@ -48,6 +48,9 @@
   <script src="app.js" defer></script>
 </head>
 <body data-theme="flour">
+  <!-- 2px Top Scroll-Progress Indicator -->
+  <div class="scroll-progress-line" id="scroll-progress-bar" aria-hidden="true"></div>
+
   <!-- Subtle Tactile Grain Overlay -->
   <div class="grain-overlay" aria-hidden="true"></div>
 
@@ -56,10 +59,35 @@
     <main class="main-column" id="main-content">
       <header class="app-header" id="header-root" data-theme="oven"></header>
       <section class="hero-section" id="hero-root" data-theme="oven"></section>
+      
+      <!-- Decorative Section Transition: Oven to Flour -->
+      <div class="section-divider section-divider--to-flour" aria-hidden="true"></div>
+
       <nav class="category-tabs" id="tabs-root" data-theme="flour" aria-label="Menu categories"></nav>
       <section class="menu-catalog" id="menu-root" data-theme="flour" aria-label="Menu catalogue"></section>
+      
+      <!-- Decorative Section Transition: Flour to Oven -->
+      <div class="section-divider section-divider--to-oven" aria-hidden="true"></div>
+
       <footer class="app-footer" data-theme="oven">
-        <p>Concept project by Shivam Mishra. Basil & Fire is a fictional restaurant. No payments are processed.</p>
+        <!-- Dashed Pizza-Cutter Divider -->
+        <div class="footer-cutter-divider" aria-hidden="true">
+          <div class="cutter-dashed-track"></div>
+          <span class="cutter-wheel">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 3v6M12 15v6M3 12h6M15 12h6"/>
+            </svg>
+          </span>
+        </div>
+
+        <!-- Large Editorial Fraunces Wordmark -->
+        <div class="footer-wordmark-wrap">
+          <span class="footer-wordmark" id="footer-wordmark">Basil &amp; Fire</span>
+        </div>
+
+        <p class="footer-disclaimer">Concept project by Shivam Mishra. Basil & Fire is a fictional restaurant. No payments are processed.</p>
       </footer>
     </main>
 
