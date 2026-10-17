@@ -1,11 +1,11 @@
-// Confirmation Screen & Live Multi-Tab Tracker (Without Floating Pill)
+// Phase G: Signature Order Success (Rubber Stamp Seal 1.6->1, Check Draw & Ember Timer Ring)
 window.App = window.App || {};
 
 App.register("tracker", {
   init() {
     this.activeOrder = null;
 
-    // Clean up any old floating pill if present in DOM
+    // Clean up any lingering floating chip
     const oldPill = document.getElementById("active-order-chip");
     if (oldPill) oldPill.remove();
 
@@ -66,7 +66,7 @@ App.register("tracker", {
 
     root.classList.add("is-active");
     document.body.classList.add("is-locked");
-    this.renderTrackerContent();
+    this.renderTrackerContent(true);
   },
 
   getStatusIndex(status) {
@@ -79,48 +79,66 @@ App.register("tracker", {
     }
   },
 
-  renderTrackerContent() {
+  renderTrackerContent(isEntrance = false) {
     const root = App.qs("#tracker-root");
     if (!root || !this.activeOrder) return;
 
     const order = this.activeOrder;
-    const isDelivery = order.mode === "delivery";
     const currentStepIdx = this.getStatusIndex(order.status);
 
     const steps = [
       { id: "new", label: "Received", icon: "📋" },
       { id: "preparing", label: "Preparing", icon: "🔥" },
-      { id: "ready", label: isDelivery ? "On the way" : "Ready", icon: isDelivery ? "🛵" : "🛍️" },
-      { id: "completed", label: "Completed", icon: "✨" }
+      { id: "ready", label: "Ready", icon: "🍽️" },
+      { id: "completed", label: "Served", icon: "✨" }
     ];
 
     const progressPercent = Math.min(100, Math.round((currentStepIdx / 3) * 100));
 
     root.innerHTML = `
       <div class="sheet-backdrop" id="tracker-backdrop"></div>
-      <div class="sheet sheet--tracker" id="tracker-sheet-container" role="dialog" aria-label="Order Tracker">
-        <div class="sheet__handle"></div>
+      <div class="sheet sheet--tracker" id="tracker-sheet-container" data-theme="oven" role="dialog" aria-label="Order Status">
+        <div class="sheet__handle" aria-hidden="true"></div>
         <div class="sheet__head">
           <div class="sheet__title-row">
-            <h2 class="sheet__title">Order Status</h2>
+            <div>
+              <h2 class="sheet__title">Order Confirmed</h2>
+              <span class="label" style="color:var(--gold-400);">${order.timeLabel || "Dine-In"}</span>
+            </div>
             <button type="button" class="sheet__close-btn" id="tracker-close-btn" aria-label="Close">✕</button>
           </div>
         </div>
 
         <div class="sheet__scroll-content tracker-content">
+          
+          <!-- Signature Moment 5: Rubber Stamp Seal & Check Draw -->
           <div class="tracker-header">
-            <div class="check-animation-wrap">
-              <svg class="check-svg" viewBox="0 0 52 52" aria-hidden="true">
-                <circle class="check-circle" cx="26" cy="26" r="24" fill="none"/>
-                <path class="check-path" fill="none" d="M14 27l8 8 16-16"/>
-              </svg>
+            <div class="success-seal-stage">
+              <div class="success-stamp-seal" id="success-stamp-seal">
+                <svg class="stamp-svg" viewBox="0 0 64 64" width="76" height="76" aria-hidden="true">
+                  <circle class="stamp-ring-circle" cx="32" cy="32" r="28" fill="none" stroke="var(--ember-500)" stroke-width="3"/>
+                  <path class="stamp-check-path" fill="none" d="M19 33l9 9 18-18" stroke="var(--flour-50)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
             </div>
-            <h3 class="tracker-order-id">${order.id}</h3>
-            <p class="tracker-eta-line">
-              Estimated: <strong>${order.timeLabel || (isDelivery ? window.CONFIG.etaDelivery : window.CONFIG.etaPickup)}</strong>
-            </p>
+
+            <div class="tracker-info-stagger" id="tracker-info-stagger">
+              <span class="label tracker-confirmed-tag">Sent to Wood-Fired Oven</span>
+              <h3 class="tracker-order-id display">${order.id}</h3>
+              
+              <!-- Looping Ember Timer Ring around ETA -->
+              <div class="tracker-eta-badge-wrap">
+                <svg class="eta-timer-ring-svg" viewBox="0 0 120 40" aria-hidden="true">
+                  <rect x="2" y="2" width="116" height="36" rx="18" fill="none" stroke="var(--ember-500)" stroke-width="1.5" stroke-dasharray="12 6" class="timer-ring-rect"/>
+                </svg>
+                <div class="tracker-eta-line">
+                  <span>Status: <strong>${order.timeLabel || "Dine-In Table Order"}</strong></span>
+                </div>
+              </div>
+            </div>
           </div>
 
+          <!-- Live 4-Step Progress Track -->
           <div class="tracker-steps-card">
             <div class="tracker-progress-track">
               <div class="tracker-progress-fill" style="width: ${progressPercent}%;"></div>
@@ -133,18 +151,19 @@ App.register("tracker", {
                 return `
                   <div class="tracker-step ${isPassed ? "is-passed" : ""} ${isCurrent ? "is-current" : ""}">
                     <div class="step-dot">
-                      ${isCurrent ? `<span class="step-pulse-ring"></span>` : ""}
-                      <span class="step-icon">${st.icon}</span>
+                      ${isCurrent ? `<span class="step-pulse-ring" aria-hidden="true"></span>` : ""}
+                      <span class="step-icon" aria-hidden="true">${st.icon}</span>
                     </div>
-                    <span class="step-title">${st.label}</span>
+                    <span class="step-title label">${st.label}</span>
                   </div>
                 `;
               }).join("")}
             </div>
           </div>
 
+          <!-- Order Summary Card -->
           <div class="tracker-items-box">
-            <h4 class="tracker-items-head">Order Details (${order.mode.toUpperCase()})</h4>
+            <h4 class="tracker-items-head label">Order Details (${order.customer?.address || "Table Order"})</h4>
             <div class="tracker-items-list">
               ${order.lines.map((l) => {
                 const optText = l.options ? Object.values(l.options).flat().filter(Boolean).join(", ") : "";
@@ -153,29 +172,30 @@ App.register("tracker", {
                     <div>
                       <strong>${l.qty}x ${l.name}</strong>
                       ${optText ? `<div class="tracker-item-opts">${optText}</div>` : ""}
-                      ${l.notes ? `<div class="tracker-item-notes">"${App.escape ? App.escape(l.notes) : l.notes}"</div>` : ""}
+                      ${l.notes ? `<div class="tracker-item-notes">“${App.escape ? App.escape(l.notes) : l.notes}”</div>` : ""}
                     </div>
-                    <span>${App.money.format((l.unitPriceCents || l.priceCents) * l.qty)}</span>
+                    <span class="price">${App.money.format((l.unitPriceCents || l.priceCents) * l.qty)}</span>
                   </div>
                 `;
               }).join("")}
             </div>
 
             <div class="tracker-totals-block">
-              <div class="tracker-total-line"><span>Subtotal:</span> <span>${App.money.format(order.subtotal)}</span></div>
-              ${order.discount > 0 ? `<div class="tracker-total-line tracker-total-line--disc"><span>Discount:</span> <span>-${App.money.format(order.discount)}</span></div>` : ""}
-              <div class="tracker-total-line"><span>Fulfillment:</span> <span>${order.deliveryFee === 0 ? "FREE" : App.money.format(order.deliveryFee)}</span></div>
-              <div class="tracker-total-line"><span>Tax (8%):</span> <span>${App.money.format(order.tax)}</span></div>
-              <div class="tracker-total-line tracker-total-line--grand"><span>Total:</span> <span>${App.money.format(order.total)}</span></div>
+              <div class="tracker-total-line"><span>Subtotal:</span> <span class="price">${App.money.format(order.subtotal)}</span></div>
+              ${order.discount > 0 ? `<div class="tracker-total-line tracker-total-line--disc"><span>Discount (WELCOME10):</span> <span class="price">-${App.money.format(order.discount)}</span></div>` : ""}
+              <div class="tracker-total-line"><span>Service:</span> <span>Dine-In (Table)</span></div>
+              <div class="tracker-total-line"><span>Tax (8%):</span> <span class="price">${App.money.format(order.tax)}</span></div>
+              <div class="tracker-total-line tracker-total-line--grand"><span>Total Due:</span> <span class="price">${App.money.format(order.total)}</span></div>
             </div>
           </div>
 
+          <!-- Actions -->
           <div class="tracker-actions">
-            <button type="button" class="btn btn--primary" id="btn-order-again">
-              🔁 Order Again
-            </button>
-            <button type="button" class="btn btn--ghost" id="btn-back-menu">
+            <button type="button" class="btn btn--primary" id="btn-back-menu" style="width:100%;">
               Back to Menu
+            </button>
+            <button type="button" class="btn btn--ghost" id="btn-order-again" style="width:100%;">
+              🔁 Order Again
             </button>
           </div>
         </div>
@@ -194,13 +214,80 @@ App.register("tracker", {
       if (App.emit) App.emit("sheet:open", "cart");
       App.haptic(15);
     });
+
+    if (isEntrance) {
+      this.playSuccessAnimation();
+    }
+  },
+
+  // Signature Moment 5 Animation Sequence (≈ 2s, then stable)
+  playSuccessAnimation() {
+    if (App.prefersReducedMotion() || !window.gsap) return;
+
+    const seal = App.qs("#success-stamp-seal");
+    const ring = App.qs(".stamp-ring-circle");
+    const check = App.qs(".stamp-check-path");
+    const infoStagger = App.qs("#tracker-info-stagger");
+
+    const tl = gsap.timeline();
+
+    // 1. Rubber stamp drop: scales 1.6 -> 1, rotate -14° -> 0 (600ms, back.out(2))
+    if (seal) {
+      tl.fromTo(
+        seal,
+        { scale: 1.6, rotate: -14, opacity: 0 },
+        { scale: 1, rotate: 0, opacity: 1, duration: 0.6, ease: "back.out(2)" },
+        0
+      );
+    }
+
+    // 2. Stroke check inside draws (500ms) & ring fills (700ms)
+    if (check && check.getTotalLength) {
+      const checkLen = check.getTotalLength();
+      gsap.set(check, { strokeDasharray: checkLen, strokeDashoffset: checkLen });
+      tl.to(check, { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" }, 0.4);
+    }
+
+    if (ring && ring.getTotalLength) {
+      const ringLen = ring.getTotalLength();
+      gsap.set(ring, { strokeDasharray: ringLen, strokeDashoffset: ringLen });
+      tl.to(ring, { strokeDashoffset: 0, duration: 0.7, ease: "power2.inOut" }, 0.2);
+    }
+
+    // 3. Staggered fade-rise of order details
+    if (infoStagger) {
+      tl.fromTo(
+        infoStagger.children,
+        { y: 18, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.55, stagger: 0.08, ease: "power2.out" },
+        0.6
+      );
+    }
   },
 
   closeTrackerSheet() {
     const root = App.qs("#tracker-root");
     if (!root) return;
-    root.classList.remove("is-active");
-    root.innerHTML = "";
-    document.body.classList.remove("is-locked");
+
+    const sheetEl = App.qs("#tracker-sheet-container", root);
+    const backdropEl = App.qs("#tracker-backdrop", root);
+
+    if (window.gsap && !App.prefersReducedMotion() && sheetEl) {
+      gsap.to(backdropEl, { opacity: 0, duration: 0.25 });
+      gsap.to(sheetEl, {
+        y: "100%",
+        duration: 0.35,
+        ease: "power2.in",
+        onComplete: () => {
+          root.classList.remove("is-active");
+          root.innerHTML = "";
+          document.body.classList.remove("is-locked");
+        }
+      });
+    } else {
+      root.classList.remove("is-active");
+      root.innerHTML = "";
+      document.body.classList.remove("is-locked");
+    }
   }
 });
