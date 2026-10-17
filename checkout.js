@@ -1,4 +1,4 @@
-// Phase G: Luxury 2-Col Checkout, 52px Inputs with Shake Feedback & Loading Spinner
+// Phase H: Zero-Emoji Checkout, Pure Vector Icons & Standardized 52px Inputs
 window.App = window.App || {};
 
 App.register("checkout", {
@@ -33,7 +33,9 @@ App.register("checkout", {
         <div class="sheet__head">
           <div class="sheet__title-row">
             <h2 class="sheet__title">Confirm Table Order</h2>
-            <button type="button" class="sheet__close-btn" id="checkout-close-btn" aria-label="Close checkout">✕</button>
+            <button type="button" class="sheet__close-btn" id="checkout-close-btn" aria-label="Close checkout">
+              ${App.icons ? App.icons.close() : "✕"}
+            </button>
           </div>
         </div>
 
@@ -43,9 +45,11 @@ App.register("checkout", {
             <!-- LEFT COLUMN: Form Fields & Details -->
             <div class="checkout-form-col">
               
-              <!-- 1. Table Confirmation Notice -->
+              <!-- 1. Table Confirmation Notice (Pure SVG) -->
               <div class="table-checkout-notice">
-                <span class="table-icon" aria-hidden="true">🍽️</span>
+                <span class="table-icon" aria-hidden="true">
+                  ${App.icons ? App.icons.utensils() : `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"><path d="M18 2v20M14 2v6a4 4 0 0 0 4 4v10M6 2v8a4 4 0 0 0 4 4v8"/></svg>`}
+                </span>
                 <div>
                   <strong>Serving to Table #${String(tableNumber).padStart(2, "0")}</strong>
                   <p>Freshly baked and delivered right to your seat.</p>
@@ -65,7 +69,9 @@ App.register("checkout", {
                     autocomplete="name"
                     autofocus
                   >
-                  <span class="input-validation-tick" id="name-valid-tick" aria-hidden="true">✓</span>
+                  <span class="input-validation-tick" id="name-valid-tick" aria-hidden="true">
+                    ${App.icons ? App.icons.check() : "✓"}
+                  </span>
                 </div>
                 <div class="field-error-wrap" id="err-name" aria-live="polite"></div>
               </div>
@@ -83,7 +89,7 @@ App.register("checkout", {
                 </div>
               </div>
 
-              <!-- 4. Payment Method (Card-Themed Visual Demo Mockup) -->
+              <!-- 4. Payment Method (Card-Themed Visual Mockup) -->
               <div class="checkout-section">
                 <label class="checkout-label label">Payment Method</label>
                 <div class="demo-card-payment-box">
@@ -117,11 +123,12 @@ App.register("checkout", {
                 <div class="review-row review-row--total"><span>Total Due:</span> <span class="price" id="checkout-total-due">${App.money.format(totals.total)}</span></div>
               </div>
 
-              <!-- Fire Order Action with Subtle Loading Spinner -->
+              <!-- Fire Order Action with Subtle Loading Spinner & SVG Flame -->
               <div class="checkout-actions">
                 <button type="button" class="btn btn--primary btn--order-place" id="btn-place-order">
                   <span class="btn-spinner" id="btn-order-spinner" style="display:none;" aria-hidden="true"></span>
-                  <span id="btn-place-order-text">🔥 Fire Order to Kitchen · ${App.money.format(totals.total)}</span>
+                  <span class="btn-flame-icon" id="btn-flame-icon" aria-hidden="true">${App.icons ? App.icons.flame() : ""}</span>
+                  <span id="btn-place-order-text">Fire Order to Kitchen · ${App.money.format(totals.total)}</span>
                 </button>
               </div>
 
@@ -145,7 +152,6 @@ App.register("checkout", {
     closeBtn?.addEventListener("click", () => this.closeCheckout());
     backdrop?.addEventListener("click", () => this.closeCheckout());
 
-    // Live validation tick on name input
     nameInput?.addEventListener("input", () => {
       const isValid = (nameInput.value || "").trim().length >= 2;
       if (nameTick) nameTick.classList.toggle("is-visible", isValid);
@@ -166,7 +172,7 @@ App.register("checkout", {
     const errWrap = App.qs("#err-name");
     const nameVal = nameInput?.value.trim() || "";
 
-    // 250ms Input Shake on Submit Failure
+    // 250ms Shake Feedback on Validation Failure
     if (!nameVal || nameVal.length < 2) {
       if (nameInput) {
         nameInput.classList.add("is-invalid");
@@ -178,7 +184,7 @@ App.register("checkout", {
       }
       if (errWrap) {
         errWrap.innerHTML = `
-          <span class="field-error-icon" aria-hidden="true">⚠️</span>
+          <span class="field-error-icon" aria-hidden="true">${App.icons ? App.icons.alert() : "!"}</span>
           <span class="field-error-text">Please enter your name (min 2 characters)</span>
         `;
       }
@@ -189,10 +195,12 @@ App.register("checkout", {
     this.isSubmitting = true;
     const btnPlace = App.qs("#btn-place-order");
     const spinner = App.qs("#btn-order-spinner");
+    const flameIcon = App.qs("#btn-flame-icon");
     const btnText = App.qs("#btn-place-order-text");
 
     if (btnPlace) btnPlace.disabled = true;
     if (spinner) spinner.style.display = "inline-block";
+    if (flameIcon) flameIcon.style.display = "none";
     if (btnText) btnText.textContent = "Firing order to kitchen...";
 
     const promoCode = App.storage.get("bf_promo_code", "");
@@ -222,7 +230,6 @@ App.register("checkout", {
       notes: notesVal
     };
 
-    // Keep submit behavior and order creation exact
     const newOrder = App.orders.create(orderData);
     App.cart.clear();
 
@@ -230,7 +237,6 @@ App.register("checkout", {
       this.isSubmitting = false;
       this.closeCheckout();
 
-      // Trigger Signature Order Success / Confirmation screen
       if (App.emit) App.emit("order:created", newOrder);
     }, 400);
   },
