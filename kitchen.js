@@ -1,4 +1,4 @@
-// Kitchen KDS Engine: Multi-Device PIN & Timing Cloud Broadcast
+// Phase H: Zero-Emoji KDS Display, Pure Vector Status Badges & SVG Timers
 window.App = window.App || {};
 
 App.register("kitchen", {
@@ -210,7 +210,6 @@ App.register("kitchen", {
       if (e.target === backdrop) backdrop.style.display = "none";
     });
 
-    // Save Passcode and broadcast to all devices
     btnSavePin?.addEventListener("click", () => {
       const newPin = (pinInput?.value || "").trim();
       if (/^\d{4}$/.test(newPin)) {
@@ -226,7 +225,6 @@ App.register("kitchen", {
       }
     });
 
-    // Save Hours and broadcast to all devices (Phone & Laptop)
     btnSaveTimings?.addEventListener("click", () => {
       const newTiming = {
         hoursText: hoursInput?.value.trim() || window.CONFIG.hoursText
@@ -350,7 +348,11 @@ App.register("kitchen", {
       if (list.length === 0) {
         cols[status].innerHTML = `
           <div class="kds-empty-col">
-            <span class="empty-col-icon">✨</span>
+            <span class="empty-col-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>
+              </svg>
+            </span>
             <p>Station clear</p>
           </div>
         `;
@@ -368,19 +370,24 @@ App.register("kitchen", {
     const isPaid = order.paymentSettled === true;
     const tableBadgeText = order.customer?.address || `Table #${order.tableNumber || "01"}`;
 
-    const badgeHtml = `<span class="k-badge k-badge--table">🍽️ DINE-IN ${tableBadgeText}</span>`;
+    const badgeHtml = `
+      <span class="k-badge k-badge--table">
+        <span class="k-badge-icon" aria-hidden="true">${App.icons ? App.icons.utensils() : ""}</span>
+        <span>DINE-IN ${tableBadgeText}</span>
+      </span>
+    `;
 
     const payStatusHtml = isPaid
-      ? `<span class="k-pay-badge k-pay-badge--paid">PAID ✓</span>`
-      : `<button type="button" class="btn-mark-paid" data-id="${order.id}">Mark Paid 💵</button>`;
+      ? `<span class="k-pay-badge k-pay-badge--paid"><span aria-hidden="true">${App.icons ? App.icons.check() : "✓"}</span><span>PAID</span></span>`
+      : `<button type="button" class="btn-mark-paid" data-id="${order.id}"><span>Mark Paid</span> ${App.icons ? App.icons.check() : ""}</button>`;
 
     let nextBtnHtml = "";
     if (order.status === "new") {
-      nextBtnHtml = `<button type="button" class="btn btn--primary k-action-btn" data-action="preparing" data-id="${order.id}">Accept & Fire →</button>`;
+      nextBtnHtml = `<button type="button" class="btn btn--primary k-action-btn" data-action="preparing" data-id="${order.id}"><span>Accept &amp; Fire</span> ${App.icons ? App.icons.arrowRight() : "→"}</button>`;
     } else if (order.status === "preparing") {
-      nextBtnHtml = `<button type="button" class="btn btn--ready k-action-btn" data-action="ready" data-id="${order.id}">Mark Ready →</button>`;
+      nextBtnHtml = `<button type="button" class="btn btn--ready k-action-btn" data-action="ready" data-id="${order.id}"><span>Mark Ready</span> ${App.icons ? App.icons.arrowRight() : "→"}</button>`;
     } else if (order.status === "ready") {
-      nextBtnHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}">Done ✓</button>`;
+      nextBtnHtml = `<button type="button" class="btn btn--complete k-action-btn" data-action="completed" data-id="${order.id}"><span>Done</span> ${App.icons ? App.icons.check() : "✓"}</button>`;
     } else {
       nextBtnHtml = `<span class="k-done-tag">Fulfilled</span>`;
     }
@@ -392,7 +399,10 @@ App.register("kitchen", {
             <span class="k-order-id">${order.id}</span>
             <span class="k-customer-name">${order.customer?.name || "Guest"}</span>
           </div>
-          <span class="k-timer-pill" data-created="${order.createdAt}">⏱️ ${elapsed}</span>
+          <span class="k-timer-pill" data-created="${order.createdAt}">
+            <span class="timer-icon" aria-hidden="true">${App.icons ? App.icons.clock() : ""}</span>
+            <span>${elapsed}</span>
+          </span>
         </div>
 
         <div class="k-card__meta">
@@ -415,7 +425,7 @@ App.register("kitchen", {
         </div>
 
         <div class="k-card__bottom">
-          <span class="k-order-price">${App.money.format(order.total)}</span>
+          <span class="k-order-price price">${App.money.format(order.total)}</span>
           ${nextBtnHtml}
         </div>
       </article>
@@ -433,7 +443,10 @@ App.register("kitchen", {
     setInterval(() => {
       document.querySelectorAll(".k-timer-pill").forEach((el) => {
         const timestamp = parseInt(el.dataset.created, 10);
-        if (timestamp) el.textContent = `⏱️ ${this.getElapsedTime(timestamp)}`;
+        if (timestamp) {
+          const icon = App.icons ? App.icons.clock() : "";
+          el.innerHTML = `<span class="timer-icon" aria-hidden="true">${icon}</span><span>${this.getElapsedTime(timestamp)}</span>`;
+        }
       });
     }, 30000);
   },
