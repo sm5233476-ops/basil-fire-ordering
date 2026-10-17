@@ -2849,3 +2849,140 @@ body.is-locked {
     animation: none !important;
   }
 }
+/* ==========================================================================
+   Phase I: Mobile-First Polish, Safe-Area Ergonomics & Touch Performance
+   ========================================================================== */
+
+/* 1. Safe-Area Environment Insets & Zero-Horizontal Scroll */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+
+html, body {
+  overflow-x: clip !important;
+  max-width: 100vw;
+}
+
+/* 2. Prevent iOS Safari Auto-Zoom: Form Inputs strictly >= 16px */
+input, select, textarea, .form-input, .promo-input {
+  font-size: 16px !important;
+}
+
+/* 3. Thumb-Reach & Tap Targets >= 44px */
+.btn,
+.btn-action,
+.stepper-btn,
+.sheet__close-btn,
+.nav-cart-btn,
+.staff-portal-btn,
+.tab-btn,
+.choice-card,
+.kds-tab-pill {
+  min-height: 44px !important;
+  min-width: 44px;
+}
+
+/* 4. Native Touch Feedback (Scale .97) & Sticky Hover Isolation */
+@media (hover: hover) and (pointer: fine) {
+  .item-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+  .item-card:hover .item-img {
+    transform: scale(1.05);
+  }
+  .btn--primary:hover {
+    filter: brightness(1.08);
+  }
+}
+
+@media (hover: none) {
+  .item-card:hover,
+  .btn:hover,
+  .btn-action:hover {
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+.btn:active,
+.item-card:active,
+.choice-card:active,
+.tab-btn:active,
+.nav-cart-btn:active,
+.stepper-btn:active {
+  transform: scale(0.97) !important;
+  transition: transform 100ms ease !important;
+}
+
+/* 5. Mobile Sticky Bottom Cart Bar (Safe-Area Aware, Hidden when Sheet Open) */
+.cart-bar-anchor {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 70 !important;
+  pointer-events: none !important;
+  padding: 0 var(--space-4) calc(12px + var(--sab)) !important;
+}
+
+.cart-bar {
+  border-radius: var(--r-lg) var(--r-lg) var(--r-md) var(--r-md) !important;
+  box-shadow: 0 -4px 24px rgba(18, 14, 11, 0.5), 0 8px 32px rgba(255, 106, 43, 0.35) !important;
+  transition: transform 350ms var(--ease-spring) !important;
+}
+
+body.is-locked .cart-bar-anchor {
+  display: none !important;
+}
+
+/* Bottom 40% Action Sheet Ergonomics on Mobile */
+@media (max-width: 1023px) {
+  .sheet {
+    max-height: 88svh !important;
+    border-radius: var(--r-lg) var(--r-lg) 0 0 !important;
+  }
+  
+  .sheet__footer {
+    padding-bottom: calc(var(--space-4) + var(--sab)) !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 10 !important;
+  }
+}
+
+/* 6. Landscape Phone Optimization (844x390 / max-height: 500px) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-section {
+    min-height: auto !important;
+    padding-top: 76px !important;
+    padding-bottom: var(--space-4) !important;
+  }
+  .hero-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+  .hero-pizza-stage {
+    width: 190px !important;
+  }
+  .hero-headline {
+    font-size: 2.2rem !important;
+  }
+  .sheet {
+    max-height: 94svh !important;
+  }
+}
+
+/* 7. Ultra-Wide Screens (>= 1920px) Balance Lock */
+@media (min-width: 1920px) {
+  .app-shell, .container {
+    max-width: 1280px !important;
+  }
+  .hero-pizza-stage {
+    max-width: 440px !important;
+  }
+}
