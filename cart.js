@@ -1,4 +1,4 @@
-// Phase F: Luxury Oven-Scoped Cart Drawer, 64px Thumbnails & 400ms Count-Tween
+// Phase H: Clean SVG Icons, 64px Thumbnails, Rolling-Pin Line Art & 400ms Count-Tween
 window.App = window.App || {};
 
 App.register("cart", {
@@ -44,11 +44,11 @@ App.register("cart", {
       root.innerHTML = `
         <div class="cart-panel cart-panel--empty" data-theme="oven">
           <div class="empty-cart-artwork" aria-hidden="true">
-            <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 24h40l-4 28H16L12 24z"/>
-              <path d="M8 24h48"/>
-              <path d="M26 24V14a6 6 0 0 1 12 0v10"/>
-              <circle cx="32" cy="38" r="6" stroke-dasharray="2 2"/>
+            <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22h40v26H12z"/>
+              <path d="M12 36c0-6 9-10 20-10s20 4 20 10"/>
+              <path d="M4 35h8M52 35h8"/>
+              <circle cx="32" cy="40" r="3"/>
             </svg>
           </div>
           <h2 class="empty-cart-title">Your cart is empty</h2>
@@ -122,16 +122,18 @@ App.register("cart", {
           <div class="sheet__head">
             <div class="sheet__title-row">
               <h2 class="sheet__title">Your Cart</h2>
-              <button type="button" class="sheet__close-btn" id="cart-close-btn" aria-label="Close cart">✕</button>
+              <button type="button" class="sheet__close-btn" id="cart-close-btn" aria-label="Close cart">
+                ${App.icons ? App.icons.close() : "✕"}
+              </button>
             </div>
           </div>
           <div class="empty-cart-view">
             <div class="empty-cart-artwork" aria-hidden="true">
-              <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 24h40l-4 28H16L12 24z"/>
-                <path d="M8 24h48"/>
-                <path d="M26 24V14a6 6 0 0 1 12 0v10"/>
-                <circle cx="32" cy="38" r="6" stroke-dasharray="2 2"/>
+              <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22h40v26H12z"/>
+                <path d="M12 36c0-6 9-10 20-10s20 4 20 10"/>
+                <path d="M4 35h8M52 35h8"/>
+                <circle cx="32" cy="40" r="3"/>
               </svg>
             </div>
             <h3 class="empty-cart-title">Your cart is empty</h3>
@@ -163,7 +165,9 @@ App.register("cart", {
               <h2 class="sheet__title">Table #${String(tableNumber).padStart(2, "0")} Order</h2>
               <span class="label" style="color:var(--text-muted);">${App.cart.getCount()} items</span>
             </div>
-            <button type="button" class="sheet__close-btn" id="cart-close-btn" aria-label="Close cart">✕</button>
+            <button type="button" class="sheet__close-btn" id="cart-close-btn" aria-label="Close cart">
+              ${App.icons ? App.icons.close() : "✕"}
+            </button>
           </div>
         </div>
 
@@ -193,7 +197,6 @@ App.register("cart", {
     const sheetEl = App.qs("#cart-sheet-container", root);
     const backdropEl = App.qs("#cart-backdrop", root);
 
-    // Spring Entrance (450ms cubic-bezier(.22,1,.36,1))
     if (window.gsap && !App.prefersReducedMotion()) {
       gsap.fromTo(backdropEl, { opacity: 0 }, { opacity: 0.6, duration: 0.3 });
       gsap.fromTo(sheetEl, { y: "100%" }, { y: "0%", duration: 0.45, ease: "power3.out" });
@@ -232,7 +235,7 @@ App.register("cart", {
     }
   },
 
-  // 3. Render Line Items with 64px Thumbnail & SVG Trash Icon
+  // 3. Render Line Items with 64px Thumbnail & 24px Stroke Trash Icon
   renderLinesHtml(lines, scope) {
     return lines.map((line) => {
       const opts = [];
@@ -246,15 +249,21 @@ App.register("cart", {
       return `
         <div class="cart-line-card" data-key="${line.key}">
           <div class="cart-line-main">
-            <!-- 64px Item Thumbnail -->
+            <!-- 64px Item Thumbnail with Fraunces Fallback -->
             <div class="cart-line-thumb-wrap">
               <img 
                 src="${line.image || 'margherita.jpg'}" 
                 alt="${line.name}" 
-                class="cart-line-thumb" 
+                class="cart-line-thumb photo-grade" 
+                width="64"
+                height="64"
                 loading="lazy"
-                onerror="if(!this.dataset.retry){this.dataset.retry='1';this.src='margherita.jpg';}"
+                decoding="async"
+                onerror="if(!this.dataset.retry){this.dataset.retry='1';this.src='margherita.jpg';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}"
               >
+              <div class="cart-thumb-fallback" style="display:none;" aria-hidden="true">
+                <span class="font-display">${line.name.charAt(0)}</span>
+              </div>
             </div>
 
             <div class="cart-line-info">
@@ -266,17 +275,19 @@ App.register("cart", {
 
             <!-- SVG Trash Remove Button -->
             <button type="button" class="cart-line-del" data-action="remove" data-key="${line.key}" aria-label="Remove ${line.name}">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
-              </svg>
+              ${App.icons ? App.icons.trash() : `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>`}
             </button>
           </div>
 
           <div class="cart-line-footer">
             <div class="stepper stepper--sm">
-              <button type="button" class="stepper-btn" data-action="dec" data-key="${line.key}" aria-label="Decrease quantity">−</button>
+              <button type="button" class="stepper-btn" data-action="dec" data-key="${line.key}" aria-label="Decrease quantity">
+                ${App.icons ? App.icons.minus() : "−"}
+              </button>
               <span class="stepper-val price">${line.qty}</span>
-              <button type="button" class="stepper-btn" data-action="inc" data-key="${line.key}" aria-label="Increase quantity">+</button>
+              <button type="button" class="stepper-btn" data-action="inc" data-key="${line.key}" aria-label="Increase quantity">
+                ${App.icons ? App.icons.plus() : "+"}
+              </button>
             </div>
           </div>
         </div>
@@ -293,8 +304,13 @@ App.register("cart", {
         <label for="promo-input-${scope}" class="promo-label label">Promo Code</label>
         ${isApplied ? `
           <div class="promo-applied-badge">
-            <span class="promo-code-name">🎉 ${this.promoCode} (-10%)</span>
-            <button type="button" class="promo-remove-btn" id="promo-remove-${scope}" aria-label="Remove promo">✕</button>
+            <span class="promo-code-name">
+              <span class="promo-badge-icon" aria-hidden="true">${App.icons ? App.icons.check() : "✓"}</span>
+              <span>${this.promoCode} (-10%)</span>
+            </span>
+            <button type="button" class="promo-remove-btn" id="promo-remove-${scope}" aria-label="Remove promo">
+              ${App.icons ? App.icons.close() : "✕"}
+            </button>
           </div>
         ` : `
           <div class="promo-input-row">
@@ -342,7 +358,7 @@ App.register("cart", {
     `;
   },
 
-  // 4. 400ms Visual Count-Tween for Totals (Real state guaranteed on completion)
+  // 4. 400ms Count-Tween for Totals
   tweenTotals(totals, scope) {
     const totalEl = App.qs(`#${scope}-summary-total`);
     const btnPriceEl = App.qs(`#${scope}-checkout-price`);
@@ -375,7 +391,6 @@ App.register("cart", {
         if (subtotalEl) subtotalEl.textContent = currentS;
       },
       onComplete: () => {
-        // Enforce 100% precision match with underlying state
         if (totalEl) totalEl.textContent = App.money.format(totals.total);
         if (btnPriceEl) btnPriceEl.textContent = App.money.format(totals.total);
         if (subtotalEl) subtotalEl.textContent = App.money.format(totals.subtotal);
@@ -386,7 +401,6 @@ App.register("cart", {
     this.prevSubtotal = totals.subtotal;
   },
 
-  // 5. Interaction Bindings
   bindCartInteractions(container, scope) {
     container.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-action]");
