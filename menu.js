@@ -1,4 +1,4 @@
-// Phase F: Signature Add-to-Cart Arc Motion, 56px Thumbnail Flight & Cart Bump
+// Phase H: Unified 24px SVG Icons, 4/5 Aspect-Ratio Food Cards & Zero Emojis
 window.App = window.App || {};
 
 App.register("menu", {
@@ -43,7 +43,7 @@ App.register("menu", {
     this.updateNavCart();
   },
 
-  // 1. Luxury Fixed Navbar with Brand Mark, Table Control & Bump Cart
+  // 1. Luxury Fixed Navbar with SVG Icons (No Emojis)
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -53,13 +53,13 @@ App.register("menu", {
       tableControlHtml = `
         <div class="table-compact-badge table-compact-badge--locked" title="Locked via QR">
           <span class="table-badge-num">Table #${String(this.tableNumber).padStart(2, "0")}</span>
-          <span class="table-lock-mini" aria-hidden="true">🔒</span>
+          <span class="table-lock-mini" aria-hidden="true">${App.icons ? App.icons.lock() : ""}</span>
         </div>
       `;
     } else {
       tableControlHtml = `
         <div class="table-compact-badge">
-          <span class="table-badge-icon" aria-hidden="true">🍽️</span>
+          <span class="table-badge-icon" aria-hidden="true">${App.icons ? App.icons.utensils() : ""}</span>
           <select id="header-table-select" class="header-table-dropdown" aria-label="Select Table">
             ${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `
               <option value="${n}" ${String(this.tableNumber) === String(n) ? "selected" : ""}>
@@ -75,11 +75,7 @@ App.register("menu", {
       <div class="nav-container nav-container--clean">
         <a href="index.html" class="brand-link" aria-label="Basil and Fire Home">
           <span class="brand-mark-svg" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-              <path d="M12 2C8 7 5 11 5 15a7 7 0 0014 0c0-4-3-8-7-13z" fill="var(--ember-500)"/>
-              <path d="M12 7c-2 3-3.5 5-3.5 7.5a3.5 3.5 0 007 0c0-2.5-1.5-4.5-3.5-7.5z" fill="var(--gold-400)"/>
-              <path d="M15 15c2-2 4-2.5 5-2-.5 2-2 3-5 2z" fill="var(--basil-500)"/>
-            </svg>
+            ${App.icons ? App.icons.flame() : `<svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M12 2C8 7 5 11 5 15a7 7 0 0014 0c0-4-3-8-7-13z" fill="var(--ember-500)"/></svg>`}
           </span>
           <span class="brand-text">${window.CONFIG.name}</span>
         </a>
@@ -88,18 +84,13 @@ App.register("menu", {
           ${tableControlHtml}
 
           <button type="button" class="nav-cart-btn" id="nav-cart-btn" aria-label="Open Cart Drawer">
-            <span class="nav-cart-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="9" cy="21" r="1"/>
-                <circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
-              </svg>
-            </span>
-            <span class="nav-cart-badge" id="nav-cart-badge">0</span>
+            <span class="nav-cart-icon" aria-hidden="true">${App.icons ? App.icons.cart() : ""}</span>
+            <span class="nav-cart-badge price" id="nav-cart-badge">0</span>
           </button>
 
           <a href="kitchen.html" class="staff-portal-btn" title="Staff KDS Login">
-            <span aria-hidden="true">🔒</span> Staff
+            <span aria-hidden="true">${App.icons ? App.icons.lock() : ""}</span>
+            <span>Staff</span>
           </a>
         </div>
       </div>
@@ -227,11 +218,11 @@ App.register("menu", {
             <div class="hero-cta-group">
               <button type="button" class="btn btn--primary hero-cta-btn" id="hero-explore-btn">
                 <span>Explore Menu</span>
-                <span class="btn-arrow-icon" aria-hidden="true">↓</span>
+                <span class="btn-arrow-icon" aria-hidden="true">${App.icons ? App.icons.arrowDown() : "↓"}</span>
               </button>
 
               <button type="button" class="btn btn--ghost hero-cta-btn" id="hero-table-cta">
-                <span aria-hidden="true">🍽️</span>
+                <span aria-hidden="true">${App.icons ? App.icons.utensils() : ""}</span>
                 <span>Table #${String(this.tableNumber).padStart(2, "0")} Order</span>
               </button>
             </div>
@@ -273,9 +264,13 @@ App.register("menu", {
                 <img 
                   src="margherita.jpg" 
                   alt="Wood-Fired Margherita Pizza" 
-                  class="pizza-disc-img" 
+                  class="pizza-disc-img photo-grade" 
                   id="hero-pizza-interactive"
+                  width="420"
+                  height="420"
                   loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
                   onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='hero.jpg'; } else { this.style.display='none'; this.nextElementSibling.style.display='flex'; }"
                 >
                 <div class="pizza-fallback-art" style="display:none;" aria-hidden="true">
@@ -304,7 +299,7 @@ App.register("menu", {
     });
   },
 
-  // 3. Category Tabs (Flour Scope, Sticky with Sliding Indicator)
+  // 3. Category Tabs
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -399,7 +394,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 4. Menu Catalog: Aspect-Ratio Food Cards, Clean SVG Badges & DM Sans Price
+  // 4. Menu Catalog: 4/5 Aspect Ratio Food Cards, Zero Emojis & Fraunces Fallback
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
@@ -435,36 +430,38 @@ App.register("menu", {
 
     return `
       <article class="item-card card" data-id="${item.id}" tabindex="0">
+        <!-- 4/5 Fixed Aspect Ratio Media Container -->
         <div class="item-card__media">
           ${item.image ? `
-            <div class="media-skeleton skeleton" id="skel-${item.id}"></div>
+            <div class="media-skeleton skeleton"></div>
             <img 
               src="${item.image}" 
               alt="${item.name}" 
-              class="item-img" 
+              class="item-img photo-grade" 
+              width="400"
+              height="500"
               loading="lazy"
-              onload="const s=document.getElementById('skel-${item.id}'); if(s) s.remove();"
-              onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='${item.id}.jpg'; } else { this.style.display='none'; const s=document.getElementById('skel-${item.id}'); if(s) s.remove(); this.nextElementSibling.style.display='flex'; }"
+              decoding="async"
+              onload="this.classList.add('is-loaded'); const s=this.previousElementSibling; if(s) s.remove();"
+              onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='${item.id}.jpg'; } else { this.style.display='none'; const s=this.previousElementSibling; if(s) s.remove(); this.nextElementSibling.style.display='flex'; }"
             >
           ` : ""}
-          <div class="img-fallback" style="${item.image ? "display:none;" : "display:flex;"}" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13H5.5L12 6.5z"/></svg>
+          <div class="photo-fallback-disc" style="${item.image ? "display:none;" : "display:flex;"}" aria-hidden="true">
+            <span class="photo-fallback-brand">${item.name}</span>
           </div>
+          <div class="photo-warm-overlay" aria-hidden="true"></div>
+
+          <!-- Pure SVG Badges (No Emojis) -->
           <div class="item-badges">
             ${isVeg ? `
               <span class="badge badge--veg" title="Vegetarian">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
-                </svg>
+                <span class="badge-icon-svg" aria-hidden="true">${App.icons ? App.icons.leaf() : ""}</span>
                 <span>Veg</span>
               </span>
             ` : ""}
             ${isSpicy ? `
               <span class="badge badge--spicy" title="Spicy">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-                </svg>
+                <span class="badge-icon-svg" aria-hidden="true">${App.icons ? App.icons.pepper() : ""}</span>
                 <span>Spicy</span>
               </span>
             ` : ""}
@@ -482,12 +479,12 @@ App.register("menu", {
               ${hasOptions ? `
                 <button type="button" class="btn btn-action btn-action--custom" aria-label="Customize ${item.name}">
                   <span>Add</span>
-                  <span aria-hidden="true">+</span>
+                  <span class="btn-action-icon" aria-hidden="true">${App.icons ? App.icons.plus() : "+"}</span>
                 </button>
               ` : `
                 <div class="stepper-morph" data-stepper-for="${item.id}">
                   <button type="button" class="btn btn-action btn-action--add" aria-label="Add ${item.name}">
-                    +
+                    ${App.icons ? App.icons.plus() : "+"}
                   </button>
                 </div>
               `}
@@ -515,14 +512,20 @@ App.register("menu", {
       if (qty > 0) {
         container.innerHTML = `
           <div class="stepper">
-            <button type="button" class="stepper-btn stepper-btn--minus" data-action="minus" aria-label="Decrease quantity">−</button>
+            <button type="button" class="stepper-btn stepper-btn--minus" data-action="minus" aria-label="Decrease quantity">
+              ${App.icons ? App.icons.minus() : "−"}
+            </button>
             <span class="stepper-val price">${qty}</span>
-            <button type="button" class="stepper-btn stepper-btn--plus" data-action="plus" aria-label="Increase quantity">+</button>
+            <button type="button" class="stepper-btn stepper-btn--plus" data-action="plus" aria-label="Increase quantity">
+              ${App.icons ? App.icons.plus() : "+"}
+            </button>
           </div>
         `;
       } else {
         container.innerHTML = `
-          <button type="button" class="btn btn-action btn-action--add" aria-label="Add ${item.name}">+</button>
+          <button type="button" class="btn btn-action btn-action--add" aria-label="Add ${item.name}">
+            ${App.icons ? App.icons.plus() : "+"}
+          </button>
         `;
       }
     });
@@ -542,7 +545,6 @@ App.register("menu", {
 
       const hasOptions = item.options && item.options.length > 0;
 
-      // Quick-add plus
       const addBtn = e.target.closest(".btn-action--add");
       if (addBtn) {
         e.stopPropagation();
@@ -550,7 +552,6 @@ App.register("menu", {
         return;
       }
 
-      // Stepper Plus
       const plusBtn = e.target.closest('.stepper-btn[data-action="plus"]');
       if (plusBtn) {
         e.stopPropagation();
@@ -562,7 +563,6 @@ App.register("menu", {
         return;
       }
 
-      // Stepper Minus
       const minusBtn = e.target.closest('.stepper-btn[data-action="minus"]');
       if (minusBtn) {
         e.stopPropagation();
@@ -572,7 +572,6 @@ App.register("menu", {
         return;
       }
 
-      // Open customizer sheet
       if (hasOptions || e.target.closest(".btn-action--custom")) {
         this.openItemSheet(item);
       }
@@ -596,7 +595,7 @@ App.register("menu", {
     App.haptic(10);
   },
 
-  // 5. Item Detail Customizer Modal (Oven Scope, Ember Selection Rings)
+  // 5. Item Detail Customizer Modal (Oven Scope, Ember Selection Rings & SVG Check)
   openItemSheet(item) {
     const root = App.qs("#item-sheet-root");
     if (!root) return;
@@ -627,7 +626,9 @@ App.register("menu", {
         <div class="sheet__head">
           <div class="sheet__title-row">
             <h2 class="sheet__title">${item.name}</h2>
-            <button type="button" class="sheet__close-btn" id="sheet-close" aria-label="Close sheet">✕</button>
+            <button type="button" class="sheet__close-btn" id="sheet-close" aria-label="Close sheet">
+              ${App.icons ? App.icons.close() : "✕"}
+            </button>
           </div>
           <p class="sheet__desc">${item.desc}</p>
         </div>
@@ -656,7 +657,7 @@ App.register("menu", {
                       >
                       <div class="choice-info">
                         <div class="choice-name-row">
-                          <span class="choice-check-mark" aria-hidden="true">✓</span>
+                          <span class="choice-check-mark" aria-hidden="true">${App.icons ? App.icons.check() : "✓"}</span>
                           <span class="choice-name">${choice.name}</span>
                         </div>
                         ${choice.priceCents > 0 ? `<span class="choice-delta price">+${App.money.format(choice.priceCents)}</span>` : `<span class="choice-delta choice-delta--free">+0</span>`}
@@ -679,9 +680,13 @@ App.register("menu", {
 
         <div class="sheet__footer">
           <div class="sheet__qty-stepper">
-            <button type="button" class="sheet-qty-btn" id="sheet-qty-minus" aria-label="Decrease quantity">−</button>
+            <button type="button" class="sheet-qty-btn" id="sheet-qty-minus" aria-label="Decrease quantity">
+              ${App.icons ? App.icons.minus() : "−"}
+            </button>
             <span class="sheet-qty-val price" id="sheet-qty-val">1</span>
-            <button type="button" class="sheet-qty-btn" id="sheet-qty-plus" aria-label="Increase quantity">+</button>
+            <button type="button" class="sheet-qty-btn" id="sheet-qty-plus" aria-label="Increase quantity">
+              ${App.icons ? App.icons.plus() : "+"}
+            </button>
           </div>
           <button type="button" class="btn btn--primary sheet__add-btn" id="sheet-submit-btn">
             <span>Add to order</span>
@@ -813,11 +818,10 @@ App.register("menu", {
     });
   },
 
-  // 6. Fly-to-Cart Arc Motion: 56px Thumbnail along Parabolic Curve to Cart Icon
+  // 6. Fly-to-Cart Arc Motion: 56px Circular Thumbnail along Parabolic Curve
   flyToCart(srcEl, imgSrc) {
     if (App.prefersReducedMotion() || !window.gsap || !srcEl) return;
 
-    // Target the navbar cart button or mobile cart bar
     const cartEl = App.qs("#nav-cart-btn") || App.qs("#cart-bar");
     if (!cartEl) return;
 
@@ -846,7 +850,6 @@ App.register("menu", {
     const dx = t.left + t.width / 2 - 28 - s.left;
     const dy = t.top + t.height / 2 - 28 - s.top;
 
-    // Distinct X and Y easings to synthesize a natural parabolic arc
     gsap.to(dot, {
       x: dx,
       duration: 0.8,
@@ -878,7 +881,7 @@ App.register("menu", {
         </div>
         <div class="cart-bar__right">
           <span class="cart-bar__total price" id="cart-bar-total">$0.00</span>
-          <span class="cart-bar__arrow" aria-hidden="true">→</span>
+          <span class="cart-bar__arrow" aria-hidden="true">${App.icons ? App.icons.arrowRight() : "→"}</span>
         </div>
       </aside>
     `;
