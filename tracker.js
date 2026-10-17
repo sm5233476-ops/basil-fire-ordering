@@ -1,11 +1,10 @@
-// Phase G: Signature Order Success (Rubber Stamp Seal 1.6->1, Check Draw & Ember Timer Ring)
+// Phase H: Zero-Emoji Order Success, Pure Vector Step Icons & Stamp Animation
 window.App = window.App || {};
 
 App.register("tracker", {
   init() {
     this.activeOrder = null;
 
-    // Clean up any lingering floating chip
     const oldPill = document.getElementById("active-order-chip");
     if (oldPill) oldPill.remove();
 
@@ -86,11 +85,28 @@ App.register("tracker", {
     const order = this.activeOrder;
     const currentStepIdx = this.getStatusIndex(order.status);
 
+    // 4 Steps with Pure 24px Stroke Inline SVGs (Zero Emojis)
     const steps = [
-      { id: "new", label: "Received", icon: "📋" },
-      { id: "preparing", label: "Preparing", icon: "🔥" },
-      { id: "ready", label: "Ready", icon: "🍽️" },
-      { id: "completed", label: "Served", icon: "✨" }
+      {
+        id: "new",
+        label: "Received",
+        icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`
+      },
+      {
+        id: "preparing",
+        label: "Preparing",
+        icon: App.icons ? App.icons.flame() : `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 7 5 11 5 15a7 7 0 0 0 14 0c0-4-3-8-7-13z"/></svg>`
+      },
+      {
+        id: "ready",
+        label: "Ready",
+        icon: App.icons ? App.icons.utensils() : `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v20M14 2v6a4 4 0 0 0 4 4v10M6 2v8a4 4 0 0 0 4 4v8"/></svg>`
+      },
+      {
+        id: "completed",
+        label: "Served",
+        icon: App.icons ? App.icons.check() : `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`
+      }
     ];
 
     const progressPercent = Math.min(100, Math.round((currentStepIdx / 3) * 100));
@@ -105,13 +121,15 @@ App.register("tracker", {
               <h2 class="sheet__title">Order Confirmed</h2>
               <span class="label" style="color:var(--gold-400);">${order.timeLabel || "Dine-In"}</span>
             </div>
-            <button type="button" class="sheet__close-btn" id="tracker-close-btn" aria-label="Close">✕</button>
+            <button type="button" class="sheet__close-btn" id="tracker-close-btn" aria-label="Close">
+              ${App.icons ? App.icons.close() : "✕"}
+            </button>
           </div>
         </div>
 
         <div class="sheet__scroll-content tracker-content">
           
-          <!-- Signature Moment 5: Rubber Stamp Seal & Check Draw -->
+          <!-- Rubber Stamp Seal & Check Draw -->
           <div class="tracker-header">
             <div class="success-seal-stage">
               <div class="success-stamp-seal" id="success-stamp-seal">
@@ -126,7 +144,7 @@ App.register("tracker", {
               <span class="label tracker-confirmed-tag">Sent to Wood-Fired Oven</span>
               <h3 class="tracker-order-id display">${order.id}</h3>
               
-              <!-- Looping Ember Timer Ring around ETA -->
+              <!-- Looping Ember Timer Ring around Status -->
               <div class="tracker-eta-badge-wrap">
                 <svg class="eta-timer-ring-svg" viewBox="0 0 120 40" aria-hidden="true">
                   <rect x="2" y="2" width="116" height="36" rx="18" fill="none" stroke="var(--ember-500)" stroke-width="1.5" stroke-dasharray="12 6" class="timer-ring-rect"/>
@@ -195,7 +213,8 @@ App.register("tracker", {
               Back to Menu
             </button>
             <button type="button" class="btn btn--ghost" id="btn-order-again" style="width:100%;">
-              🔁 Order Again
+              <span class="btn-icon-repeat" aria-hidden="true">${App.icons ? App.icons.refresh() : ""}</span>
+              <span>Order Again</span>
             </button>
           </div>
         </div>
@@ -220,7 +239,6 @@ App.register("tracker", {
     }
   },
 
-  // Signature Moment 5 Animation Sequence (≈ 2s, then stable)
   playSuccessAnimation() {
     if (App.prefersReducedMotion() || !window.gsap) return;
 
@@ -231,7 +249,6 @@ App.register("tracker", {
 
     const tl = gsap.timeline();
 
-    // 1. Rubber stamp drop: scales 1.6 -> 1, rotate -14° -> 0 (600ms, back.out(2))
     if (seal) {
       tl.fromTo(
         seal,
@@ -241,7 +258,6 @@ App.register("tracker", {
       );
     }
 
-    // 2. Stroke check inside draws (500ms) & ring fills (700ms)
     if (check && check.getTotalLength) {
       const checkLen = check.getTotalLength();
       gsap.set(check, { strokeDasharray: checkLen, strokeDashoffset: checkLen });
@@ -254,7 +270,6 @@ App.register("tracker", {
       tl.to(ring, { strokeDashoffset: 0, duration: 0.7, ease: "power2.inOut" }, 0.2);
     }
 
-    // 3. Staggered fade-rise of order details
     if (infoStagger) {
       tl.fromTo(
         infoStagger.children,
