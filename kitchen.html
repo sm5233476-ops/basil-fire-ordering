@@ -29,15 +29,18 @@
   <script src="app.js" defer></script>
 </head>
 <body class="kitchen-body" data-theme="oven">
-  <!-- Subtle Tactile Grain Overlay -->
-  <div class="grain-overlay" aria-hidden="true"></div>
 
   <!-- 1. Mandatory Security PIN Lock Screen -->
-  <div class="pin-lock-screen" id="pin-lock-screen" data-theme="oven">
+  <div class="pin-lock-screen" id="pin-lock-screen">
     <div class="pin-card">
       <div class="pin-brand">
-        <span class="pin-logo">🍕</span>
-        <h2>Basil & Fire</h2>
+        <span class="pin-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none">
+            <path d="M12 2C8 7 5 11 5 15a7 7 0 0 0 14 0c0-4-3-8-7-13z" fill="var(--ember-500)"/>
+            <path d="M12 7c-2 3-3.5 5-3.5 7.5a3.5 3.5 0 0 0 7 0c0-2.5-1.5-4.5-3.5-7.5z" fill="var(--gold-400)"/>
+          </svg>
+        </span>
+        <h2>Basil &amp; Fire</h2>
         <p>Kitchen Display System (KDS)</p>
       </div>
 
@@ -72,7 +75,7 @@
   </div>
 
   <!-- 2. Protected KDS Dashboard -->
-  <div class="kds-wrapper" id="kds-wrapper" data-theme="oven" style="display:none;">
+  <div class="kds-wrapper" id="kds-wrapper" style="display:none;">
     <header class="kds-header">
       <div class="kds-brand-group">
         <span class="live-pulse-dot" aria-hidden="true"></span>
@@ -82,14 +85,37 @@
 
       <div class="kds-nav-actions">
         <button type="button" class="btn btn--kds-action" id="btn-refresh-orders" title="Sync orders from cloud">
-          <span class="refresh-icon">🔄</span> Refresh
+          <span class="refresh-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 4v6h-6M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </span>
+          <span>Refresh</span>
         </button>
+
         <button type="button" class="btn btn--kds-action btn--table-qr" id="qr-modal-open-btn">
-          📷 QR
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+          </span>
+          <span>QR</span>
         </button>
+
         <button type="button" class="btn btn--kds-action" id="kds-settings-open-btn" title="KDS Settings">
-          ⚙️ Settings
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </span>
+          <span>Settings</span>
         </button>
+
         <a href="index.html" class="btn btn--glow-portal" id="customer-menu-link">
           ← Menu
         </a>
@@ -154,25 +180,25 @@
       </section>
     </main>
 
-    <footer class="app-footer" data-theme="oven">
+    <footer class="app-footer">
       <p>Concept project by Shivam Mishra. Basil & Fire is a fictional restaurant. No payments are processed.</p>
     </footer>
   </div>
 
-  <!-- 3. Settings Modal -->
-  <div class="qr-modal-backdrop" id="kds-settings-backdrop" data-theme="oven" style="display:none;">
+  <!-- Settings Modal (Pure SVG Headers) -->
+  <div class="qr-modal-backdrop" id="kds-settings-backdrop" style="display:none;">
     <div class="qr-modal kds-settings-modal" id="kds-settings-modal">
       <div class="qr-modal__head">
         <div>
-          <h3>⚙️ Kitchen System Settings</h3>
-          <p class="qr-modal__sub">Manage Universal Passcode & Hours</p>
+          <h3>Kitchen System Settings</h3>
+          <p class="qr-modal__sub">Manage Universal Passcode &amp; Hours</p>
         </div>
         <button type="button" class="sheet__close-btn" id="settings-close-btn">✕</button>
       </div>
 
       <div class="settings-content">
         <div class="settings-group">
-          <h4>🔒 Change Staff Passcode (Syncs to All Devices)</h4>
+          <h4>Change Staff Passcode (Syncs to All Devices)</h4>
           <p class="settings-hint">Set a new 4-digit PIN for KDS access:</p>
           <div class="settings-input-row">
             <input type="password" id="input-new-pin" class="form-input" maxlength="4" placeholder="New 4-digit PIN">
@@ -182,7 +208,7 @@
         </div>
 
         <div class="settings-group">
-          <h4>⏱️ Restaurant Hours Information</h4>
+          <h4>Restaurant Hours Information</h4>
           <div class="timing-fields-grid">
             <div class="form-group" style="grid-column: span 2;">
               <label for="input-hours-text">Opening Hours Text:</label>
@@ -198,8 +224,8 @@
     </div>
   </div>
 
-  <!-- 4. Table QR Modal -->
-  <div class="qr-modal-backdrop" id="qr-backdrop" data-theme="oven" style="display:none;">
+  <!-- Table QR Modal -->
+  <div class="qr-modal-backdrop" id="qr-backdrop" style="display:none;">
     <div class="qr-modal" id="qr-modal">
       <div class="qr-modal__head">
         <div>
@@ -228,7 +254,12 @@
       </div>
 
       <div class="qr-card-preview" id="qr-card-printable">
-        <div class="qr-brand-tag">🍕 Basil & Fire</div>
+        <div class="qr-brand-tag">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" style="vertical-align:middle;margin-right:6px;" aria-hidden="true">
+            <path d="M12 2C8 7 5 11 5 15a7 7 0 0 0 14 0c0-4-3-8-7-13z" fill="var(--ember-500)"/>
+          </svg>
+          <span>Basil &amp; Fire</span>
+        </div>
         <div class="qr-table-headline" id="qr-table-headline">TABLE #09</div>
         <div class="qr-image-wrapper" id="qr-code-img-wrap"></div>
         <p class="qr-instructions">Scan with phone camera to order directly to this table</p>
