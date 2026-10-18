@@ -172,10 +172,12 @@ App.register("checkout", {
     const errWrap = App.qs("#err-name");
     const nameVal = nameInput?.value.trim() || "";
 
-    // 250ms Shake Feedback on Validation Failure
+// 250ms Shake Feedback on Validation Failure with Accessible ARIA attributes
     if (!nameVal || nameVal.length < 2) {
       if (nameInput) {
         nameInput.classList.add("is-invalid");
+        nameInput.setAttribute("aria-invalid", "true");
+        nameInput.setAttribute("aria-describedby", "err-name");
         if (!App.prefersReducedMotion()) {
           nameInput.classList.add("shake-field");
           setTimeout(() => nameInput.classList.remove("shake-field"), 280);
@@ -190,6 +192,11 @@ App.register("checkout", {
       }
       App.haptic(25);
       return;
+    } else {
+      if (nameInput) {
+        nameInput.removeAttribute("aria-invalid");
+        nameInput.removeAttribute("aria-describedby");
+      }
     }
 
     this.isSubmitting = true;
