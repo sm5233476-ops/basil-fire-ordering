@@ -1,4 +1,4 @@
-// Phase H: Unified 24px SVG Icons, 4/5 Aspect-Ratio Food Cards & Zero Emojis
+// Clean Customer UI: Restored Original Oven Banner Hero, Fixed Tabs & Bigger Cart Support
 window.App = window.App || {};
 
 App.register("menu", {
@@ -43,7 +43,7 @@ App.register("menu", {
     this.updateNavCart();
   },
 
-  // 1. Luxury Fixed Navbar with SVG Icons (No Emojis)
+  // 1. Single-Line Clean Header
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -75,7 +75,7 @@ App.register("menu", {
       <div class="nav-container nav-container--clean">
         <a href="index.html" class="brand-link" aria-label="Basil and Fire Home">
           <span class="brand-mark-svg" aria-hidden="true">
-            ${App.icons ? App.icons.flame() : `<svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M12 2C8 7 5 11 5 15a7 7 0 0014 0c0-4-3-8-7-13z" fill="var(--ember-500)"/></svg>`}
+            ${App.icons ? App.icons.flame() : `<svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M12 2C8 7 5 11 5 15a7 7 0 0 0 14 0c0-4-3-8-7-13z" fill="var(--ember-500)"/></svg>`}
           </span>
           <span class="brand-text">${window.CONFIG.name}</span>
         </a>
@@ -161,7 +161,7 @@ App.register("menu", {
 
       if (!header) return;
 
-      if (currentScrollY > 24) {
+      if (currentScrollY > 20) {
         header.classList.add("is-scrolled");
       } else {
         header.classList.remove("is-scrolled");
@@ -186,7 +186,7 @@ App.register("menu", {
     }, { passive: true });
   },
 
-  // 2. Editorial 12-Column Hero Layout
+  // 2. Restored Original Clean Wood-Fired Oven Banner Hero
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
@@ -195,111 +195,43 @@ App.register("menu", {
     const hoursText = customTiming?.hoursText || window.CONFIG.hoursText;
 
     root.innerHTML = `
-      <div class="hero-container container" id="hero-interactive-zone">
-        <canvas id="hero-embers-canvas" class="hero-embers-canvas" aria-hidden="true"></canvas>
-
-        <div class="hero-grid">
-          <div class="hero-content-col">
-            <div class="hero-eyebrow">
-              <span class="pulsing-ember-dot" aria-hidden="true"></span>
-              <span class="eyebrow-text label">Wood-Fired Pizza Kitchen</span>
-            </div>
-
-            <div class="hero-headline-mask">
-              <h1 class="hero-headline display">
-                Basil &amp; <em class="headline-emphasis">Fire</em>
-              </h1>
-            </div>
-
-            <p class="hero-subtext">
-              ${window.CONFIG.tagline}. Hand-stretched slow-fermented dough, San Marzano tomatoes, and artisanal fior di latte baked at 900°F.
-            </p>
-
-            <div class="hero-cta-group">
-              <button type="button" class="btn btn--primary hero-cta-btn" id="hero-explore-btn">
-                <span>Explore Menu</span>
-                <span class="btn-arrow-icon" aria-hidden="true">${App.icons ? App.icons.arrowDown() : "↓"}</span>
-              </button>
-
-              <button type="button" class="btn btn--ghost hero-cta-btn" id="hero-table-cta">
-                <span aria-hidden="true">${App.icons ? App.icons.utensils() : ""}</span>
-                <span>Table #${String(this.tableNumber).padStart(2, "0")} Order</span>
-              </button>
-            </div>
-
-            <div class="hero-meta-strip">
-              <span class="hero-meta-pill">
-                <span class="live-pulse-dot" aria-hidden="true"></span>
-                <span>${hoursText}</span>
-              </span>
-              <span class="hero-meta-pill hero-meta-pill--table">
-                <span>Contactless Dine-In</span>
-              </span>
-            </div>
+      <div class="hero-card hero-card--original-banner">
+        <div class="hero-media">
+          <img 
+            src="hero.jpg" 
+            alt="Wood-fired oven" 
+            class="hero-img" 
+            loading="eager"
+            onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='margherita.jpg'; } else { this.style.display='none'; this.nextElementSibling.style.display='flex'; }"
+          >
+          <div class="img-fallback" style="display:none;" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13H5.5L12 6.5z"/></svg>
           </div>
-
-          <div class="hero-visual-col">
-            <div class="hero-ember-backdrop" aria-hidden="true"></div>
-
-            <div class="hero-pizza-stage" id="hero-pizza-stage">
-              <span class="basil-leaf leaf-1" aria-hidden="true">
-                <svg viewBox="0 0 32 32" width="38" height="38" fill="none">
-                  <path d="M16 2 C24 8 28 18 20 26 C12 34 4 24 6 16 C8 8 12 4 16 2 Z" fill="var(--basil-500)"/>
-                  <path d="M16 2 C16 12 18 20 20 26" stroke="var(--basil-300)" stroke-width="1.2" stroke-linecap="round"/>
-                </svg>
-              </span>
-              <span class="basil-leaf leaf-2" aria-hidden="true">
-                <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
-                  <path d="M16 2 C24 8 28 18 20 26 C12 34 4 24 6 16 C8 8 12 4 16 2 Z" fill="var(--basil-700)"/>
-                  <path d="M16 2 C16 12 18 20 20 26" stroke="var(--basil-500)" stroke-width="1.2" stroke-linecap="round"/>
-                </svg>
-              </span>
-              <span class="basil-leaf leaf-3" aria-hidden="true">
-                <svg viewBox="0 0 32 32" width="22" height="22" fill="none">
-                  <path d="M16 2 C24 8 28 18 20 26 C12 34 4 24 6 16 C8 8 12 4 16 2 Z" fill="var(--basil-300)"/>
-                </svg>
-              </span>
-
-              <div class="pizza-disc-wrapper" id="pizza-disc-wrapper">
-                <img 
-                  src="margherita.jpg" 
-                  alt="Wood-Fired Margherita Pizza" 
-                  class="pizza-disc-img photo-grade" 
-                  id="hero-pizza-interactive"
-                  width="420"
-                  height="420"
-                  loading="eager"
-                  fetchpriority="high"
-                  decoding="async"
-                  onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='hero.jpg'; } else { this.style.display='none'; this.nextElementSibling.style.display='flex'; }"
-                >
-                <div class="pizza-fallback-art" style="display:none;" aria-hidden="true">
-                  <div class="pizza-disc-crust"></div>
-                </div>
-              </div>
-            </div>
+          <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+          <div class="hero-eyebrow">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span class="eyebrow-text">Artisanal Pizzeria</span>
+          </div>
+          <h1 class="hero-title">${window.CONFIG.name}</h1>
+          <p class="hero-tagline">${window.CONFIG.tagline}</p>
+          <div class="hero-chips">
+            <span class="chip chip--table-active">
+              <span aria-hidden="true">${App.icons ? App.icons.utensils() : "🍽️"}</span>
+              <span>Dine-In · Table #${String(this.tableNumber).padStart(2, "0")}</span>
+            </span>
+            <span class="chip">
+              <span aria-hidden="true">${App.icons ? App.icons.clock() : "⏱️"}</span>
+              <span>${hoursText}</span>
+            </span>
           </div>
         </div>
       </div>
     `;
-
-    App.qs("#hero-explore-btn")?.addEventListener("click", () => {
-      const tabs = App.qs("#tabs-root");
-      if (tabs) {
-        tabs.scrollIntoView({ behavior: "smooth", block: "start" });
-        App.haptic(10);
-      }
-    });
-
-    App.qs("#hero-table-cta")?.addEventListener("click", () => {
-      const select = App.qs("#header-table-select");
-      if (select) select.focus();
-      else App.toast(`Dine-In locked at Table #${this.tableNumber}`);
-      App.haptic(10);
-    });
   },
 
-  // 3. Category Tabs
+  // 3. Category Tabs (Solid Background so cards never peek through)
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -312,14 +244,12 @@ App.register("menu", {
 
     root.innerHTML = `
       <div class="tabs-scroller-wrap">
-        <div class="tabs-edge-fade tabs-edge-fade--left" aria-hidden="true"></div>
         <div class="tabs-scroller">
           <div class="tabs-track">
             ${tabsHtml}
             <div class="tab-underline" id="tab-underline"></div>
           </div>
         </div>
-        <div class="tabs-edge-fade tabs-edge-fade--right" aria-hidden="true"></div>
       </div>
     `;
 
@@ -332,7 +262,7 @@ App.register("menu", {
         if (!targetSection) return;
 
         this.isProgrammaticScroll = true;
-        const offset = 130;
+        const offset = 124;
         const targetTop = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
 
         window.scrollTo({ top: targetTop, behavior: "smooth" });
@@ -394,7 +324,7 @@ App.register("menu", {
     sections.forEach((sec) => observer.observe(sec));
   },
 
-  // 4. Menu Catalog: 4/5 Aspect Ratio Food Cards, Zero Emojis & Fraunces Fallback
+  // 4. Menu Catalog
   renderCatalog() {
     const root = App.qs("#menu-root");
     if (!root) return;
@@ -430,7 +360,6 @@ App.register("menu", {
 
     return `
       <article class="item-card card" data-id="${item.id}" tabindex="0">
-        <!-- 4/5 Fixed Aspect Ratio Media Container -->
         <div class="item-card__media">
           ${item.image ? `
             <div class="media-skeleton skeleton"></div>
@@ -438,8 +367,6 @@ App.register("menu", {
               src="${item.image}" 
               alt="${item.name}" 
               class="item-img photo-grade" 
-              width="400"
-              height="500"
               loading="lazy"
               decoding="async"
               onload="this.classList.add('is-loaded'); const s=this.previousElementSibling; if(s) s.remove();"
@@ -449,9 +376,7 @@ App.register("menu", {
           <div class="photo-fallback-disc" style="${item.image ? "display:none;" : "display:flex;"}" aria-hidden="true">
             <span class="photo-fallback-brand">${item.name}</span>
           </div>
-          <div class="photo-warm-overlay" aria-hidden="true"></div>
 
-          <!-- Pure SVG Badges (No Emojis) -->
           <div class="item-badges">
             ${isVeg ? `
               <span class="badge badge--veg" title="Vegetarian">
@@ -595,7 +520,7 @@ App.register("menu", {
     App.haptic(10);
   },
 
-  // 5. Item Detail Customizer Modal (Oven Scope, Ember Selection Rings & SVG Check)
+  // 5. Item Detail Customizer Sheet
   openItemSheet(item) {
     const root = App.qs("#item-sheet-root");
     if (!root) return;
@@ -818,7 +743,7 @@ App.register("menu", {
     });
   },
 
-  // 6. Fly-to-Cart Arc Motion: 56px Circular Thumbnail along Parabolic Curve
+  // 6. Fly-to-Cart Arc
   flyToCart(srcEl, imgSrc) {
     if (App.prefersReducedMotion() || !window.gsap || !srcEl) return;
 
