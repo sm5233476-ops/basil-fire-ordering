@@ -44,7 +44,16 @@
       .replace(/'/g, "&#39;");
   };
 
-  // Universal Accessible Sheet Focus Trap & Escape Handler
+// Universal Accessible Sheet Focus Trap, Escape Handler & Focus-Restore
+  let lastActiveTrigger = null;
+
+  document.addEventListener("click", (e) => {
+    const trigger = e.target.closest("button, [role='button'], a");
+    if (trigger && !trigger.closest(".overlay-container")) {
+      lastActiveTrigger = trigger;
+    }
+  });
+
   document.addEventListener("keydown", (e) => {
     const activeOverlay = document.querySelector(".overlay-container.is-active");
     if (!activeOverlay) return;
@@ -53,6 +62,9 @@
       activeOverlay.classList.remove("is-active");
       activeOverlay.innerHTML = "";
       document.body.classList.remove("is-locked");
+      if (lastActiveTrigger && typeof lastActiveTrigger.focus === "function") {
+        lastActiveTrigger.focus();
+      }
       return;
     }
 
