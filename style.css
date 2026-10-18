@@ -3024,3 +3024,52 @@ textarea:focus-visible {
   outline: 2px solid var(--accent) !important;
   outline-offset: 3px !important;
 }
+/* ==========================================================================
+   Phase K & L: Final Production Polish, Noscript Fallback & Compositor Hygiene
+   ========================================================================== */
+
+/* 1. Noscript Accessibility Fallback */
+noscript > div {
+  background: var(--oven-900) !important;
+  color: var(--flour-100) !important;
+  border-bottom: 2px solid var(--ember-500) !important;
+  font-family: var(--font-body) !important;
+  line-height: 1.5 !important;
+}
+
+/* 2. Hardware Acceleration & Compositor Cleanliness */
+.photo-img,
+.pizza-disc-img,
+.cutter-wheel,
+.success-stamp-seal {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 3. Performance: Release will-change after initialization */
+.hero-headline,
+.pizza-disc-wrapper {
+  will-change: auto;
+}
+
+/* 4. Print Media Styling (Clean table receipt / QR printing) */
+@media print {
+  .app-header,
+  .cart-bar-anchor,
+  .grain-overlay,
+  .scroll-progress-line,
+  .skip-link,
+  .toast-region {
+    display: none !important;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  .qr-card-preview {
+    box-shadow: none !important;
+    border: 2px solid #000000 !important;
+  }
+}
