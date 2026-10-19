@@ -3953,3 +3953,144 @@ body.is-locked {
     gap: 3px !important;
   }
 }
+/* ==========================================================================
+   Grand Polish: 60FPS Ambient Fire Flares, Desktop Header Spacing & Order Panel Glow
+   ========================================================================== */
+
+/* 1. Desktop Header Spacing: Open, Spacious & Uncramped Cart Pill */
+@media (min-width: 1024px) {
+  .nav-controls-cluster {
+    gap: 16px !important; /* Open spacing between Table, Cart and Staff */
+  }
+
+  .nav-cart-btn {
+    min-width: 52px !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: var(--r-pill) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .nav-cart-btn:hover {
+    background: rgba(255, 90, 54, 0.14) !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 16px rgba(255, 90, 54, 0.3) !important;
+  }
+
+  .nav-cart-badge {
+    position: static !important;
+    background: var(--accent) !important;
+    color: #FFFFFF !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    padding: 2px 7px !important;
+    border-radius: var(--r-pill) !important;
+  }
+
+  .table-compact-badge {
+    padding: 6px 14px !important;
+    border-radius: var(--r-sm) !important;
+  }
+
+  .staff-portal-btn {
+    height: 42px !important;
+    padding: 0 16px !important;
+    border-radius: var(--r-sm) !important;
+  }
+}
+
+/* 2. 60FPS Ambient Moving Fire Flares (Index & Kitchen Background) */
+body::before,
+.kitchen-body::before {
+  content: "";
+  position: fixed;
+  top: -15%;
+  left: 5%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 750px;
+  max-height: 750px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 90, 54, 0.12) 0%, rgba(242, 193, 78, 0.04) 45%, transparent 70%);
+  filter: blur(85px);
+  -webkit-filter: blur(85px);
+  pointer-events: none;
+  z-index: 0;
+  animation: fireFlareDrift1 24s ease-in-out infinite alternate;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+body::after,
+.kitchen-body::after {
+  content: "";
+  position: fixed;
+  bottom: -15%;
+  right: 5%;
+  width: 50vw;
+  height: 50vw;
+  max-width: 700px;
+  max-height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 106, 43, 0.1) 0%, rgba(201, 53, 40, 0.04) 50%, transparent 70%);
+  filter: blur(95px);
+  -webkit-filter: blur(95px);
+  pointer-events: none;
+  z-index: 0;
+  animation: fireFlareDrift2 28s ease-in-out infinite alternate;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes fireFlareDrift1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(8vw, 14vh, 0) scale(1.15); }
+  100% { transform: translate3d(-5vw, 6vh, 0) scale(0.95); }
+}
+
+@keyframes fireFlareDrift2 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-8vw, -10vh, 0) scale(1.12); }
+  100% { transform: translate3d(4vw, -5vh, 0) scale(0.92); }
+}
+
+/* Glass Backdrop Blur on Cards so Flares Softly Blur Behind */
+.item-card,
+.hero-card,
+.k-card,
+.kds-column {
+  background: rgba(27, 24, 21, 0.88) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+/* 3. Luxury Styling for Desktop "Your Order" Panel */
+.desktop-cart-column {
+  background: rgba(27, 24, 21, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-top: 2px solid var(--accent) !important; /* Luxury Ember Top Accent */
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(255, 90, 54, 0.12) !important;
+}
+
+.desktop-cart-column:hover {
+  border-color: rgba(255, 90, 54, 0.3) !important;
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 90, 54, 0.18) !important;
+}
+
+/* Reduced Motion Safety */
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after,
+  .kitchen-body::before,
+  .kitchen-body::after {
+    animation: none !important;
+    display: none !important;
+  }
+}
