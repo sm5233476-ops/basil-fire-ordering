@@ -1,4 +1,4 @@
-// Clean Customer UI: Restored Original Oven Banner Hero, Fixed Tabs & Bigger Cart Support
+// Clean Customer UI: Pizza Slice Logo, Dark Theme Cart Button & Mobile Fit
 window.App = window.App || {};
 
 App.register("menu", {
@@ -43,7 +43,7 @@ App.register("menu", {
     this.updateNavCart();
   },
 
-  // 1. Single-Line Clean Header
+  // 1. Header with Pizza Slice Logo, Dark Cart Pill & Aligned Container
   renderHeader() {
     const root = App.qs("#header-root");
     if (!root) return;
@@ -53,13 +53,13 @@ App.register("menu", {
       tableControlHtml = `
         <div class="table-compact-badge table-compact-badge--locked" title="Locked via QR">
           <span class="table-badge-num">Table #${String(this.tableNumber).padStart(2, "0")}</span>
-          <span class="table-lock-mini" aria-hidden="true">${App.icons ? App.icons.lock() : ""}</span>
+          <span class="table-lock-mini" aria-hidden="true">🔒</span>
         </div>
       `;
     } else {
       tableControlHtml = `
         <div class="table-compact-badge">
-          <span class="table-badge-icon" aria-hidden="true">${App.icons ? App.icons.utensils() : ""}</span>
+          <span class="table-badge-icon" aria-hidden="true">🍽️</span>
           <select id="header-table-select" class="header-table-dropdown" aria-label="Select Table">
             ${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `
               <option value="${n}" ${String(this.tableNumber) === String(n) ? "selected" : ""}>
@@ -73,24 +73,38 @@ App.register("menu", {
 
     root.innerHTML = `
       <div class="nav-container nav-container--clean">
+        <!-- Brand Link with Exact Tomato-Red Pizza Slice Logo -->
         <a href="index.html" class="brand-link" aria-label="Basil and Fire Home">
           <span class="brand-mark-svg" aria-hidden="true">
-            ${App.icons ? App.icons.flame() : `<svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M12 2C8 7 5 11 5 15a7 7 0 0 0 14 0c0-4-3-8-7-13z" fill="var(--ember-500)"/></svg>`}
+            <svg viewBox="0 0 32 32" width="26" height="26">
+              <path fill="#FF5A36" d="M16 2 L30 28 A2 2 0 0 1 28 30 L4 30 A2 2 0 0 1 2 28 Z"/>
+              <circle cx="13" cy="18" r="2.5" fill="#F2C14E"/>
+              <circle cx="20" cy="22" r="2.5" fill="#F2C14E"/>
+              <circle cx="15" cy="25" r="1.5" fill="#8BD18F"/>
+            </svg>
           </span>
           <span class="brand-text">${window.CONFIG.name}</span>
         </a>
 
+        <!-- Right Action Cluster (Compacted so nothing clips on mobile) -->
         <div class="nav-controls-cluster">
           ${tableControlHtml}
 
+          <!-- Dark Matching Theme Cart Button (No White Background) -->
           <button type="button" class="nav-cart-btn" id="nav-cart-btn" aria-label="Open Cart Drawer">
-            <span class="nav-cart-icon" aria-hidden="true">${App.icons ? App.icons.cart() : ""}</span>
-            <span class="nav-cart-badge price" id="nav-cart-badge">0</span>
+            <span class="nav-cart-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+              </svg>
+            </span>
+            <span class="nav-cart-badge" id="nav-cart-badge">0</span>
           </button>
 
           <a href="kitchen.html" class="staff-portal-btn" title="Staff KDS Login">
-            <span aria-hidden="true">${App.icons ? App.icons.lock() : ""}</span>
-            <span>Staff</span>
+            <span aria-hidden="true">🔒</span>
+            <span class="staff-btn-text">Staff</span>
           </a>
         </div>
       </div>
@@ -125,25 +139,12 @@ App.register("menu", {
     if (badge) badge.textContent = count;
 
     if (cartBtn && count !== this.prevCartCount && count > 0) {
-      this.triggerCartBump();
-    }
-    this.prevCartCount = count;
-  },
-
-  triggerCartBump() {
-    const cartBtn = App.qs("#nav-cart-btn");
-    const barEl = App.qs("#cart-bar");
-
-    if (cartBtn) {
       cartBtn.classList.remove("cart-bump");
       void cartBtn.offsetWidth;
       cartBtn.classList.add("cart-bump");
       setTimeout(() => cartBtn.classList.remove("cart-bump"), 360);
     }
-
-    if (barEl && window.gsap && !App.prefersReducedMotion()) {
-      gsap.fromTo(barEl, { scale: 0.95 }, { scale: 1, duration: 0.35, ease: "back.out(2)" });
-    }
+    this.prevCartCount = count;
   },
 
   initScrollRhythm() {
@@ -186,7 +187,7 @@ App.register("menu", {
     }, { passive: true });
   },
 
-  // 2. Restored Original Clean Wood-Fired Oven Banner Hero
+  // 2. Wood-Fired Oven Banner Hero
   renderHero() {
     const root = App.qs("#hero-root");
     if (!root) return;
@@ -218,11 +219,11 @@ App.register("menu", {
           <p class="hero-tagline">${window.CONFIG.tagline}</p>
           <div class="hero-chips">
             <span class="chip chip--table-active">
-              <span aria-hidden="true">${App.icons ? App.icons.utensils() : "🍽️"}</span>
+              <span aria-hidden="true">🍽️</span>
               <span>Dine-In · Table #${String(this.tableNumber).padStart(2, "0")}</span>
             </span>
             <span class="chip">
-              <span aria-hidden="true">${App.icons ? App.icons.clock() : "⏱️"}</span>
+              <span aria-hidden="true">⏱️</span>
               <span>${hoursText}</span>
             </span>
           </div>
@@ -231,7 +232,7 @@ App.register("menu", {
     `;
   },
 
-  // 3. Category Tabs (Solid Background so cards never peek through)
+  // 3. Category Tabs
   renderTabs() {
     const root = App.qs("#tabs-root");
     if (!root) return;
@@ -380,13 +381,13 @@ App.register("menu", {
           <div class="item-badges">
             ${isVeg ? `
               <span class="badge badge--veg" title="Vegetarian">
-                <span class="badge-icon-svg" aria-hidden="true">${App.icons ? App.icons.leaf() : ""}</span>
+                <span class="badge-icon-svg" aria-hidden="true">🌿</span>
                 <span>Veg</span>
               </span>
             ` : ""}
             ${isSpicy ? `
               <span class="badge badge--spicy" title="Spicy">
-                <span class="badge-icon-svg" aria-hidden="true">${App.icons ? App.icons.pepper() : ""}</span>
+                <span class="badge-icon-svg" aria-hidden="true">🌶️</span>
                 <span>Spicy</span>
               </span>
             ` : ""}
@@ -404,12 +405,12 @@ App.register("menu", {
               ${hasOptions ? `
                 <button type="button" class="btn btn-action btn-action--custom" aria-label="Customize ${item.name}">
                   <span>Add</span>
-                  <span class="btn-action-icon" aria-hidden="true">${App.icons ? App.icons.plus() : "+"}</span>
+                  <span class="btn-action-icon" aria-hidden="true">+</span>
                 </button>
               ` : `
                 <div class="stepper-morph" data-stepper-for="${item.id}">
                   <button type="button" class="btn btn-action btn-action--add" aria-label="Add ${item.name}">
-                    ${App.icons ? App.icons.plus() : "+"}
+                    +
                   </button>
                 </div>
               `}
@@ -437,20 +438,14 @@ App.register("menu", {
       if (qty > 0) {
         container.innerHTML = `
           <div class="stepper">
-            <button type="button" class="stepper-btn stepper-btn--minus" data-action="minus" aria-label="Decrease quantity">
-              ${App.icons ? App.icons.minus() : "−"}
-            </button>
+            <button type="button" class="stepper-btn stepper-btn--minus" data-action="minus" aria-label="Decrease quantity">−</button>
             <span class="stepper-val price">${qty}</span>
-            <button type="button" class="stepper-btn stepper-btn--plus" data-action="plus" aria-label="Increase quantity">
-              ${App.icons ? App.icons.plus() : "+"}
-            </button>
+            <button type="button" class="stepper-btn stepper-btn--plus" data-action="plus" aria-label="Increase quantity">+</button>
           </div>
         `;
       } else {
         container.innerHTML = `
-          <button type="button" class="btn btn-action btn-action--add" aria-label="Add ${item.name}">
-            ${App.icons ? App.icons.plus() : "+"}
-          </button>
+          <button type="button" class="btn btn-action btn-action--add" aria-label="Add ${item.name}">+</button>
         `;
       }
     });
@@ -551,9 +546,7 @@ App.register("menu", {
         <div class="sheet__head">
           <div class="sheet__title-row">
             <h2 class="sheet__title">${item.name}</h2>
-            <button type="button" class="sheet__close-btn" id="sheet-close" aria-label="Close sheet">
-              ${App.icons ? App.icons.close() : "✕"}
-            </button>
+            <button type="button" class="sheet__close-btn" id="sheet-close" aria-label="Close sheet">✕</button>
           </div>
           <p class="sheet__desc">${item.desc}</p>
         </div>
@@ -581,10 +574,7 @@ App.register("menu", {
                         class="choice-input"
                       >
                       <div class="choice-info">
-                        <div class="choice-name-row">
-                          <span class="choice-check-mark" aria-hidden="true">${App.icons ? App.icons.check() : "✓"}</span>
-                          <span class="choice-name">${choice.name}</span>
-                        </div>
+                        <span class="choice-name">${choice.name}</span>
                         ${choice.priceCents > 0 ? `<span class="choice-delta price">+${App.money.format(choice.priceCents)}</span>` : `<span class="choice-delta choice-delta--free">+0</span>`}
                       </div>
                     </label>
@@ -605,13 +595,9 @@ App.register("menu", {
 
         <div class="sheet__footer">
           <div class="sheet__qty-stepper">
-            <button type="button" class="sheet-qty-btn" id="sheet-qty-minus" aria-label="Decrease quantity">
-              ${App.icons ? App.icons.minus() : "−"}
-            </button>
+            <button type="button" class="sheet-qty-btn" id="sheet-qty-minus" aria-label="Decrease quantity">−</button>
             <span class="sheet-qty-val price" id="sheet-qty-val">1</span>
-            <button type="button" class="sheet-qty-btn" id="sheet-qty-plus" aria-label="Increase quantity">
-              ${App.icons ? App.icons.plus() : "+"}
-            </button>
+            <button type="button" class="sheet-qty-btn" id="sheet-qty-plus" aria-label="Increase quantity">+</button>
           </div>
           <button type="button" class="btn btn--primary sheet__add-btn" id="sheet-submit-btn">
             <span>Add to order</span>
@@ -806,7 +792,7 @@ App.register("menu", {
         </div>
         <div class="cart-bar__right">
           <span class="cart-bar__total price" id="cart-bar-total">$0.00</span>
-          <span class="cart-bar__arrow" aria-hidden="true">${App.icons ? App.icons.arrowRight() : "→"}</span>
+          <span class="cart-bar__arrow" aria-hidden="true">→</span>
         </div>
       </aside>
     `;
