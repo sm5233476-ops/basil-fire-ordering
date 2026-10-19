@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#120E0B">
   
-  <!-- Strict SEO Protection: Fictional concept project, do not index as real restaurant -->
+  <!-- Strict SEO Protection -->
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://basil-fire-ordering.vercel.app/">
 
@@ -22,17 +22,17 @@
   <!-- Twitter Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Basil & Fire — Wood-Fired Pizza">
-  <meta name="twitter:description" content="Concept wood-fired pizza kitchen ordering web app by Shivam Mishra. Direct ordering with no marketplace commission.">
+  <meta name="twitter:description" content="Concept wood-fired pizza kitchen ordering web app by Shivam Mishra.">
   <meta name="twitter:image" content="https://basil-fire-ordering.vercel.app/og.jpg">
 
-  <!-- Tomato-Red Pizza Slice Favicon (Inline SVG Data URI) & Touch Icon -->
+  <!-- Tomato-Red Pizza Slice Favicon & Touch Icon -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23FF5A36' d='M16 2 L30 28 A2 2 0 0 1 28 30 L4 30 A2 2 0 0 1 2 28 Z'/%3E%3Ccircle cx='13' cy='18' r='2.5' fill='%23F2C14E'/%3E%3Ccircle cx='20' cy='22' r='2.5' fill='%23F2C14E'/%3E%3Ccircle cx='15' cy='25' r='1.5' fill='%238BD18F'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="https://basil-fire-ordering.vercel.app/og.jpg">
 
   <!-- Web App Manifest Link -->
   <link rel="manifest" href="manifest.json">
 
-  <!-- Google Fonts: Fraunces (Display) & DM Sans (Body / UI) with Swap -->
+  <!-- Google Fonts: Fraunces & DM Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&display=swap" rel="stylesheet">
@@ -53,18 +53,7 @@
   <script src="tracker.js" defer></script>
   <script src="app.js" defer></script>
 </head>
-<body data-theme="flour">
-  <!-- Accessible Skip-to-Content Link -->
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <!-- Fallback for JavaScript Disabled Browsers -->
-  <noscript>
-    <div style="padding: 20px; text-align: center; background: #120E0B; color: #F6EBDD; border-bottom: 2px solid #FF6A2B;">
-      <p style="font-weight: 700; margin-bottom: 6px;">Basil &amp; Fire — Concept Portfolio Project by Shivam Mishra</p>
-      <p style="font-size: 0.85rem; color: #BFB2A3;">This web app requires JavaScript to run the interactive dine-in ordering system and live kitchen display. No real payments are processed.</p>
-    </div>
-  </noscript>
-
+<body data-theme="oven">
   <!-- 2px Top Scroll-Progress Indicator -->
   <div class="scroll-progress-line" id="scroll-progress-bar" aria-hidden="true"></div>
 
@@ -74,19 +63,13 @@
   <div class="app-shell" id="app">
     <!-- Main Column (Customer Menu & Ordering Content) -->
     <main class="main-column" id="main-content">
-      <header class="app-header" id="header-root" data-theme="oven"></header>
-      <section class="hero-section" id="hero-root" data-theme="oven"></section>
+      <header class="app-header" id="header-root"></header>
+      <section class="hero-section" id="hero-root"></section>
       
-      <!-- Decorative Section Transition: Oven to Flour -->
-      <div class="section-divider section-divider--to-flour" aria-hidden="true"></div>
+      <nav class="category-tabs" id="tabs-root" aria-label="Menu categories"></nav>
+      <section class="menu-catalog" id="menu-root" aria-label="Menu catalogue"></section>
 
-      <nav class="category-tabs" id="tabs-root" data-theme="flour" aria-label="Menu categories"></nav>
-      <section class="menu-catalog" id="menu-root" data-theme="flour" aria-label="Menu catalogue"></section>
-      
-      <!-- Decorative Section Transition: Flour to Oven -->
-      <div class="section-divider section-divider--to-oven" aria-hidden="true"></div>
-
-      <footer class="app-footer" data-theme="oven">
+      <footer class="app-footer">
         <!-- Dashed Pizza-Cutter Divider -->
         <div class="footer-cutter-divider" aria-hidden="true">
           <div class="cutter-dashed-track"></div>
@@ -99,29 +82,25 @@
           </span>
         </div>
 
-        <!-- Large Editorial Fraunces Wordmark -->
-        <div class="footer-wordmark-wrap">
-          <span class="footer-wordmark" id="footer-wordmark">Basil &amp; Fire</span>
-        </div>
-
+        <div class="footer-brand-title">Basil &amp; Fire</div>
         <p class="footer-disclaimer">Concept project by Shivam Mishra. Basil & Fire is a fictional restaurant. No payments are processed.</p>
       </footer>
     </main>
 
     <!-- Desktop Persistent Right Column -->
-    <aside class="desktop-cart-column" id="desktop-cart-root" data-theme="oven" aria-label="Order summary"></aside>
+    <aside class="desktop-cart-column" id="desktop-cart-root" aria-label="Order summary"></aside>
   </div>
 
   <!-- Mobile Floating Cart Bar -->
-  <div class="cart-bar-anchor" id="cart-bar-root" data-theme="oven" aria-live="polite"></div>
+  <div class="cart-bar-anchor" id="cart-bar-root" aria-live="polite"></div>
 
   <!-- Interactive Overlays & Modals -->
-  <div class="overlay-container" id="item-sheet-root" data-theme="flour" role="dialog" aria-modal="true" aria-hidden="true"></div>
-  <div class="overlay-container" id="cart-sheet-root" data-theme="oven" role="dialog" aria-modal="true" aria-hidden="true"></div>
-  <div class="overlay-container" id="checkout-sheet-root" data-theme="oven" role="dialog" aria-modal="true" aria-hidden="true"></div>
-  <div class="overlay-container" id="tracker-root" data-theme="oven" role="dialog" aria-modal="true" aria-hidden="true"></div>
+  <div class="overlay-container" id="item-sheet-root" role="dialog" aria-modal="true" aria-hidden="true"></div>
+  <div class="overlay-container" id="cart-sheet-root" role="dialog" aria-modal="true" aria-hidden="true"></div>
+  <div class="overlay-container" id="checkout-sheet-root" role="dialog" aria-modal="true" aria-hidden="true"></div>
+  <div class="overlay-container" id="tracker-root" role="dialog" aria-modal="true" aria-hidden="true"></div>
 
   <!-- Toast Notification Root -->
-  <div class="toast-region" id="toast-root" data-theme="oven" aria-live="assertive"></div>
+  <div class="toast-region" id="toast-root" aria-live="assertive"></div>
 </body>
 </html>
