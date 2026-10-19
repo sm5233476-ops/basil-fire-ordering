@@ -4141,37 +4141,3 @@ body::after,
   padding: 2px 7px !important;
   box-shadow: 0 0 10px rgba(255, 90, 54, 0.6) !important;
 }
-
-/* 3. Make Ambient Moving Fire Flares 100% Visible & Vibrant */
-/* Remove opaque block colors on middle containers so the background fire glows through */
-.app-shell,
-.main-column,
-.menu-catalog,
-.hero-section {
-  background: transparent !important;
-}
-
-/* Boost Flare Opacity & Radius for a Rich Floating Wood-Fired Flame Feel */
-body::before,
-.kitchen-body::before {
-  opacity: 1 !important;
-  width: 65vw !important;
-  height: 65vw !important;
-  max-width: 850px !important;
-  max-height: 850px !important;
-  background: radial-gradient(circle, rgba(255, 90, 54, 0.22) 0%, rgba(242, 193, 78, 0.1) 40%, transparent 70%) !important;
-  filter: blur(80px) !important;
-  -webkit-filter: blur(80px) !important;
-}
-
-body::after,
-.kitchen-body::after {
-  opacity: 1 !important;
-  width: 60vw !important;
-  height: 60vw !important;
-  max-width: 800px !important;
-  max-height: 800px !important;
-  background: radial-gradient(circle, rgba(255, 106, 43, 0.2) 0%, rgba(201, 53, 40, 0.08) 50%, transparent 70%) !important;
-  filter: blur(90px) !important;
-  -webkit-filter: blur(90px) !important;
-}
