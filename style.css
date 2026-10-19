@@ -4094,3 +4094,84 @@ body::after,
     display: none !important;
   }
 }
+/* ==========================================================================
+   Smooth Pill Header Controls, Transparent Glowing Cart & Visible Fire Flares
+   ========================================================================== */
+
+/* 1. Smooth Pill Buttons in Header (Matches Checkout Button Style) */
+.table-compact-badge,
+.table-pill,
+.staff-portal-btn {
+  border-radius: var(--r-pill) !important;
+  padding: 6px 16px !important;
+}
+
+/* 2. Transparent Glowing Cart Pill (No Box Background, Signature Ember Tone) */
+.nav-cart-btn {
+  background: transparent !important;
+  border: 1px solid rgba(255, 90, 54, 0.35) !important;
+  border-radius: var(--r-pill) !important;
+  color: var(--accent) !important;
+  box-shadow: none !important;
+  padding: 4px 14px !important;
+  height: 40px !important;
+  filter: drop-shadow(0 0 10px rgba(255, 90, 54, 0.35)) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.nav-cart-btn:hover {
+  background: rgba(255, 90, 54, 0.12) !important;
+  border-color: var(--accent) !important;
+  filter: drop-shadow(0 0 16px rgba(255, 90, 54, 0.6)) !important;
+}
+
+.nav-cart-icon svg {
+  stroke: var(--accent) !important;
+}
+
+.nav-cart-badge {
+  background: var(--accent) !important;
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  font-size: 0.78rem !important;
+  border-radius: var(--r-pill) !important;
+  padding: 2px 7px !important;
+  box-shadow: 0 0 10px rgba(255, 90, 54, 0.6) !important;
+}
+
+/* 3. Make Ambient Moving Fire Flares 100% Visible & Vibrant */
+/* Remove opaque block colors on middle containers so the background fire glows through */
+.app-shell,
+.main-column,
+.menu-catalog,
+.hero-section {
+  background: transparent !important;
+}
+
+/* Boost Flare Opacity & Radius for a Rich Floating Wood-Fired Flame Feel */
+body::before,
+.kitchen-body::before {
+  opacity: 1 !important;
+  width: 65vw !important;
+  height: 65vw !important;
+  max-width: 850px !important;
+  max-height: 850px !important;
+  background: radial-gradient(circle, rgba(255, 90, 54, 0.22) 0%, rgba(242, 193, 78, 0.1) 40%, transparent 70%) !important;
+  filter: blur(80px) !important;
+  -webkit-filter: blur(80px) !important;
+}
+
+body::after,
+.kitchen-body::after {
+  opacity: 1 !important;
+  width: 60vw !important;
+  height: 60vw !important;
+  max-width: 800px !important;
+  max-height: 800px !important;
+  background: radial-gradient(circle, rgba(255, 106, 43, 0.2) 0%, rgba(201, 53, 40, 0.08) 50%, transparent 70%) !important;
+  filter: blur(90px) !important;
+  -webkit-filter: blur(90px) !important;
+}
