@@ -3847,3 +3847,109 @@ body.is-locked {
     font-weight: 700 !important;
   }
 }
+/* ==========================================================================
+   Final Touch: Dark Theme Cart Button, Mobile Header Alignment & Brand Spacing
+   ========================================================================== */
+
+/* 1. Permanent Removal of any Skip Link text */
+.skip-link {
+  display: none !important;
+}
+
+/* 2. Fix Cart Button: Remove Stark White Background & Match Dark Theme */
+.nav-cart-btn {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}
+
+.nav-cart-btn:hover {
+  border-color: var(--accent) !important;
+  background: var(--surface-3) !important;
+}
+
+.nav-cart-icon {
+  display: flex !important;
+  align-items: center !important;
+  color: var(--text) !important;
+}
+
+.nav-cart-icon svg {
+  stroke: var(--text) !important;
+}
+
+.nav-cart-badge {
+  background: var(--accent) !important;
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  border-radius: var(--r-pill) !important;
+}
+
+/* 3. Align Brand Name with the Left Edge of the Box Below It (Desktop) */
+@media (min-width: 1024px) {
+  .app-header {
+    padding: 0 var(--space-6) !important;
+  }
+  .nav-container--clean {
+    max-width: 1280px !important;
+    padding: 0 !important;
+  }
+  .brand-link {
+    margin-left: 0 !important;
+    gap: 10px !important;
+  }
+  .brand-mark-svg {
+    display: flex !important;
+    align-items: center !important;
+  }
+}
+
+/* 4. Fix Mobile Header Overlap: Compact cluster so Staff never clips on right */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 12px !important;
+    height: 60px !important;
+  }
+
+  .nav-container--clean {
+    padding: 0 !important;
+    gap: 4px !important;
+  }
+
+  .brand-link {
+    gap: 6px !important;
+  }
+
+  .brand-text {
+    font-size: 1.15rem !important;
+  }
+
+  .nav-controls-cluster {
+    gap: 5px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .table-compact-badge {
+    padding: 3px 6px !important;
+    gap: 4px !important;
+  }
+
+  .header-table-dropdown {
+    font-size: 0.8rem !important;
+  }
+
+  .nav-cart-btn {
+    min-width: 38px !important;
+    height: 36px !important;
+    padding: 0 8px !important;
+  }
+
+  .staff-portal-btn {
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 0 9px !important;
+    font-size: 0.72rem !important;
+    gap: 3px !important;
+  }
+}
