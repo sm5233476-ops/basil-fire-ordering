@@ -4094,3 +4094,63 @@ body::after,
     display: none !important;
   }
 }
+/* ==========================================================================
+   Final Clean State: Flares Removed, Borderless Cart & Subtle 8px Corners
+   ========================================================================== */
+
+/* 1. Completely Remove Background Fire Flares */
+body::before,
+body::after,
+.kitchen-body::before,
+.kitchen-body::after {
+  display: none !important;
+  content: none !important;
+  animation: none !important;
+}
+
+/* Ensure Crisp Solid Dark Canvas Everywhere */
+html,
+body,
+.app-shell,
+.main-column,
+.menu-catalog,
+.kitchen-body {
+  background: #12100E !important;
+}
+
+/* 2. Middle Cart Button: Remove Box, Remove Border, Natural Black Background */
+.nav-cart-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  padding: 4px 8px !important;
+  min-width: auto !important;
+}
+
+.nav-cart-btn:hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.nav-cart-icon svg {
+  stroke: #F7F0E6 !important;
+}
+
+.nav-cart-badge {
+  background: transparent !important;
+  color: #F7F0E6 !important;
+  box-shadow: none !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  padding: 0 0 0 4px !important;
+}
+
+/* 3. Subtle 8px Corner Rounding for Table Selector & Staff Button */
+.table-compact-badge,
+.table-pill,
+.staff-portal-btn {
+  border-radius: 8px !important; /* Halka sa rounded corner (no sharp edge, no oval) */
+}
